@@ -65,11 +65,11 @@ const OrderSchema = new mongoose.Schema({
   stripePaymentIntentId: { type: String }
 }, { timestamps: true });
 
-const User = mongoose.model('User', UserSchema);
-const Store = mongoose.model('Store', StoreSchema);
-const Product = mongoose.model('Product', ProductSchema);
-const Order = mongoose.model('Order', OrderSchema);
-const Review = mongoose.model('Review', ReviewSchema);
+const User = mongoose.models.User || mongoose.model('User', UserSchema);
+const Store = mongoose.models.Store || mongoose.model('Store', StoreSchema);
+const Product = mongoose.models.Product || mongoose.model('Product', ProductSchema);
+const Order = mongoose.models.Order || mongoose.model('Order', OrderSchema);
+const Review = mongoose.models.Review || mongoose.model('Review', ReviewSchema);
 
 module.exports = { User, Store, Product, Order, Review };
 

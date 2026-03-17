@@ -17,6 +17,7 @@ const config: Config = {
         brandPink: '#ff6b6b',
         brandPurple: '#6366f1',
         brandTeal: '#06b6d4',
+        darazOrange: '#f85606',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'sans-serif'],
