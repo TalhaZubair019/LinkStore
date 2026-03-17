@@ -125,14 +125,14 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="animate-spin text-indigo-500" />
+        <Loader2 className="animate-spin text-indigo-600" />
       </div>
     );
 
   return (
     <div className="space-y-8 mt-10" id="reviews">
       <h3 className="text-xl font-bold flex items-center gap-2">
-        <MessageSquare className="text-indigo-500" size={24} />
+        <MessageSquare className="text-indigo-600" size={24} />
         Customer Reviews ({reviews.length})
       </h3>
 
@@ -168,7 +168,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                         size={24}
                         className={
                           (hoveredStar || rating) >= star
-                            ? "fill-indigo-500 text-indigo-500"
+                            ? "fill-indigo-500 text-indigo-600"
                             : "text-gray-300"
                         }
                       />
@@ -249,7 +249,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
+                    <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 font-bold">
                       {review.userName?.[0] || "U"}
                     </div>
                     <div>
@@ -259,7 +259,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                       <div className="text-[10px] text-gray-400 uppercase font-black">
                         {new Date(review.createdAt).toLocaleDateString()}
                         {review.isEdited && (
-                          <span className="ml-2 text-indigo-500">Edited</span>
+                          <span className="ml-2 text-indigo-600">Edited</span>
                         )}
                       </div>
                     </div>

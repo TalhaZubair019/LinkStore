@@ -115,8 +115,8 @@ export default function CartPage() {
 
                          {/* Product Info */}
                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-gray-900 leading-snug line-clamp-2 hover:text-indigo-500 cursor-pointer">{item.title}</h3>
-                            <p className="font-black text-indigo-500 mt-2">${item.price.toFixed(2)}</p>
+                            <h3 className="font-medium text-gray-900 leading-snug line-clamp-2 hover:text-indigo-600 cursor-pointer">{item.title}</h3>
+                            <p className="font-black text-indigo-600 mt-2">${item.price.toFixed(2)}</p>
                             <div className="flex items-center gap-4 mt-2">
                                <button onClick={() => dispatch(removeFromCart(item.productId))} className="text-gray-400 hover:text-red-500 text-sm flex items-center gap-1 transition-colors">
                                  <Trash2 className="w-4 h-4" /> Remove
@@ -161,7 +161,7 @@ export default function CartPage() {
               <div className="flex justify-between items-center mb-6">
                 <span className="font-black text-gray-900">Total</span>
                 <div className="text-right">
-                   <span className="text-2xl font-black text-indigo-500">${total.toFixed(2)}</span>
+                   <span className="text-2xl font-black text-indigo-600">${total.toFixed(2)}</span>
                    <p className="text-[10px] text-gray-400">VAT included, where applicable</p>
                 </div>
               </div>

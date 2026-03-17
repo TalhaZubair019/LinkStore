@@ -80,7 +80,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-xs">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <MapPin className="text-indigo-500" size={20} /> Shipping Address
+                <MapPin className="text-indigo-600" size={20} /> Shipping Address
               </h2>
               <div className="grid gap-4">
                 <div className="font-bold text-gray-900">{user?.name}</div>

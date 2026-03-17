@@ -22,8 +22,8 @@ export default function BuyerOrders() {
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-black text-gray-900 tracking-tighter uppercase">LinkStore</Link>
           <div className="flex items-center gap-4 text-sm font-bold">
-             <Link href="#" className="text-indigo-500">My Orders</Link>
-             <Link href="#" className="hover:text-indigo-500 text-gray-500">My Account</Link>
+             <Link href="#" className="text-indigo-600">My Orders</Link>
+             <Link href="#" className="hover:text-indigo-600 text-gray-500">My Account</Link>
           </div>
         </div>
       </header>
@@ -36,7 +36,7 @@ export default function BuyerOrders() {
              <button 
                key={tab}
                onClick={() => setActiveTab(tab)}
-               className={`flex-1 min-w-[100px] text-center py-4 text-sm font-bold border-b-2 transition-colors ${activeTab === tab ? 'border-indigo-500 text-indigo-500' : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
+               className={`flex-1 min-w-[100px] text-center py-4 text-sm font-bold border-b-2 transition-colors ${activeTab === tab ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
              >
                {tab}
              </button>
@@ -52,7 +52,7 @@ export default function BuyerOrders() {
                      <span className="text-gray-400 text-xs">{order.date}</span>
                   </div>
                   <span className={`text-sm font-bold uppercase tracking-widest ${
-                    order.status === 'To Ship' ? 'text-indigo-500' : 
+                    order.status === 'To Ship' ? 'text-indigo-600' : 
                     order.status === 'To Receive' ? 'text-blue-500' : 'text-green-500'
                   }`}>
                     {order.status}
@@ -70,7 +70,7 @@ export default function BuyerOrders() {
                          <p className="text-xs text-gray-500">Qty: {item.qty}</p>
                       </div>
                       <div className="text-right">
-                         <p className="text-lg font-black text-indigo-500">${order.total.toFixed(2)}</p>
+                         <p className="text-lg font-black text-indigo-600">${order.total.toFixed(2)}</p>
                       </div>
                    </div>
                  ))}

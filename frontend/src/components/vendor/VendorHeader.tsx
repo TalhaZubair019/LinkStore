@@ -31,7 +31,7 @@ export default function VendorHeader() {
             <p className="text-sm font-semibold text-gray-900 leading-tight">{user?.name || 'Vendor Name'}</p>
             <p className="text-xs text-indigo-600 font-medium capitalize">{user?.role || 'Vendor'}</p>
           </div>
-          <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold border-2 border-indigo-50 transition-transform hover:scale-105 cursor-pointer">
+          <div className="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-700 font-bold border-2 border-indigo-50 transition-transform hover:scale-105 cursor-pointer">
             {user?.name?.[0]?.toUpperCase() || 'V'}
           </div>
         </div>

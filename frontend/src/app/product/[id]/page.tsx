@@ -85,12 +85,12 @@ export default function ProductDetails() {
       <div className="bg-gray-100 text-[11px] text-gray-500 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-indigo-500 hover:underline">
+            <Link href="#" className="hover:text-indigo-600 hover:underline">
               SAVE MORE ON APP
             </Link>
             <Link
               href="/seller/dashboard"
-              className="text-indigo-500 font-bold hover:underline"
+              className="text-indigo-600 font-bold hover:underline"
             >
               SELL ON LINKSTORE
             </Link>
@@ -98,13 +98,13 @@ export default function ProductDetails() {
           <div className="flex items-center gap-4">
             <Link
               href="/login"
-              className="hover:text-indigo-500 hover:underline"
+              className="hover:text-indigo-600 hover:underline"
             >
               LOGIN
             </Link>
             <Link
               href="/signup"
-              className="hover:text-indigo-500 hover:underline"
+              className="hover:text-indigo-600 hover:underline"
             >
               SIGNUP
             </Link>
@@ -128,7 +128,7 @@ export default function ProductDetails() {
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-6 py-6 pb-20">
         <div className="mb-4 text-xs text-gray-500">
-          <Link href="/" className="hover:underline hover:text-indigo-500">
+          <Link href="/" className="hover:underline hover:text-indigo-600">
             Home
           </Link>{" "}
           &gt;
@@ -192,7 +192,7 @@ export default function ProductDetails() {
             {/* Price Block */}
             <div className="bg-gray-50/80 p-4 rounded-lg border border-indigo-100 mb-6">
               <div className="flex items-end gap-3 mb-1">
-                <span className="text-3xl font-black text-indigo-500 tracking-tighter">
+                <span className="text-3xl font-black text-indigo-600 tracking-tighter">
                   ${dummyProduct.price.toFixed(2)}
                 </span>
                 <span className="text-sm text-gray-400 line-through mb-1">
@@ -217,7 +217,7 @@ export default function ProductDetails() {
                   <button
                     key={c}
                     onClick={() => setSelectedColor(c)}
-                    className={`px-3 py-1.5 text-sm border ${selectedColor === c ? "border-indigo-500 text-indigo-500 bg-indigo-50" : "border-gray-200 text-gray-700 hover:border-indigo-300"} rounded-sm transition-colors`}
+                    className={`px-3 py-1.5 text-sm border ${selectedColor === c ? "border-indigo-500 text-indigo-600 bg-indigo-50" : "border-gray-200 text-gray-700 hover:border-indigo-300"} rounded-sm transition-colors`}
                   >
                     {c}
                   </button>
@@ -253,7 +253,7 @@ export default function ProductDetails() {
             </div>
 
             <div className="flex gap-3 mt-6">
-              <button className="flex-1 max-w-[200px] bg-indigo-100 text-indigo-600 hover:bg-indigo-200 py-3.5 rounded-sm font-bold transition-colors">
+              <button className="flex-1 max-w-[200px] bg-indigo-50 text-indigo-600 hover:bg-indigo-200 py-3.5 rounded-sm font-bold transition-colors">
                 Buy Now
               </button>
               <button
@@ -302,7 +302,7 @@ export default function ProductDetails() {
                 <Store className="w-5 h-5 text-indigo-600" />
                 <Link
                   href={`/shop/${dummyProduct.store.slug}`}
-                  className="font-bold text-gray-900 hover:text-indigo-500 hover:underline"
+                  className="font-bold text-gray-900 hover:text-indigo-600 hover:underline"
                 >
                   {dummyProduct.store.name}
                 </Link>

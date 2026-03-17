@@ -34,7 +34,7 @@ const AuthPromptModal = ({
         </button>
 
         <div className="p-8 text-center">
-          <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3 shadow-indigo-100 shadow-sm">
+          <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3 shadow-indigo-100 shadow-sm">
             <LogIn size={32} />
           </div>
 

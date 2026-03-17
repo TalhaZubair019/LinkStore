@@ -36,8 +36,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group bg-white rounded-2xl shadow-xs hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden border border-transparent hover:border-gray-50 flex flex-col h-full">
-      <Link href={`/product/${product._id}`} className="block relative h-64 overflow-hidden bg-gray-50">
+    <div className="bg-white rounded-[24px] p-2 border border-gray-100/80 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 group flex flex-col h-full relative">
+      <Link href={`/product/${product._id}`} className="block relative h-64 overflow-hidden bg-gray-50 rounded-[16px]">
         {product.images[0] ? (
           <Image 
             src={product.images[0]} 
@@ -71,13 +71,13 @@ export default function ProductCard({ product }: ProductCardProps) {
           </h3>
         </Link>
         
-        <div className="mt-auto pt-4 border-t border-gray-50 flex flex-col gap-3">
+        <div className="mt-auto pt-4 flex flex-col gap-3">
           <span className="text-lg font-black text-gray-900 tracking-tight">
             ${product.price.toFixed(2)}
           </span>
           <button 
             onClick={handleAddToCart}
-            className="w-full py-2.5 bg-gray-50 text-gray-900 text-sm font-bold rounded-xl hover:bg-gray-900 hover:text-white transition-all active:scale-95 flex items-center justify-center gap-2"
+            className="opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md text-gray-900 font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2"
           >
             <ShoppingCart className="w-4 h-4" /> Add to Cart
           </button>

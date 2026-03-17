@@ -29,15 +29,19 @@ const aiRoutes = require('./routes/ai');
 const userRoutes = require('./routes/user');
 const reviewRoutes = require('./routes/reviews');
 
+const publicRoutes = require('./routes/public');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/vendor', vendorRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/checkout', checkoutRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/reviews', reviewRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/payments', paymentRoutes);
+// app.use('/api/upload', uploadRoutes);
+// app.use('/api/payments', paymentRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/public', publicRoutes);
+
 
 // Serve static files from public/uploads
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));

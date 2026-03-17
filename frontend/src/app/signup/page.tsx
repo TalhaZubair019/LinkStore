@@ -180,7 +180,7 @@ export default function SignupPage() {
           {isVerifying ? (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto mb-4 text-indigo-500 border border-indigo-100">
+                <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto mb-4 text-indigo-600 border border-indigo-100">
                   <KeyRound size={36} />
                 </div>
                 <p className="text-sm text-gray-500">
@@ -210,7 +210,7 @@ export default function SignupPage() {
                     maxLength={6}
                     value={otp}
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                    className="absolute inset-0 opacity-0 cursor-default"
+                    className="absolute inset-0 opacity-0 cursor-default text-gray-900"
                     autoFocus
                   />
                   <div
@@ -300,7 +300,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
+                  className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 text-gray-900"
                   placeholder="Alexander Pierce"
                 />
               </div>
@@ -316,7 +316,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
+                  className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 text-gray-900"
                   placeholder="you@example.com"
                 />
               </div>
@@ -333,7 +333,7 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 pr-12"
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 pr-12 text-gray-900"
                     placeholder="••••••••"
                   />
                   <button
@@ -382,7 +382,7 @@ export default function SignupPage() {
             <span className="text-gray-500">Already have an account?</span>{" "}
             <Link
               href="/login"
-              className="font-bold text-indigo-600 hover:text-indigo-500"
+              className="font-bold text-indigo-600 hover:text-indigo-600"
             >
               Sign in
             </Link>

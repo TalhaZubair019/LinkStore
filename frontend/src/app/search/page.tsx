@@ -25,13 +25,13 @@ export default function SearchResults() {
       <div className="bg-gray-100 text-[11px] text-gray-500 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-indigo-500 hover:underline">SAVE MORE ON APP</Link>
-            <Link href="/seller/dashboard" className="text-indigo-500 font-bold hover:underline">SELL ON LINKSTORE</Link>
-            <Link href="#" className="hover:text-indigo-500 hover:underline">CUSTOMER CARE</Link>
+            <Link href="#" className="hover:text-indigo-600 hover:underline">SAVE MORE ON APP</Link>
+            <Link href="/seller/dashboard" className="text-indigo-600 font-bold hover:underline">SELL ON LINKSTORE</Link>
+            <Link href="#" className="hover:text-indigo-600 hover:underline">CUSTOMER CARE</Link>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="hover:text-indigo-500 hover:underline">LOGIN</Link>
-            <Link href="/signup" className="hover:text-indigo-500 hover:underline">SIGNUP</Link>
+            <Link href="/login" className="hover:text-indigo-600 hover:underline">LOGIN</Link>
+            <Link href="/signup" className="hover:text-indigo-600 hover:underline">SIGNUP</Link>
           </div>
         </div>
       </div>
@@ -50,7 +50,7 @@ export default function SearchResults() {
 
           {/* Cart Element */}
           <div className="flex items-center gap-6 shrink-0">
-            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-indigo-500 transition-colors">
+            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-indigo-600 transition-colors">
                <ShoppingCart className="w-7 h-7" />
                <span className="absolute 0 right-0 w-5 h-5 bg-indigo-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">
                  2
@@ -62,7 +62,7 @@ export default function SearchResults() {
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-6 py-6 pb-20">
         <div className="mb-4 text-sm text-gray-500">
-          Home &gt; {category !== 'All' ? `${category} > ` : ''} <span className="text-indigo-500 font-medium">"{query || 'All items'}"</span>
+          Home &gt; {category !== 'All' ? `${category} > ` : ''} <span className="text-indigo-600 font-medium">"{query || 'All items'}"</span>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -74,9 +74,9 @@ export default function SearchResults() {
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-gray-700 mb-2">Category</h4>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><input type="checkbox" className="accent-indigo-500" /> Home & Kitchen</label></li>
-                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><input type="checkbox" className="accent-indigo-500" /> Dining & Serving</label></li>
-                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><input type="checkbox" className="accent-indigo-500" /> Decor</label></li>
+                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-600"><input type="checkbox" className="accent-indigo-500" /> Home & Kitchen</label></li>
+                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-600"><input type="checkbox" className="accent-indigo-500" /> Dining & Serving</label></li>
+                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-600"><input type="checkbox" className="accent-indigo-500" /> Decor</label></li>
               </ul>
             </div>
 
@@ -97,7 +97,7 @@ export default function SearchResults() {
               <ul className="space-y-2 text-sm text-gray-600">
                 {[5, 4, 3, 2, 1].map((rating) => (
                    <li key={rating}>
-                     <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-500">
+                     <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-600">
                        <input type="checkbox" className="accent-indigo-500" /> 
                        <div className="flex gap-0.5">
                          {Array.from({length: 5}).map((_, i) => (

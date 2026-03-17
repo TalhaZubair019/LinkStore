@@ -42,7 +42,7 @@ export default function HeroCarousel() {
   };
 
   return (
-    <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden rounded-3xl group bg-gray-100 shadow-2xl shadow-gray-200/50">
+    <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden rounded-3xl group bg-gray-100 shadow-[0_20px_50px_-12px_rgba(99,102,241,0.15)]">
       <div 
         className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] h-full"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -57,7 +57,8 @@ export default function HeroCarousel() {
               priority={slide.id === 1}
             />
             {/* Cinematic Overlay */}
-            <div className="absolute inset-0 bg-linear-to-r from-gray-900/90 via-gray-900/40 to-transparent flex items-center">
+            <div className="absolute inset-0 bg-linear-to-t from-gray-900/80 via-transparent to-transparent lg:bg-linear-to-r lg:from-gray-900/90 lg:via-gray-900/40 lg:to-transparent flex items-center z-10">
+
               <div className="px-8 md:px-16 lg:px-24 w-full md:w-2/3 lg:w-1/2 text-white space-y-4 md:space-y-6">
                 <h2 className="text-4xl md:text-5xl lg:text-7xl font-black capitalize tracking-tighter leading-[1.1] drop-shadow-xl">
                   Elevate Your <span className="text-indigo-400">Lifestyle</span>

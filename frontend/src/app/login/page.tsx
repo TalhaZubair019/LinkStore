@@ -67,7 +67,7 @@ export default function LoginPage() {
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
           Or{" "}
-          <Link href="/signup" className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors">
+          <Link href="/signup" className="font-bold text-indigo-600 hover:text-indigo-600 transition-colors">
             create a new account
           </Link>
         </p>
@@ -95,7 +95,7 @@ export default function LoginPage() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
+                  className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 text-gray-900"
                   placeholder="you@example.com"
                 />
               </div>
@@ -114,7 +114,7 @@ export default function LoginPage() {
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 pr-12"
+                  className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 pr-12 text-gray-900"
                   placeholder="••••••••"
                 />
                 <button
@@ -141,7 +141,7 @@ export default function LoginPage() {
               </div>
 
               <div className="text-sm">
-                <Link href="/forgot-password/ " className="font-bold text-indigo-600 hover:text-indigo-500">
+                <Link href="/forgot-password/ " className="font-bold text-indigo-600 hover:text-indigo-600">
                   Forgot your password?
                 </Link>
               </div>

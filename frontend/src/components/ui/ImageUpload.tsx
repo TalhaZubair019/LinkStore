@@ -63,7 +63,7 @@ export default function ImageUpload({ value, onChange }: ImageUploadProps) {
         <label className="flex flex-col items-center justify-center w-full aspect-square md:aspect-video border-2 border-dashed border-gray-200 rounded-2xl cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/50 transition-all group">
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             {uploading ? (
-              <Loader2 className="w-10 h-10 text-indigo-500 animate-spin mb-4" />
+              <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mb-4" />
             ) : (
               <Upload className="w-10 h-10 text-gray-300 group-hover:text-indigo-400 mb-4 transition-colors" />
             )}

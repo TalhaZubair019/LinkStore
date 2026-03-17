@@ -181,7 +181,7 @@ function ResetPasswordForm() {
           </div>
           <Link
             href="/login"
-            className="inline-block font-bold text-indigo-600 hover:text-indigo-500"
+            className="inline-block font-bold text-indigo-600 hover:text-indigo-600"
           >
             Click here if not redirected
           </Link>
@@ -213,7 +213,7 @@ export default function ResetPasswordPage() {
         <Suspense
           fallback={
             <div className="flex justify-center py-12">
-              <Loader2 className="animate-spin text-indigo-500" size={40} />
+              <Loader2 className="animate-spin text-indigo-600" size={40} />
             </div>
           }
         >
