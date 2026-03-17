@@ -1,150 +1,175 @@
 'use client';
 
 import ProductCard from '@/components/ProductCard';
-import { ShoppingBag, Star, Zap, ShieldCheck } from 'lucide-react';
+import { ShoppingCart, User, Menu } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+
+import CategoryMenu from '@/components/home/CategoryMenu';
+import HeroCarousel from '@/components/home/HeroCarousel';
+import FlashSale from '@/components/home/FlashSale';
+import SearchBar from '@/components/layout/SearchBar';
 
 const dummyProducts = [
-  { _id: '1', title: 'Modern Ceramic Vase', price: 45.00, images: [], storeId: { _id: 's1', name: 'PrintNest Artistry', slug: 'printnest-artistry' } },
-  { _id: '2', title: 'Leather Mini Backpack', price: 89.99, images: [], storeId: { _id: 's2', name: 'Urban Goods', slug: 'urban-goods' } },
-  { _id: '3', title: 'Gold Hoop Earrings', price: 24.50, images: [], storeId: { _id: 's1', name: 'PrintNest Artistry', slug: 'printnest-artistry' } },
-  { _id: '4', title: 'Wireless Charging Dock', price: 55.00, images: [], storeId: { _id: 's3', name: 'TechHaven', slug: 'tech-haven' } },
+  { _id: '1', title: 'Modern Ceramic Vase', price: 45.00, images: ['https://images.unsplash.com/photo-1612196808214-b8e1d6145a8c?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's1', name: 'PrintNest Artistry', slug: 'printnest-artistry' } },
+  { _id: '2', title: 'Leather Mini Backpack', price: 89.99, images: ['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's2', name: 'Urban Goods', slug: 'urban-goods' } },
+  { _id: '3', title: 'Gold Hoop Earrings', price: 24.50, images: ['https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's1', name: 'PrintNest Artistry', slug: 'printnest-artistry' } },
+  { _id: '4', title: 'Wireless Charging Dock', price: 55.00, images: ['https://images.unsplash.com/photo-1586816879360-004f5b0c51e3?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's3', name: 'TechHaven', slug: 'tech-haven' } },
+  { _id: '5', title: 'Minimalist Desk Lamp', price: 35.00, images: ['https://images.unsplash.com/photo-1507473885765-e6ed057f782c?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's4', name: 'Home Essentials', slug: 'home-essentials' } },
+  { _id: '6', title: 'Noise Cancelling Headphones', price: 199.99, images: ['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's3', name: 'TechHaven', slug: 'tech-haven' } },
+  { _id: '7', title: 'Organic Cotton T-Shirt', price: 18.50, images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's5', name: 'Basic Threads', slug: 'basic-threads' } },
+  { _id: '8', title: 'Stainless Steel Water Bottle', price: 22.00, images: ['https://images.unsplash.com/photo-1602143407151-7111542de6e8?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's6', name: 'EcoLife', slug: 'ecolife' } },
+  { _id: '9', title: 'Yoga Mat with Alignment Lines', price: 29.99, images: ['https://images.unsplash.com/photo-1599447421416-3414500d18a5?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's7', name: 'FitGear', slug: 'fitgear' } },
+  { _id: '10', title: 'Smart Home Security Camera', price: 85.00, images: ['https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's3', name: 'TechHaven', slug: 'tech-haven' } },
+  { _id: '11', title: 'Aromatherapy Essential Oil Diffuser', price: 32.50, images: ['https://images.unsplash.com/photo-1608514145964-6729a6ce4af5?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's4', name: 'Home Essentials', slug: 'home-essentials' } },
+  { _id: '12', title: 'Vintage Style Sunglasses', price: 15.00, images: ['https://images.unsplash.com/photo-1511499767150-a48a237f0083?q=80&w=400&auto=format&fit=crop'], storeId: { _id: 's2', name: 'Urban Goods', slug: 'urban-goods' } },
+];
+
+const quickLinks = [
+  { id: 1, name: 'Mart', icon: '🛒', bgColor: 'bg-green-100', color: 'text-green-600' },
+  { id: 2, name: 'Fashion', icon: '👗', bgColor: 'bg-pink-100', color: 'text-pink-600' },
+  { id: 3, name: 'Beauty', icon: '💄', bgColor: 'bg-purple-100', color: 'text-purple-600' },
+  { id: 4, name: 'Free Delivery', icon: '🚚', bgColor: 'bg-blue-100', color: 'text-blue-600' },
+  { id: 5, name: 'Vouchers', icon: '🎟️', bgColor: 'bg-orange-100', color: 'text-orange-600' },
 ];
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="h-20 border-b border-gray-50 px-8 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-lg z-50">
-         <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-xl mb-1 shadow-lg shadow-indigo-200">L</div>
-            <span className="text-2xl font-black text-gray-900 tracking-tighter uppercase">LinkStore</span>
-         </Link>
-         
-         <div className="hidden md:flex items-center gap-8 text-sm font-bold text-gray-400 uppercase tracking-widest">
-            <Link href="/" className="text-gray-900">Explore</Link>
-            <Link href="#" className="hover:text-gray-900 transition-colors">Categories</Link>
-            <Link href="/seller/dashboard" className="text-indigo-600 hover:text-indigo-700 transition-colors">Sell on LinkStore</Link>
-         </div>
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-800">
+      
+      {/* 1. Top Bar (Save more on App, Sell on Daraz) */}
+      <div className="bg-gray-100 text-[11px] text-gray-500 hidden md:block">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 h-8 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="#" className="hover:text-orange-500 hover:underline">SAVE MORE ON APP</Link>
+            <Link href="/seller/dashboard" className="text-orange-500 font-bold hover:underline">SELL ON LINKSTORE</Link>
+            <Link href="#" className="hover:text-orange-500 hover:underline">CUSTOMER CARE</Link>
+            <Link href="#" className="hover:text-orange-500 hover:underline">TRACK MY ORDER</Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="hover:text-orange-500 hover:underline">LOGIN</Link>
+            <Link href="/signup" className="hover:text-orange-500 hover:underline">SIGNUP</Link>
+            <span className="flex items-center gap-1 cursor-pointer hover:text-orange-500">
+              Change Language
+            </span>
+          </div>
+        </div>
+      </div>
 
-         <div className="flex items-center gap-6">
-            <Link href="/cart" className="relative p-2 text-gray-900 hover:scale-110 transition-transform">
-               <ShoppingBag className="w-6 h-6" />
-               <span className="absolute -top-1 -right-1 w-5 h-5 bg-indigo-600 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                 0
+      {/* 2. Main Search Header */}
+      <header className="bg-white sticky top-0 z-50 shadow-xs border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 lg:px-6 h-20 flex items-center gap-6 lg:gap-12">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+             <div className="w-10 h-10 bg-linear-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-orange-200">L</div>
+             <span className="text-2xl font-black text-gray-900 tracking-tighter uppercase hidden sm:block">LinkStore</span>
+          </Link>
+
+          {/* Search Bar */}
+          <SearchBar />
+
+          {/* Cart Element */}
+          <div className="flex items-center gap-6 shrink-0">
+            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-orange-500 transition-colors">
+               <ShoppingCart className="w-7 h-7" />
+               <span className="absolute 0 right-0 w-5 h-5 bg-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">
+                 2
                </span>
             </Link>
-         </div>
-      </nav>
-
-      {/* Hero Section */}
-      <section className="py-20 px-8 max-w-7xl mx-auto">
-         <div className="bg-gray-900 rounded-[48px] p-12 md:p-20 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-20 pointer-events-none">
-              <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-indigo-500 rounded-full blur-[120px] animate-pulse"></div>
-              <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-purple-500 rounded-full blur-[100px] animate-pulse delay-700"></div>
+            <div className="hidden md:flex items-center gap-2 cursor-pointer group">
+               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 group-hover:bg-orange-100 group-hover:text-orange-500 transition-colors">
+                 <User className="w-5 h-5" />
+               </div>
             </div>
-            
-            <span className="inline-block px-4 py-1.5 bg-indigo-500/10 text-indigo-400 rounded-full text-xs font-black uppercase tracking-widest mb-8 border border-indigo-500/20">
-              The Multi-Vendor Marketplace
-            </span>
-            <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter mb-8 leading-none">
-              CURATED BY <br/> <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-purple-400 italic font-serif lowercase px-2">independent</span> CREATORS
-            </h1>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto mb-10 font-medium">
-              Discover unique products from hundreds of verified sellers. <br/>
-              Support creators directly with our split-payment system.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-6">
-               <button className="px-8 py-4 bg-white text-gray-900 rounded-2xl font-black hover:scale-105 transition-all shadow-xl shadow-white/5 active:scale-95">
-                  Browse Collections
-               </button>
-               <Link href="/seller/dashboard" className="px-8 py-4 bg-white/10 text-white rounded-2xl font-black border border-white/10 hover:bg-white/20 transition-all backdrop-blur-md active:scale-95">
-                  Become a Vendor
+          </div>
+        </div>
+      </header>
+
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-6 py-6 pb-20">
+        
+        {/* 3. Hero Section (Sidebar + Carousel) */}
+        <section className="flex gap-4 mb-6">
+          <CategoryMenu />
+          <div className="flex-1 min-w-0">
+            <HeroCarousel />
+          </div>
+        </section>
+
+        {/* 4. Quick Links / Icons Nav List */}
+        <section className="bg-white rounded-xl p-4 lg:p-6 shadow-xs border border-gray-100 mb-8 overflow-x-auto hide-scrollbar">
+          <div className="flex justify-between items-center min-w-[600px] gap-4">
+             {quickLinks.map((link) => (
+               <Link href="#" key={link.id} className="flex items-center gap-3 w-48 group">
+                 <div className={`w-12 h-12 rounded-full ${link.bgColor} ${link.color} flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
+                    {link.icon}
+                 </div>
+                 <span className="font-bold text-gray-700 text-sm group-hover:text-orange-500 transition-colors">
+                    {link.name}
+                 </span>
                </Link>
-            </div>
-         </div>
-      </section>
+             ))}
+          </div>
+        </section>
 
-      {/* Features Bar */}
-      <section className="bg-gray-50/50 py-12">
-         <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
-            <div className="flex flex-col md:flex-row items-center gap-6 group">
-               <div className="w-14 h-14 bg-white rounded-2xl shadow-lg shadow-gray-200 border border-gray-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform">
-                  <Zap className="w-6 h-6" />
-               </div>
-               <div>
-                  <h3 className="font-bold text-gray-900 uppercase tracking-tighter">Fast Onboarding</h3>
-                  <p className="text-sm text-gray-500 font-medium mt-1">Start selling in minutes with Stripe Express.</p>
-               </div>
-            </div>
-            <div className="flex flex-col md:flex-row items-center gap-6 group">
-               <div className="w-14 h-14 bg-white rounded-2xl shadow-lg shadow-gray-200 border border-gray-100 flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform">
-                  <ShieldCheck className="w-6 h-6" />
-               </div>
-               <div>
-                  <h3 className="font-bold text-gray-900 uppercase tracking-tighter">Secure Checkout</h3>
-                  <p className="text-sm text-gray-500 font-medium mt-1">Multi-vendor split payments powered by Stripe.</p>
-               </div>
-            </div>
-            <div className="flex flex-col md:flex-row items-center gap-6 group">
-               <div className="w-14 h-14 bg-white rounded-2xl shadow-lg shadow-gray-200 border border-gray-100 flex items-center justify-center text-pink-600 group-hover:scale-110 transition-transform">
-                  <Star className="w-6 h-6" />
-               </div>
-               <div>
-                  <h3 className="font-bold text-gray-900 uppercase tracking-tighter">Verified Sellers</h3>
-                  <p className="text-sm text-gray-500 font-medium mt-1">Curated products from top independent vendors.</p>
-               </div>
-            </div>
-         </div>
-      </section>
+        {/* 5. Flash Sale Component */}
+        <FlashSale />
 
-      {/* Product Grid */}
-      <section className="py-24 max-w-7xl mx-auto px-8">
-         <div className="flex items-center justify-between mb-12">
-            <div>
-               <h2 className="text-3xl font-black text-gray-900 tracking-tighter uppercase mb-2">Editor's Picks</h2>
-               <div className="h-1.5 w-20 bg-indigo-600 rounded-full"></div>
-            </div>
-            <button className="text-sm font-black text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest">
-               View All
-            </button>
-         </div>
-         
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {dummyProducts.map((p) => (
-              <ProductCard key={p._id} product={p} />
-            ))}
-         </div>
-      </section>
+        {/* 6. Just For You Feed */}
+        <section className="mt-8">
+           <h2 className="text-2xl font-black text-gray-800 tracking-tight mb-6">Just For You</h2>
+           
+           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4">
+              {dummyProducts.map((p) => (
+                <div key={p._id} className="transition-transform hover:-translate-y-1">
+                   <ProductCard product={p as any} />
+                </div>
+              ))}
+           </div>
+           
+           <div className="mt-12 flex justify-center">
+             <button className="border-2 border-orange-500 text-orange-500 px-12 py-3 lg:px-32 lg:py-4 font-black uppercase tracking-widest text-sm hover:bg-orange-50 transition-colors">
+               Load More
+             </button>
+           </div>
+        </section>
+
+      </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 py-20 px-8">
-         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 text-white">
-            <div className="md:col-span-2 space-y-6">
-               <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center font-black">L</div>
-                  <span className="text-xl font-black tracking-tighter uppercase">LinkStore</span>
+      <footer className="bg-white mt-auto pt-16 pb-8 border-t border-gray-200 text-sm">
+         <div className="max-w-7xl mx-auto px-4 lg:px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="space-y-4">
+               <h3 className="font-black text-gray-900 uppercase tracking-tight text-base mb-4">Customer Care</h3>
+               <ul className="space-y-2 text-gray-500">
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Help Center</Link></li>
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">How to Buy</Link></li>
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Corporate & Bulk Purchasing</Link></li>
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Returns & Refunds</Link></li>
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Contact Us</Link></li>
+               </ul>
+            </div>
+            <div className="space-y-4">
+               <h3 className="font-black text-gray-900 uppercase tracking-tight text-base mb-4">LinkStore</h3>
+               <ul className="space-y-2 text-gray-500">
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">About LinkStore</Link></li>
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Digital Payments</Link></li>
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">LinkStore Care</Link></li>
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Terms & Conditions</Link></li>
+                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Privacy Policy</Link></li>
+               </ul>
+            </div>
+            <div className="md:col-span-2">
+               <div className="flex items-center gap-4 mb-6">
+                 <div className="w-12 h-12 bg-linear-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-md">L</div>
+                 <div>
+                   <h3 className="font-black text-orange-500 text-lg uppercase tracking-tight">Happy Shopping</h3>
+                   <p className="text-gray-500 text-xs">Download App</p>
+                 </div>
                </div>
-               <p className="text-gray-400 text-sm max-w-md leading-relaxed">
-                  The future of independent commerce. We provide the infrastructure for creators to build their brand and for shoppers to discover quality.
-               </p>
-            </div>
-            <div>
-               <h4 className="font-bold mb-6 text-gray-500 uppercase tracking-widest text-xs">Marketplace</h4>
-               <ul className="space-y-4 text-sm font-medium">
-                  <li><Link href="#" className="hover:text-indigo-400 transition-colors">All Products</Link></li>
-                  <li><Link href="#" className="hover:text-indigo-400 transition-colors">Categories</Link></li>
-                  <li><Link href="#" className="hover:text-indigo-400 transition-colors">Success Stories</Link></li>
-               </ul>
-            </div>
-            <div>
-               <h4 className="font-bold mb-6 text-gray-500 uppercase tracking-widest text-xs">For Sellers</h4>
-               <ul className="space-y-4 text-sm font-medium">
-                  <li><Link href="/seller/dashboard" className="hover:text-indigo-400 transition-colors">Sell on LinkStore</Link></li>
-                  <li><Link href="#" className="hover:text-indigo-400 transition-colors">Vendor Guidelines</Link></li>
-                  <li><Link href="#" className="hover:text-indigo-400 transition-colors">Pricing & Fees</Link></li>
-               </ul>
+               <div className="flex gap-4">
+                  <div className="w-32 h-10 bg-black rounded-lg cursor-pointer"></div>
+                  <div className="w-32 h-10 bg-black rounded-lg cursor-pointer"></div>
+               </div>
             </div>
          </div>
       </footer>

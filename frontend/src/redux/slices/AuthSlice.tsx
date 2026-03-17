@@ -5,6 +5,8 @@ interface User {
   name: string;
   email: string;
   role: 'customer' | 'vendor' | 'admin';
+  isVerified: boolean;
+  isAdmin: boolean;
 }
 
 interface AuthState {

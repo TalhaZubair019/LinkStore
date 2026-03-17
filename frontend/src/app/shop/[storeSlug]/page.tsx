@@ -48,9 +48,27 @@ export default function ShopProfile() {
           <button className="p-2.5 bg-white/20 backdrop-blur-md rounded-xl text-white hover:bg-white/30 transition-colors">
             <Share2 className="w-5 h-5" />
           </button>
-          <button className="px-6 py-2.5 bg-white rounded-xl text-gray-900 font-bold hover:shadow-lg transition-all active:scale-95">
-            Follow Store
+          <button className="px-6 py-2.5 bg-orange-500 rounded-xl text-white font-bold hover:shadow-lg transition-all active:scale-95 shadow-orange-500/50">
+            + Follow Store
           </button>
+        </div>
+      </div>
+
+      {/* Vouchers Section */}
+      <div className="max-w-7xl mx-auto px-8 mb-8">
+        <div className="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+          {[1, 2, 3].map((v) => (
+             <div key={v} className="min-w-[280px] bg-orange-50 border border-orange-200 rounded-xl p-4 flex items-center justify-between border-dashed shrink-0">
+               <div>
+                 <p className="text-xl font-black text-orange-600">10% OFF</p>
+                 <p className="text-xs text-orange-800 font-medium">Min. Spend $50.00</p>
+                 <p className="text-[10px] text-gray-500 mt-1">Valid till 30 Dec</p>
+               </div>
+               <button className="bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-full hover:bg-orange-700 shadow-sm">
+                 Collect
+               </button>
+             </div>
+          ))}
         </div>
       </div>
 
