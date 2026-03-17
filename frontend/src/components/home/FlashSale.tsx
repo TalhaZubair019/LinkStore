@@ -34,19 +34,19 @@ export default function FlashSale() {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-50">
         <div className="flex items-center gap-6">
-          <h2 className="text-xl font-black text-orange-500 italic">Flash Sale</h2>
+          <h2 className="text-xl font-black text-indigo-500 italic">Flash Sale</h2>
           <div className="flex items-center gap-2 text-sm font-bold">
             <span className="text-gray-500">Ending in</span>
             <div className="flex gap-1">
-               <span className="bg-orange-500 text-white w-8 h-8 flex items-center justify-center rounded-md">{formatTime(hours)}</span>
-               <span className="text-orange-500 flex items-center">:</span>
-               <span className="bg-orange-500 text-white w-8 h-8 flex items-center justify-center rounded-md">{formatTime(minutes)}</span>
-               <span className="text-orange-500 flex items-center">:</span>
-               <span className="bg-orange-500 text-white w-8 h-8 flex items-center justify-center rounded-md">{formatTime(seconds)}</span>
+               <span className="bg-indigo-500 text-white w-8 h-8 flex items-center justify-center rounded-md">{formatTime(hours)}</span>
+               <span className="text-indigo-500 flex items-center">:</span>
+               <span className="bg-indigo-500 text-white w-8 h-8 flex items-center justify-center rounded-md">{formatTime(minutes)}</span>
+               <span className="text-indigo-500 flex items-center">:</span>
+               <span className="bg-indigo-500 text-white w-8 h-8 flex items-center justify-center rounded-md">{formatTime(seconds)}</span>
             </div>
           </div>
         </div>
-        <Link href="#" className="text-sm font-bold text-orange-500 border border-orange-500 px-4 py-1.5 rounded-sm hover:bg-orange-50 transition-colors uppercase tracking-tight">
+        <Link href="#" className="text-sm font-bold text-indigo-500 border border-indigo-500 px-4 py-1.5 rounded-sm hover:bg-indigo-50 transition-colors uppercase tracking-tight">
           Shop More
         </Link>
       </div>
@@ -62,20 +62,20 @@ export default function FlashSale() {
                 fill 
                 className="object-cover group-hover:scale-110 transition-transform duration-300" 
               />
-              <div className="absolute top-0 right-0 bg-yellow-400 text-orange-900 text-[10px] font-black px-2 py-1 rounded-bl-lg z-10">
+              <div className="absolute top-0 right-0 bg-yellow-400 text-indigo-900 text-[10px] font-black px-2 py-1 rounded-bl-lg z-10">
                 -{product.discount}%
               </div>
             </div>
             
-            <h3 className="text-sm text-gray-800 line-clamp-2 mb-1 group-hover:text-orange-500 h-10">{product.title}</h3>
+            <h3 className="text-sm text-gray-800 line-clamp-2 mb-1 group-hover:text-indigo-500 h-10">{product.title}</h3>
             
             <div className="flex flex-col">
-               <span className="text-lg font-black text-orange-500">${product.price.toFixed(2)}</span>
+               <span className="text-lg font-black text-indigo-500">${product.price.toFixed(2)}</span>
                <span className="text-xs text-gray-400 line-through">${product.originalPrice.toFixed(2)}</span>
             </div>
 
-            <div className="mt-2 w-full bg-orange-100 rounded-full h-1.5 overflow-hidden">
-               <div className="bg-orange-500 h-full rounded-full" style={{ width: `${product.sold}%` }}></div>
+            <div className="mt-2 w-full bg-indigo-100 rounded-full h-1.5 overflow-hidden">
+               <div className="bg-indigo-500 h-full rounded-full" style={{ width: `${product.sold}%` }}></div>
             </div>
             <span className="text-[10px] text-gray-500 mt-1 block">{product.sold} Sold</span>
           </Link>

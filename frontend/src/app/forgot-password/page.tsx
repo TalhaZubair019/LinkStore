@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <Link href="/" className="flex justify-center items-center gap-2 mb-6">
-          <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-orange-200">
+          <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-200">
             L
           </div>
           <span className="text-3xl font-black text-gray-900 tracking-tighter uppercase">
@@ -85,7 +85,7 @@ export default function ForgotPasswordPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
+                    className="appearance-none block w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
                     placeholder="you@example.com"
                   />
                 </div>
@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full justify-center py-3.5 px-4 bg-orange-500 text-white rounded-xl font-bold shadow-lg hover:bg-orange-600 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center gap-2"
+                  className="w-full justify-center py-3.5 px-4 bg-indigo-500 text-white rounded-xl font-bold shadow-lg hover:bg-indigo-600 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center gap-2"
                 >
                   {loading ? (
                     <Loader2 className="animate-spin h-5 w-5" />
@@ -123,7 +123,7 @@ export default function ForgotPasswordPage() {
               </div>
               <button
                 onClick={() => setSuccess(false)}
-                className="text-sm font-bold text-orange-600 hover:text-orange-500"
+                className="text-sm font-bold text-indigo-600 hover:text-indigo-500"
               >
                 Didn't receive the email? Click to try again
               </button>

@@ -65,7 +65,7 @@ export default function CartPage() {
       <header className="bg-white sticky top-0 z-50 shadow-xs border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-             <div className="w-10 h-10 bg-linear-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-orange-200">L</div>
+             <div className="w-10 h-10 bg-linear-to-br from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-indigo-200">L</div>
              <span className="text-2xl font-black text-gray-900 tracking-tighter uppercase sm:block">LinkStore</span>
           </Link>
           <div className="font-bold text-gray-500">Shopping Cart</div>
@@ -87,7 +87,7 @@ export default function CartPage() {
                   <ShoppingBag className="w-10 h-10 text-gray-300" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">There are no items in this cart</h3>
-                <Link href="/" className="px-8 py-3 mt-4 bg-orange-500 text-white rounded-sm font-bold hover:bg-orange-600 transition-all shadow-sm">
+                <Link href="/" className="px-8 py-3 mt-4 bg-indigo-500 text-white rounded-sm font-bold hover:bg-indigo-600 transition-all shadow-sm">
                   CONTINUE SHOPPING
                 </Link>
               </div>
@@ -115,8 +115,8 @@ export default function CartPage() {
 
                          {/* Product Info */}
                          <div className="flex-1 min-w-0">
-                            <h3 className="font-medium text-gray-900 leading-snug line-clamp-2 hover:text-orange-500 cursor-pointer">{item.title}</h3>
-                            <p className="font-black text-orange-500 mt-2">${item.price.toFixed(2)}</p>
+                            <h3 className="font-medium text-gray-900 leading-snug line-clamp-2 hover:text-indigo-500 cursor-pointer">{item.title}</h3>
+                            <p className="font-black text-indigo-500 mt-2">${item.price.toFixed(2)}</p>
                             <div className="flex items-center gap-4 mt-2">
                                <button onClick={() => dispatch(removeFromCart(item.productId))} className="text-gray-400 hover:text-red-500 text-sm flex items-center gap-1 transition-colors">
                                  <Trash2 className="w-4 h-4" /> Remove
@@ -153,7 +153,7 @@ export default function CartPage() {
                   <span className="font-bold text-gray-900">${shipping.toFixed(2)}</span>
                 </div>
                 <div className="flex gap-2">
-                   <input type="text" placeholder="Enter Voucher Code" className="w-full border border-gray-200 rounded-sm px-3 py-2 outline-hidden focus:border-orange-500" />
+                   <input type="text" placeholder="Enter Voucher Code" className="w-full border border-gray-200 rounded-sm px-3 py-2 outline-hidden focus:border-indigo-500" />
                    <button className="bg-gray-800 text-white px-4 rounded-sm font-bold text-xs hover:bg-black transition-colors">APPLY</button>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export default function CartPage() {
               <div className="flex justify-between items-center mb-6">
                 <span className="font-black text-gray-900">Total</span>
                 <div className="text-right">
-                   <span className="text-2xl font-black text-orange-500">${total.toFixed(2)}</span>
+                   <span className="text-2xl font-black text-indigo-500">${total.toFixed(2)}</span>
                    <p className="text-[10px] text-gray-400">VAT included, where applicable</p>
                 </div>
               </div>
@@ -176,7 +176,7 @@ export default function CartPage() {
               <button
                 onClick={handleCheckout}
                 disabled={items.length === 0}
-                className="w-full py-3.5 bg-orange-500 text-white rounded-sm font-bold text-lg hover:bg-orange-600 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3.5 bg-indigo-500 text-white rounded-sm font-bold text-lg hover:bg-indigo-600 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 PROCEED TO CHECKOUT
               </button>

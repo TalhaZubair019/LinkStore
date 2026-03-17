@@ -46,7 +46,7 @@ export default function SellerDashboardPage() {
         </div>
         
         <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs flex items-center gap-4">
-           <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
+           <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
              <TrendingUp className="w-6 h-6" />
            </div>
            <div>
@@ -71,7 +71,7 @@ export default function SellerDashboardPage() {
                    </div>
                    <div className="text-right">
                      <p className="font-bold text-gray-900">$45.00</p>
-                     <span className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded-sm">Pending</span>
+                     <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-sm">Pending</span>
                    </div>
                  </div>
                ))}

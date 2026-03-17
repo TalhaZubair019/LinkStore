@@ -163,7 +163,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link href="/" className="flex justify-center items-center gap-2 mb-6">
-          <div className="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-orange-200">
+          <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-200">
             L
           </div>
           <span className="text-3xl font-black text-gray-900 tracking-tighter uppercase">
@@ -180,7 +180,7 @@ export default function SignupPage() {
           {isVerifying ? (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-orange-50 rounded-3xl flex items-center justify-center mx-auto mb-4 text-orange-500 border border-orange-100">
+                <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto mb-4 text-indigo-500 border border-indigo-100">
                   <KeyRound size={36} />
                 </div>
                 <p className="text-sm text-gray-500">
@@ -220,7 +220,7 @@ export default function SignupPage() {
                     {[...Array(6)].map((_, i) => (
                       <div
                         key={i}
-                        className={`w-11 h-14 border-2 rounded-xl text-2xl font-black flex items-center justify-center transition-all ${otp[i] ? "border-orange-500 bg-orange-50 text-orange-600 shadow-sm" : "border-gray-200 bg-gray-50 text-gray-300"}`}
+                        className={`w-11 h-14 border-2 rounded-xl text-2xl font-black flex items-center justify-center transition-all ${otp[i] ? "border-indigo-500 bg-indigo-50 text-indigo-600 shadow-sm" : "border-gray-200 bg-gray-50 text-gray-300"}`}
                       >
                         {otp[i] || ""}
                       </div>
@@ -246,7 +246,7 @@ export default function SignupPage() {
                 <button
                   type="submit"
                   disabled={verifyingLoading}
-                  className="w-full py-3.5 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-indigo-500 text-white rounded-xl font-bold hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-200 flex items-center justify-center gap-2"
                 >
                   {verifyingLoading ? (
                     <Loader2 className="animate-spin h-5 w-5" />
@@ -262,7 +262,7 @@ export default function SignupPage() {
                     type="button"
                     onClick={handleResendOTP}
                     disabled={resendLoading}
-                    className="text-sm font-bold text-orange-600 hover:underline flex items-center gap-2"
+                    className="text-sm font-bold text-indigo-600 hover:underline flex items-center gap-2"
                   >
                     {resendLoading ? (
                       <RefreshCw className="animate-spin h-4 w-4" />
@@ -300,7 +300,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-orange-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
+                  className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
                   placeholder="Alexander Pierce"
                 />
               </div>
@@ -316,7 +316,7 @@ export default function SignupPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-orange-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
+                  className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
                   placeholder="you@example.com"
                 />
               </div>
@@ -333,7 +333,7 @@ export default function SignupPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-orange-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 pr-12"
+                    className="block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 pr-12"
                     placeholder="••••••••"
                   />
                   <button
@@ -364,7 +364,7 @@ export default function SignupPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full justify-center py-3.5 px-4 bg-orange-500 text-white rounded-xl font-bold shadow-lg hover:bg-orange-600 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center gap-2"
+                  className="w-full justify-center py-3.5 px-4 bg-indigo-500 text-white rounded-xl font-bold shadow-lg hover:bg-indigo-600 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center gap-2"
                 >
                   {loading ? (
                     <Loader2 className="animate-spin h-5 w-5" />
@@ -382,7 +382,7 @@ export default function SignupPage() {
             <span className="text-gray-500">Already have an account?</span>{" "}
             <Link
               href="/login"
-              className="font-bold text-orange-600 hover:text-orange-500"
+              className="font-bold text-indigo-600 hover:text-indigo-500"
             >
               Sign in
             </Link>

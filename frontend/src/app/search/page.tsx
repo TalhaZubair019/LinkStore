@@ -25,13 +25,13 @@ export default function SearchResults() {
       <div className="bg-gray-100 text-[11px] text-gray-500 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-orange-500 hover:underline">SAVE MORE ON APP</Link>
-            <Link href="/seller/dashboard" className="text-orange-500 font-bold hover:underline">SELL ON LINKSTORE</Link>
-            <Link href="#" className="hover:text-orange-500 hover:underline">CUSTOMER CARE</Link>
+            <Link href="#" className="hover:text-indigo-500 hover:underline">SAVE MORE ON APP</Link>
+            <Link href="/seller/dashboard" className="text-indigo-500 font-bold hover:underline">SELL ON LINKSTORE</Link>
+            <Link href="#" className="hover:text-indigo-500 hover:underline">CUSTOMER CARE</Link>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="hover:text-orange-500 hover:underline">LOGIN</Link>
-            <Link href="/signup" className="hover:text-orange-500 hover:underline">SIGNUP</Link>
+            <Link href="/login" className="hover:text-indigo-500 hover:underline">LOGIN</Link>
+            <Link href="/signup" className="hover:text-indigo-500 hover:underline">SIGNUP</Link>
           </div>
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function SearchResults() {
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-20 flex items-center gap-6 lg:gap-12">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
-             <div className="w-10 h-10 bg-linear-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-orange-200">L</div>
+             <div className="w-10 h-10 bg-linear-to-br from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-indigo-200">L</div>
              <span className="text-2xl font-black text-gray-900 tracking-tighter uppercase hidden sm:block">LinkStore</span>
           </Link>
 
@@ -50,9 +50,9 @@ export default function SearchResults() {
 
           {/* Cart Element */}
           <div className="flex items-center gap-6 shrink-0">
-            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-orange-500 transition-colors">
+            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-indigo-500 transition-colors">
                <ShoppingCart className="w-7 h-7" />
-               <span className="absolute 0 right-0 w-5 h-5 bg-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">
+               <span className="absolute 0 right-0 w-5 h-5 bg-indigo-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">
                  2
                </span>
             </Link>
@@ -62,7 +62,7 @@ export default function SearchResults() {
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-6 py-6 pb-20">
         <div className="mb-4 text-sm text-gray-500">
-          Home &gt; {category !== 'All' ? `${category} > ` : ''} <span className="text-orange-500 font-medium">"{query || 'All items'}"</span>
+          Home &gt; {category !== 'All' ? `${category} > ` : ''} <span className="text-indigo-500 font-medium">"{query || 'All items'}"</span>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -74,9 +74,9 @@ export default function SearchResults() {
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-gray-700 mb-2">Category</h4>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><label className="flex items-center gap-2 cursor-pointer hover:text-orange-500"><input type="checkbox" className="accent-orange-500" /> Home & Kitchen</label></li>
-                <li><label className="flex items-center gap-2 cursor-pointer hover:text-orange-500"><input type="checkbox" className="accent-orange-500" /> Dining & Serving</label></li>
-                <li><label className="flex items-center gap-2 cursor-pointer hover:text-orange-500"><input type="checkbox" className="accent-orange-500" /> Decor</label></li>
+                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><input type="checkbox" className="accent-indigo-500" /> Home & Kitchen</label></li>
+                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><input type="checkbox" className="accent-indigo-500" /> Dining & Serving</label></li>
+                <li><label className="flex items-center gap-2 cursor-pointer hover:text-indigo-500"><input type="checkbox" className="accent-indigo-500" /> Decor</label></li>
               </ul>
             </div>
 
@@ -84,11 +84,11 @@ export default function SearchResults() {
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-gray-700 mb-2">Price Range</h4>
               <div className="flex items-center gap-2">
-                <input type="number" placeholder="Min" className="w-full border border-gray-200 rounded px-2 py-1 text-sm outline-hidden focus:border-orange-500" />
+                <input type="number" placeholder="Min" className="w-full border border-gray-200 rounded px-2 py-1 text-sm outline-hidden focus:border-indigo-500" />
                 <span className="text-gray-400">-</span>
-                <input type="number" placeholder="Max" className="w-full border border-gray-200 rounded px-2 py-1 text-sm outline-hidden focus:border-orange-500" />
+                <input type="number" placeholder="Max" className="w-full border border-gray-200 rounded px-2 py-1 text-sm outline-hidden focus:border-indigo-500" />
               </div>
-              <button className="w-full mt-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded-sm transition-colors">Apply</button>
+              <button className="w-full mt-2 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold py-2 rounded-sm transition-colors">Apply</button>
             </div>
 
             {/* Rating Filter */}
@@ -97,8 +97,8 @@ export default function SearchResults() {
               <ul className="space-y-2 text-sm text-gray-600">
                 {[5, 4, 3, 2, 1].map((rating) => (
                    <li key={rating}>
-                     <label className="flex items-center gap-2 cursor-pointer hover:text-orange-500">
-                       <input type="checkbox" className="accent-orange-500" /> 
+                     <label className="flex items-center gap-2 cursor-pointer hover:text-indigo-500">
+                       <input type="checkbox" className="accent-indigo-500" /> 
                        <div className="flex gap-0.5">
                          {Array.from({length: 5}).map((_, i) => (
                            <Star key={i} className={`w-3.5 h-3.5 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
@@ -120,7 +120,7 @@ export default function SearchResults() {
               </h2>
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-gray-500">Sort by:</span>
-                <select className="border border-gray-200 rounded px-2 py-1 outline-hidden focus:border-orange-500">
+                <select className="border border-gray-200 rounded px-2 py-1 outline-hidden focus:border-indigo-500">
                   <option>Best Match</option>
                   <option>Price Low to High</option>
                   <option>Price High to Low</option>

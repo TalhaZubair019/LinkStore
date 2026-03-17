@@ -30,7 +30,7 @@ const quickLinks = [
   { id: 2, name: 'Fashion', icon: '👗', bgColor: 'bg-pink-100', color: 'text-pink-600' },
   { id: 3, name: 'Beauty', icon: '💄', bgColor: 'bg-purple-100', color: 'text-purple-600' },
   { id: 4, name: 'Free Delivery', icon: '🚚', bgColor: 'bg-blue-100', color: 'text-blue-600' },
-  { id: 5, name: 'Vouchers', icon: '🎟️', bgColor: 'bg-orange-100', color: 'text-orange-600' },
+  { id: 5, name: 'Vouchers', icon: '🎟️', bgColor: 'bg-indigo-100', color: 'text-indigo-600' },
 ];
 
 export default function Home() {
@@ -41,15 +41,15 @@ export default function Home() {
       <div className="bg-gray-100 text-[11px] text-gray-500 hidden md:block">
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-orange-500 hover:underline">SAVE MORE ON APP</Link>
-            <Link href="/seller/dashboard" className="text-orange-500 font-bold hover:underline">SELL ON LINKSTORE</Link>
-            <Link href="#" className="hover:text-orange-500 hover:underline">CUSTOMER CARE</Link>
-            <Link href="#" className="hover:text-orange-500 hover:underline">TRACK MY ORDER</Link>
+            <Link href="#" className="hover:text-indigo-500 hover:underline">SAVE MORE ON APP</Link>
+            <Link href="/seller/dashboard" className="text-indigo-500 font-bold hover:underline">SELL ON LINKSTORE</Link>
+            <Link href="#" className="hover:text-indigo-500 hover:underline">CUSTOMER CARE</Link>
+            <Link href="#" className="hover:text-indigo-500 hover:underline">TRACK MY ORDER</Link>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="hover:text-orange-500 hover:underline">LOGIN</Link>
-            <Link href="/signup" className="hover:text-orange-500 hover:underline">SIGNUP</Link>
-            <span className="flex items-center gap-1 cursor-pointer hover:text-orange-500">
+            <Link href="/login" className="hover:text-indigo-500 hover:underline">LOGIN</Link>
+            <Link href="/signup" className="hover:text-indigo-500 hover:underline">SIGNUP</Link>
+            <span className="flex items-center gap-1 cursor-pointer hover:text-indigo-500">
               Change Language
             </span>
           </div>
@@ -61,7 +61,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-20 flex items-center gap-6 lg:gap-12">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
-             <div className="w-10 h-10 bg-linear-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-orange-200">L</div>
+             <div className="w-10 h-10 bg-linear-to-br from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md shadow-indigo-200">L</div>
              <span className="text-2xl font-black text-gray-900 tracking-tighter uppercase hidden sm:block">LinkStore</span>
           </Link>
 
@@ -70,14 +70,14 @@ export default function Home() {
 
           {/* Cart Element */}
           <div className="flex items-center gap-6 shrink-0">
-            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-orange-500 transition-colors">
+            <Link href="/cart" className="relative p-2 text-gray-700 hover:text-indigo-500 transition-colors">
                <ShoppingCart className="w-7 h-7" />
-               <span className="absolute 0 right-0 w-5 h-5 bg-orange-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">
+               <span className="absolute 0 right-0 w-5 h-5 bg-indigo-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-white">
                  2
                </span>
             </Link>
             <div className="hidden md:flex items-center gap-2 cursor-pointer group">
-               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 group-hover:bg-orange-100 group-hover:text-orange-500 transition-colors">
+               <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 group-hover:bg-indigo-100 group-hover:text-indigo-500 transition-colors">
                  <User className="w-5 h-5" />
                </div>
             </div>
@@ -85,15 +85,15 @@ export default function Home() {
         </div>
       </header>
 
+      <CategoryMenu />
+
       <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-6 py-6 pb-20">
         
-        {/* 3. Hero Section (Sidebar + Carousel) */}
-        <section className="flex gap-4 mb-6">
-          <CategoryMenu />
-          <div className="flex-1 min-w-0">
-            <HeroCarousel />
-          </div>
+        {/* 3. Hero Section (Full Width Cinematic) */}
+        <section className="mb-6">
+          <HeroCarousel />
         </section>
+
 
         {/* 4. Quick Links / Icons Nav List */}
         <section className="bg-white rounded-xl p-4 lg:p-6 shadow-xs border border-gray-100 mb-8 overflow-x-auto hide-scrollbar">
@@ -103,7 +103,7 @@ export default function Home() {
                  <div className={`w-12 h-12 rounded-full ${link.bgColor} ${link.color} flex items-center justify-center text-2xl group-hover:scale-110 transition-transform`}>
                     {link.icon}
                  </div>
-                 <span className="font-bold text-gray-700 text-sm group-hover:text-orange-500 transition-colors">
+                 <span className="font-bold text-gray-700 text-sm group-hover:text-indigo-500 transition-colors">
                     {link.name}
                  </span>
                </Link>
@@ -127,7 +127,7 @@ export default function Home() {
            </div>
            
            <div className="mt-12 flex justify-center">
-             <button className="border-2 border-orange-500 text-orange-500 px-12 py-3 lg:px-32 lg:py-4 font-black uppercase tracking-widest text-sm hover:bg-orange-50 transition-colors">
+             <button className="border-2 border-indigo-500 text-indigo-500 px-12 py-3 lg:px-32 lg:py-4 font-black uppercase tracking-widest text-sm hover:bg-indigo-50 transition-colors">
                Load More
              </button>
            </div>
@@ -141,28 +141,28 @@ export default function Home() {
             <div className="space-y-4">
                <h3 className="font-black text-gray-900 uppercase tracking-tight text-base mb-4">Customer Care</h3>
                <ul className="space-y-2 text-gray-500">
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Help Center</Link></li>
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">How to Buy</Link></li>
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Corporate & Bulk Purchasing</Link></li>
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Returns & Refunds</Link></li>
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Contact Us</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">Help Center</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">How to Buy</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">Corporate & Bulk Purchasing</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">Returns & Refunds</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">Contact Us</Link></li>
                </ul>
             </div>
             <div className="space-y-4">
                <h3 className="font-black text-gray-900 uppercase tracking-tight text-base mb-4">LinkStore</h3>
                <ul className="space-y-2 text-gray-500">
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">About LinkStore</Link></li>
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Digital Payments</Link></li>
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">LinkStore Care</Link></li>
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Terms & Conditions</Link></li>
-                  <li><Link href="#" className="hover:text-orange-500 hover:underline">Privacy Policy</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">About LinkStore</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">Digital Payments</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">LinkStore Care</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">Terms & Conditions</Link></li>
+                  <li><Link href="#" className="hover:text-indigo-500 hover:underline">Privacy Policy</Link></li>
                </ul>
             </div>
             <div className="md:col-span-2">
                <div className="flex items-center gap-4 mb-6">
-                 <div className="w-12 h-12 bg-linear-to-br from-orange-400 to-orange-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-md">L</div>
+                 <div className="w-12 h-12 bg-linear-to-br from-indigo-400 to-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-2xl shadow-md">L</div>
                  <div>
-                   <h3 className="font-black text-orange-500 text-lg uppercase tracking-tight">Happy Shopping</h3>
+                   <h3 className="font-black text-indigo-500 text-lg uppercase tracking-tight">Happy Shopping</h3>
                    <p className="text-gray-500 text-xs">Download App</p>
                  </div>
                </div>

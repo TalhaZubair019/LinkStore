@@ -42,13 +42,13 @@ export default function HeroCarousel() {
   };
 
   return (
-    <div className="relative w-full h-[200px] sm:h-[300px] lg:h-[400px] overflow-hidden rounded-xl group bg-gray-100">
+    <div className="relative w-full h-[300px] sm:h-[400px] lg:h-[500px] overflow-hidden rounded-3xl group bg-gray-100 shadow-2xl shadow-gray-200/50">
       <div 
-        className="flex transition-transform duration-500 ease-out h-full"
+        className="flex transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] h-full"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
         {sliders.map((slide) => (
-          <Link href={slide.link} key={slide.id} className="min-w-full h-full relative cursor-pointer block">
+          <div key={slide.id} className="min-w-full h-full relative block">
             <Image 
               src={slide.image} 
               alt={`Banner ${slide.id}`} 
@@ -56,7 +56,24 @@ export default function HeroCarousel() {
               className="object-cover"
               priority={slide.id === 1}
             />
-          </Link>
+            {/* Cinematic Overlay */}
+            <div className="absolute inset-0 bg-linear-to-r from-gray-900/90 via-gray-900/40 to-transparent flex items-center">
+              <div className="px-8 md:px-16 lg:px-24 w-full md:w-2/3 lg:w-1/2 text-white space-y-4 md:space-y-6">
+                <h2 className="text-4xl md:text-5xl lg:text-7xl font-black capitalize tracking-tighter leading-[1.1] drop-shadow-xl">
+                  Elevate Your <span className="text-indigo-400">Lifestyle</span>
+                </h2>
+                <p className="text-sm md:text-lg text-gray-200 font-medium max-w-lg drop-shadow-md leading-relaxed">
+                  Discover premium products across electronics, fashion, and home essentials. 
+                  Experience the new standard of online shopping.
+                </p>
+                <div className="pt-2 md:pt-6">
+                  <Link href={slide.link} className="inline-block bg-white text-gray-900 px-8 py-3 md:px-10 md:py-4 rounded-full font-bold uppercase tracking-widest text-xs md:text-sm hover:bg-indigo-50 hover:scale-105 active:scale-95 transition-all shadow-2xl">
+                    Shop Collection
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
 

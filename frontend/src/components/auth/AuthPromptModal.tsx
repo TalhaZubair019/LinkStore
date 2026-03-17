@@ -34,7 +34,7 @@ const AuthPromptModal = ({
         </button>
 
         <div className="p-8 text-center">
-          <div className="w-16 h-16 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3 shadow-orange-100 shadow-sm">
+          <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6 transform rotate-3 shadow-indigo-100 shadow-sm">
             <LogIn size={32} />
           </div>
 
@@ -48,7 +48,7 @@ const AuthPromptModal = ({
           <div className="space-y-3">
             <Link
               href={loginUrl}
-              className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-orange-500 text-white font-black shadow-lg shadow-orange-200 hover:bg-orange-600 hover:scale-[1.01] active:scale-95 transition-all uppercase tracking-wider text-sm"
+              className="flex items-center justify-center gap-2 w-full py-4 rounded-xl bg-indigo-500 text-white font-black shadow-lg shadow-indigo-200 hover:bg-indigo-600 hover:scale-[1.01] active:scale-95 transition-all uppercase tracking-wider text-sm"
             >
               <LogIn size={18} />
               Login Now

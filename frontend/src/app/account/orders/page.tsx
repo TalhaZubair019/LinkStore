@@ -22,8 +22,8 @@ export default function BuyerOrders() {
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="text-xl font-black text-gray-900 tracking-tighter uppercase">LinkStore</Link>
           <div className="flex items-center gap-4 text-sm font-bold">
-             <Link href="#" className="text-orange-500">My Orders</Link>
-             <Link href="#" className="hover:text-orange-500 text-gray-500">My Account</Link>
+             <Link href="#" className="text-indigo-500">My Orders</Link>
+             <Link href="#" className="hover:text-indigo-500 text-gray-500">My Account</Link>
           </div>
         </div>
       </header>
@@ -36,7 +36,7 @@ export default function BuyerOrders() {
              <button 
                key={tab}
                onClick={() => setActiveTab(tab)}
-               className={`flex-1 min-w-[100px] text-center py-4 text-sm font-bold border-b-2 transition-colors ${activeTab === tab ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
+               className={`flex-1 min-w-[100px] text-center py-4 text-sm font-bold border-b-2 transition-colors ${activeTab === tab ? 'border-indigo-500 text-indigo-500' : 'border-transparent text-gray-500 hover:text-gray-900 hover:bg-gray-50'}`}
              >
                {tab}
              </button>
@@ -52,7 +52,7 @@ export default function BuyerOrders() {
                      <span className="text-gray-400 text-xs">{order.date}</span>
                   </div>
                   <span className={`text-sm font-bold uppercase tracking-widest ${
-                    order.status === 'To Ship' ? 'text-orange-500' : 
+                    order.status === 'To Ship' ? 'text-indigo-500' : 
                     order.status === 'To Receive' ? 'text-blue-500' : 'text-green-500'
                   }`}>
                     {order.status}
@@ -70,7 +70,7 @@ export default function BuyerOrders() {
                          <p className="text-xs text-gray-500">Qty: {item.qty}</p>
                       </div>
                       <div className="text-right">
-                         <p className="text-lg font-black text-orange-500">${order.total.toFixed(2)}</p>
+                         <p className="text-lg font-black text-indigo-500">${order.total.toFixed(2)}</p>
                       </div>
                    </div>
                  ))}
@@ -78,8 +78,8 @@ export default function BuyerOrders() {
 
                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end gap-3">
                  {order.status === 'To Ship' && <button className="px-6 py-2 bg-white border border-gray-200 text-gray-600 text-sm font-bold rounded-sm hover:bg-gray-100 transition-colors">Contact Seller</button>}
-                 {order.status === 'To Receive' && <button className="px-6 py-2 bg-orange-500 text-white text-sm font-bold rounded-sm hover:bg-orange-600 transition-colors shadow-sm shadow-orange-200">Track Package</button>}
-                 {order.status === 'To Review' && <button className="px-6 py-2 bg-orange-500 text-white text-sm font-bold rounded-sm hover:bg-orange-600 transition-colors flex items-center gap-2"><Star className="w-4 h-4" /> Write Review</button>}
+                 {order.status === 'To Receive' && <button className="px-6 py-2 bg-indigo-500 text-white text-sm font-bold rounded-sm hover:bg-indigo-600 transition-colors shadow-sm shadow-indigo-200">Track Package</button>}
+                 {order.status === 'To Review' && <button className="px-6 py-2 bg-indigo-500 text-white text-sm font-bold rounded-sm hover:bg-indigo-600 transition-colors flex items-center gap-2"><Star className="w-4 h-4" /> Write Review</button>}
                </div>
             </div>
           ))}
