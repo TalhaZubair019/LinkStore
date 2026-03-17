@@ -1,16 +1,8 @@
-'use client';
+"use client";
 
-import { Provider } from 'react-redux';
-import { store } from './Store';
-import SyncHandler from '../components/SyncHandler';
+import { Provider } from "react-redux";
+import { store, persistor } from "@/redux/Store";
 
-export function ReduxProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <Provider store={store}>
-      <SyncHandler>
-        {children}
-      </SyncHandler>
-    </Provider>
-  );
+export function Providers({ children }: { children: React.ReactNode }) {
+  return <Provider store={store}>{children}</Provider>;
 }
-

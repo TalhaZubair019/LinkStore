@@ -1,162 +1,432 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../redux/Store';
-import { clearCart } from '../../redux/slices/CartSlice';
-import axios from 'axios';
-import { CreditCard, Truck, ShieldCheck, MapPin, Loader2, CheckCircle2 } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
+import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { clearCart, syncCart } from "@/redux/CartSlice";
+import AuthPromptModal from "@/components/auth/AuthPromptModal";
+import Toast from "@/components/products/Toast";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+import { ChevronLeft } from "lucide-react";
+import db from "@data/db.json";
+import { Country, State, City } from "country-state-city";
+
+import ContactSection from "@/components/checkout/ContactSection";
+import BillingSection from "@/components/checkout/BillingSection";
+import PaymentSection from "@/components/checkout/PaymentSection";
+import OrderSummary from "@/components/checkout/OrderSummary";
+import PageHeader from "@/components/ui/PageHeader";
+
+const checkoutConfig = db.checkout;
+
+interface CheckoutData {
+  email: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  apartment: string;
+  city: string;
+  province: string;
+  postcode: string;
+  phone: string;
+  country: string;
+  countryCode: string;
+  stateCode: string;
+  paymentMethod: "cod" | "stripe" | "paypal";
+}
 
 export default function CheckoutPage() {
   const dispatch = useDispatch();
-  const { items } = useSelector((state: RootState) => state.cart);
-  const { user, token } = useSelector((state: RootState) => state.auth);
-  
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'paypal'>('stripe');
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const hasSynced = useRef(false);
+  const { cartItems } = useSelector((state: any) => state.cart);
+  const { isAuthenticated, user, isLoading } = useSelector(
+    (state: any) => state.auth,
+  );
+  const [hasMounted, setHasMounted] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUsingSavedAddress, setIsUsingSavedAddress] = useState(false);
+  const [isViewingSavedAddress, setIsViewingSavedAddress] = useState(false);
+  const [copyProfileAddress, setCopyProfileAddress] = useState(false);
 
-  const subtotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-  const shipping = items.length > 0 ? 10 : 0;
-  const total = subtotal + shipping;
+  const subtotal = cartItems.reduce(
+    (acc: number, item: any) => acc + item.price * (item.quantity || 1),
+    0,
+  );
 
-  const handleCheckout = async () => {
-    if (!token) {
-      alert("Please login to complete checkout");
-      return;
-    }
-    setLoading(true);
+  const [formData, setFormData] = useState<CheckoutData>({
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    apartment: "",
+    city: "",
+    province: "",
+    postcode: "",
+    phone: "",
+    country: "Pakistan",
+    countryCode: "PK",
+    stateCode: "",
+    paymentMethod: "cod",
+  });
 
-    try {
-      if (paymentMethod === 'stripe') {
-        const res = await axios.post(`${API_URL}/payments/stripe/create-session`, { items }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        window.location.href = res.data.url;
-      } else {
-        const res = await axios.post(`${API_URL}/payments/paypal/create-order`, { amount: total }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        // Simplification: In a real app, you'd use the PayPal SDK button.
-        // For this migration, we'll simulate a success or redirect.
-        alert("PayPal Checkout initiated. ID: " + res.data.id);
-        setSuccess(true);
-        dispatch(clearCart());
+  const [countries] = useState(Country.getAllCountries());
+  const [states, setStates] = useState<any[]>([]);
+  const [cities, setCities] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (formData.countryCode) {
+      const countryStates = State.getStatesOfCountry(formData.countryCode);
+      setStates(countryStates);
+
+      if (formData.stateCode) {
+        setCities(
+          City.getCitiesOfState(formData.countryCode, formData.stateCode),
+        );
       }
-    } catch (err) {
-      console.error("Checkout failed:", err);
-      alert("Checkout failed. Please try again.");
-    } finally {
-      setLoading(false);
+    }
+  }, [formData.countryCode, formData.stateCode]);
+
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: "add" | "remove";
+  }>({
+    show: false,
+    message: "",
+    type: "add",
+  });
+
+  const showToast = (message: string, type: "add" | "remove") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
+  };
+
+  useEffect(() => {
+    setHasMounted(true);
+    const savedForm = localStorage.getItem("checkoutFormData");
+    if (savedForm) {
+      try {
+        setFormData((prev) => ({ ...prev, ...JSON.parse(savedForm) }));
+      } catch (e) {
+        console.error("Could not parse saved form data", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasMounted || hasSynced.current || cartItems.length === 0) return;
+
+    const checkAndSyncCart = async () => {
+      try {
+        const response = await fetch("/api/public/content?section=products");
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.products) {
+            hasSynced.current = true;
+            const activeProductIds = data.products.map((p: any) =>
+              String(p.id),
+            );
+            const removedItems = cartItems.filter((item: any) => {
+              const p = data.products.find(
+                (prod: any) => String(prod.id) === String(item.id),
+              );
+              return !p || p.stockQuantity <= 0;
+            });
+
+            if (removedItems.length > 0) {
+              const names = removedItems
+                .map((i: any) => `"${i.name || i.title || "Unknown Item"}"`)
+                .join(", ");
+              dispatch(syncCart(data.products));
+              showToast(
+                `${names} were removed from your cart as they are no longer available.`,
+                "remove",
+              );
+            } else {
+              dispatch(syncCart(data.products));
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to sync cart:", error);
+      }
+    };
+
+    checkAndSyncCart();
+    const interval = setInterval(checkAndSyncCart, 30000);
+    return () => clearInterval(interval);
+  }, [hasMounted, cartItems.length]);
+
+  useEffect(() => {
+    if (hasMounted) {
+      localStorage.setItem("checkoutFormData", JSON.stringify(formData));
+    }
+  }, [formData, hasMounted]);
+
+  useEffect(() => {
+    if (user) {
+      const hasSavedAddress = !!(user.address && user.city);
+      setIsUsingSavedAddress(hasSavedAddress);
+
+      if (hasSavedAddress) {
+        setFormData((prev) => ({
+          ...prev,
+          email: user.email || prev.email || "",
+          firstName: user.name?.split(" ")[0] || prev.firstName || "",
+          lastName: user.name?.split(" ")[1] || prev.lastName || "",
+          phone: user.phone || prev.phone || "",
+          address: user.address || "",
+          city: user.city || "",
+          province: user.province || "",
+          country: user.country || "Pakistan",
+          countryCode: user.countryCode || "PK",
+          stateCode: user.stateCode || "",
+          postcode: user.postcode || "",
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          email: user.email || prev.email || "",
+          firstName: prev.firstName || user.name?.split(" ")[0] || "",
+          lastName: prev.lastName || user.name?.split(" ")[1] || "",
+        }));
+      }
+    }
+  }, [user]);
+
+  const handleAddressModeChange = (useSaved: boolean) => {
+    setIsUsingSavedAddress(useSaved);
+    setIsViewingSavedAddress(false);
+    if (useSaved && user) {
+      setFormData((prev) => ({
+        ...prev,
+        firstName: user.name?.split(" ")[0] || prev.firstName,
+        lastName: user.name?.split(" ")[1] || prev.lastName,
+        phone: user.phone || prev.phone,
+        address: user.address || "",
+        city: user.city || "",
+        province: user.province || "",
+        country: user.country || "Pakistan",
+        countryCode: user.countryCode || "PK",
+        stateCode: user.stateCode || "",
+        postcode: user.postcode || "",
+      }));
+    } else {
+      if (!copyProfileAddress) {
+        setFormData((prev) => ({
+          ...prev,
+          address: "",
+          apartment: "",
+          city: "",
+          province: "",
+          country: "Pakistan",
+          countryCode: "PK",
+          stateCode: "",
+          postcode: "",
+          phone: "",
+        }));
+      }
     }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div className="bg-white p-10 rounded-3xl shadow-2xl text-center max-w-md w-full border border-green-100">
-          <CheckCircle2 size={80} className="mx-auto text-green-500 mb-6" />
-          <h1 className="text-3xl font-black text-gray-900 mb-2 uppercase tracking-tighter">Order Placed!</h1>
-          <p className="text-gray-500 mb-8">Thank you for your purchase. We've sent a confirmation email to {user?.email}.</p>
-          <Link href="/shop" className="block w-full py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all uppercase tracking-widest">
-            Continue Shopping
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      setShowAuthModal(true);
+    }
+  }, [isAuthenticated, isLoading]);
+
+  const updateData = (newData: Partial<CheckoutData>) =>
+    setFormData((prev) => ({ ...prev, ...newData }));
+
+  const saveOrderToDB = async (paymentStatus: string) => {
+    const payload = {
+      customer: formData,
+      items: cartItems,
+      totalAmount: subtotal,
+      paymentStatus,
+    };
+    const response = await fetch("/api/public/place-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error("API request failed");
+    return await response.json();
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formRef.current?.checkValidity()) {
+      const firstInvalid = formRef.current?.querySelector(
+        ":invalid",
+      ) as HTMLElement;
+      if (firstInvalid) firstInvalid.focus();
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      if (formData.paymentMethod === "stripe") {
+        localStorage.setItem("pendingCheckoutData", JSON.stringify(formData));
+        const orderId = Date.now().toString();
+
+        const response = await fetch("/api/stripe/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: cartItems,
+            customerEmail: formData.email,
+            orderId: orderId,
+          }),
+        });
+        const session = await response.json();
+        if (session.url) {
+          window.location.href = session.url;
+          return;
+        }
+        throw new Error(session.error || "Failed to initialize Stripe");
+      }
+
+      if (formData.paymentMethod === "paypal") {
+        localStorage.setItem("pendingCheckoutData", JSON.stringify(formData));
+        const orderId = Date.now().toString();
+
+        const response = await fetch("/api/paypal/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            totalAmount: subtotal,
+            customer: formData,
+            orderId: orderId,
+          }),
+        });
+        const session = await response.json();
+        if (session.url) {
+          window.location.href = session.url;
+          return;
+        }
+        throw new Error(session.error || "Failed to initialize PayPal");
+      }
+
+      if (formData.paymentMethod === "cod") {
+        await saveOrderToDB("Pending");
+        localStorage.removeItem("pendingCheckoutData");
+        dispatch(clearCart());
+        router.push("/thank-you");
+      }
+    } catch (error) {
+      alert("Error: Could not process checkout. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 md:px-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-black text-gray-900 mb-10 uppercase tracking-tighter">Secure Checkout</h1>
-        
-        <div className="grid lg:grid-cols-3 gap-12">
-          {/* Left: Info & Payment */}
-          <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-xs">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <MapPin className="text-indigo-600" size={20} /> Shipping Address
-              </h2>
-              <div className="grid gap-4">
-                <div className="font-bold text-gray-900">{user?.name}</div>
-                <div className="text-gray-600">Please verify your shipping details in your profile settings before proceeding.</div>
-              </div>
-            </div>
+    <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
+      {showAuthModal && (
+        <AuthPromptModal
+          onClose={() => {
+            router.push("/cart");
+          }}
+        />
+      )}
+      <PageHeader
+        title="Checkout"
+        breadcrumb="Checkout"
+      />
 
-            <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-xs">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <CreditCard className="text-blue-500" size={20} /> Payment Method
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                <button 
-                  onClick={() => setPaymentMethod('stripe')}
-                  className={`p-6 border-2 rounded-2xl flex flex-col items-center gap-2 transition-all ${paymentMethod === 'stripe' ? 'border-blue-500 bg-blue-50' : 'border-gray-100 hover:border-blue-200'}`}
-                >
-                  <div className="font-black text-blue-600 text-lg italic">Stripe</div>
-                  <span className="text-xs text-gray-500">Pay with Card</span>
-                </button>
-                <button 
-                  onClick={() => setPaymentMethod('paypal')}
-                  className={`p-6 border-2 rounded-2xl flex flex-col items-center gap-2 transition-all ${paymentMethod === 'paypal' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-100 hover:border-indigo-200'}`}
-                >
-                  <div className="font-black text-indigo-700 text-lg italic">PayPal</div>
-                  <span className="text-xs text-gray-500">Pay with Balance</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Right: Summary */}
-          <div className="bg-white p-8 rounded-3xl border border-gray-100 shadow-xl h-fit sticky top-24">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
-            <div className="space-y-4 mb-8">
-              {items.map(item => (
-                <div key={item.productId} className="flex gap-4">
-                  <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-100 shrink-0">
-                    <Image src={item.image || '/placeholder.png'} alt={item.title} fill className="object-cover" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-900 text-sm truncate">{item.title}</div>
-                    <div className="text-xs text-gray-500">Qty: {item.quantity}</div>
-                    <div className="font-bold text-gray-900 text-sm mt-1">${(item.price * item.quantity).toFixed(2)}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-3 border-t border-gray-100 pt-6 mb-8">
-              <div className="flex justify-between text-gray-600">
-                <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Shipping</span>
-                <span>${shipping.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-gray-900 font-bold text-lg pt-3 border-t border-gray-50">
-                <span>Total</span>
-                <span className="text-indigo-600 font-black">${total.toFixed(2)}</span>
-              </div>
-            </div>
-
-            <button 
-              onClick={handleCheckout}
-              disabled={loading || items.length === 0}
-              className="w-full py-4 bg-gray-900 text-white rounded-xl font-bold hover:bg-gray-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50 uppercase tracking-widest shadow-lg shadow-gray-200"
+      <div className="relative z-10">
+        <div className="max-w-7xl mx-auto mt-16 px-4 lg:px-8 pb-32">
+          <div
+            className={`transition-all duration-300 ${
+              hasMounted && (showAuthModal || isLoading)
+                ? "opacity-50 blur-sm pointer-events-none"
+                : "opacity-100"
+            }`}
+          >
+            <form
+              ref={formRef}
+              onSubmit={handleSubmit}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start"
             >
-              {loading ? <Loader2 className="animate-spin" /> : 'Complete Purchase'}
-            </button>
-
-            <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
-              <ShieldCheck size={14} className="text-green-500" /> Secure SSL Encryption
-            </div>
+              <div className="lg:col-span-5">
+                {hasMounted ? (
+                  <OrderSummary cartItems={cartItems} subtotal={subtotal} />
+                ) : (
+                  <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 lg:p-8 animate-pulse transition-colors">
+                    <div className="h-6 w-32 bg-slate-100 dark:bg-slate-800/50 rounded mb-6" />
+                    <div className="space-y-6">
+                      <div className="h-16 bg-slate-50 dark:bg-slate-800/30 rounded" />
+                      <div className="h-16 bg-slate-50 dark:bg-slate-800/30 rounded" />
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="lg:col-span-7 space-y-10">
+                <ContactSection
+                  email={formData.email}
+                  update={updateData}
+                  isReadOnly={hasMounted && !!user?.email}
+                />
+                <BillingSection
+                  data={formData}
+                  update={updateData}
+                  user={user}
+                  isAuthenticated={isAuthenticated}
+                  isUsingSavedAddress={isUsingSavedAddress}
+                  isViewingSavedAddress={isViewingSavedAddress}
+                  setIsViewingSavedAddress={setIsViewingSavedAddress}
+                  onAddressModeChange={handleAddressModeChange}
+                  copyProfileAddress={copyProfileAddress}
+                  setCopyProfileAddress={setCopyProfileAddress}
+                  countries={countries}
+                  states={states}
+                  cities={cities}
+                  hasMounted={hasMounted}
+                />
+                <PaymentSection data={formData} update={updateData} />
+                <div className="pt-6 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
+                  <Link
+                    href="/cart"
+                    className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-bold hover:text-slate-900 dark:hover:text-white transition-colors"
+                  >
+                    <ChevronLeft size={16} /> Return to Cart
+                  </Link>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || (hasMounted && cartItems.length === 0)}
+                    className={`w-full sm:w-auto px-10 py-4 rounded-full bg-linear-to-r from-[#8B5CF6] to-[#2DD4BF] text-white font-bold text-lg shadow-lg shadow-purple-200 transition-all duration-300 ${
+                      isSubmitting || (hasMounted && cartItems.length === 0)
+                        ? "opacity-60 cursor-not-allowed grayscale"
+                        : "hover:shadow-xl hover:scale-[1.02] cursor-pointer"
+                    }`}
+                  >
+                    {!hasMounted
+                      ? "Place Order"
+                      : isSubmitting
+                        ? "Processing..."
+                        : cartItems.length === 0
+                          ? "Cart is Empty"
+                          : "Place Order"}
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
+        <Toast
+          show={toast.show}
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-const axios = require('axios');
+const fetch = require("node-fetch");
 
 const BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
@@ -10,14 +10,14 @@ const transporter = {
       throw new Error("BREVO_API_KEY is not set in environment variables");
     }
 
-    let senderName = "LinkStore";
-    let senderEmail = process.env.ADMIN_EMAIL || "no-reply@linkstore.com";
+    let senderName = "PrintNest";
+    let senderEmail = process.env.EMAIL_USER;
 
     if (options.from) {
       const match = options.from.match(/"?([^"<]*)"?\s*<?([^>]*)>?/);
       if (match) {
-        senderName = match[1]?.trim() || "LinkStore";
-        senderEmail = match[2]?.trim() || senderEmail;
+        senderName = match[1]?.trim() || "PrintNest";
+        senderEmail = match[2]?.trim() || process.env.EMAIL_USER;
       }
     }
 
@@ -36,24 +36,30 @@ const transporter = {
       payload.replyTo = { email: options.replyTo };
     }
 
-    try {
-      const response = await axios.post(BREVO_API_URL, payload, {
-        headers: {
-          "api-key": apiKey,
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-      });
+    const fetchFn =
+      typeof fetch !== "undefined" ? fetch : require("node-fetch");
 
-      console.log("Email sent via Brevo:", response.data.messageId);
-      return response.data;
-    } catch (error) {
-      const errorData = error.response ? error.response.data : {};
+    const response = await fetchFn(BREVO_API_URL, {
+      method: "POST",
+      headers: {
+        "api-key": apiKey,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
       console.error("Brevo API error:", errorData);
       throw new Error(
-        errorData.message || `Brevo API failed with status ${error.response ? error.response.status : 'unknown'}`
+        errorData.message || `Brevo API failed with status ${response.status}`,
       );
     }
+
+    const result = await response.json();
+    console.log("Email sent via Brevo:", result.messageId);
+    return result;
   },
 };
 

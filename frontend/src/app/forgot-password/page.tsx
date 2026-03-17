@@ -1,21 +1,22 @@
 "use client";
-
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Loader2,
-  Mail,
-  ArrowLeft,
-  CheckCircle2,
   ChevronRight,
+  ArrowLeft,
+  Mail,
+  CheckCircle2,
 } from "lucide-react";
-import axios from "axios";
+import db from "@data/db.json";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,120 +24,140 @@ export default function ForgotPasswordPage() {
     setError("");
 
     try {
-      const apiUrl =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-      await axios.post(`${apiUrl}/auth/forgot-password`, { email });
-      setSuccess(true);
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to send reset link");
+
+      setSubmitted(true);
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          "Something went wrong. Please try again.",
-      );
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-        <Link href="/" className="flex justify-center items-center gap-2 mb-6">
-          <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-200">
-            L
-          </div>
-          <span className="text-3xl font-black text-gray-900 tracking-tighter uppercase">
-            LinkStore
-          </span>
-        </Link>
-        <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-          Forgot password?
-        </h2>
-        <p className="mt-2 text-sm text-gray-600">
-          No worries, we'll send you reset instructions.
-        </p>
-      </div>
+    <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
+      <PageHeader
+        title="Reset Password"
+        breadcrumbs={[
+          { label: "Login", href: "/login" },
+          { label: "Forgot Password" },
+        ]}
+      />
+      <div className="relative z-10">
+        <div className="max-w-7xl mx-auto mt-10 px-4 lg:px-8 pb-32">
+          <div className="max-w-md mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 transition-colors">
+            {!submitted ? (
+              <>
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 text-center transition-colors">
+                  Forgot Password?
+                </h2>
+                <p className="text-slate-500 dark:text-slate-400 text-center mb-8 transition-colors">
+                  Enter your email address and we'll send you a link to reset
+                  your password.
+                </p>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl shadow-gray-200/50 rounded-2xl border border-gray-100 sm:px-10">
-          {!success ? (
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              {error && (
-                <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium text-center">
-                  {error}
-                </div>
-              )}
-
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-bold text-gray-700 uppercase tracking-widest mb-1"
-                >
-                  Email address
-                </label>
-                <div className="mt-1 relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                    <Mail size={18} />
-                  </div>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="appearance-none block w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50"
-                    placeholder="you@example.com"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full justify-center py-3.5 px-4 bg-indigo-500 text-white rounded-xl font-bold shadow-lg hover:bg-indigo-600 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center gap-2"
-                >
-                  {loading ? (
-                    <Loader2 className="animate-spin h-5 w-5" />
-                  ) : (
-                    <>
-                      RESET PASSWORD <ChevronRight size={18} />
-                    </>
+                <form className="space-y-6" onSubmit={handleSubmit}>
+                  {error && (
+                    <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl p-4 mb-6">
+                      <p className="text-red-600 dark:text-red-400 text-sm text-center font-medium capitalize flex flex-col items-center gap-2">
+                        {error}
+                        {error.toLowerCase().includes("no account found") && (
+                          <Link
+                            href="/signup"
+                            className="text-purple-600 dark:text-purple-400 font-extrabold hover:text-purple-500 underline decoration-2 underline-offset-4 transition-all"
+                          >
+                            Create an account instead?
+                          </Link>
+                        )}
+                      </p>
+                    </div>
                   )}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 transition-colors">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        className="w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg pl-11 pr-4 py-3 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/20 transition-all font-medium"
+                        placeholder="name@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                      <Mail
+                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                        size={18}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 rounded-lg bg-linear-to-r from-purple-600 to-teal-400 text-white font-bold shadow-lg shadow-purple-200 dark:shadow-none hover:shadow-xl hover:scale-[1.01] transition-all disabled:opacity-70 disabled:scale-100 flex justify-center items-center gap-2"
+                  >
+                    {loading ? (
+                      <Loader2 className="animate-spin h-5 w-5" />
+                    ) : (
+                      "Send Reset Link"
+                    )}
+                  </button>
+                </form>
+              </>
+            ) : (
+              <div className="text-center py-4">
+                <div className="flex justify-center mb-6">
+                  <div className="w-20 h-20 bg-teal-50 dark:bg-teal-900/20 rounded-full flex items-center justify-center">
+                    <CheckCircle2 className="text-teal-500" size={48} />
+                  </div>
+                </div>
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+                  Check your email
+                </h2>
+                <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+                  If an account exists for{" "}
+                  <span className="font-bold text-slate-700 dark:text-slate-300">
+                    {email}
+                  </span>
+                  , you will receive a password reset link shortly.
+                </p>
+                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl text-xs text-slate-500 dark:text-slate-400 text-left mb-8 flex gap-3">
+                  <div className="shrink-0 pt-0.5">💡</div>
+                  <p>
+                    Don't forget to check your spam folder if you don't see the
+                    email within a few minutes.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSubmitted(false)}
+                  className="text-purple-600 dark:text-purple-400 font-bold hover:text-purple-500 transition-colors"
+                >
+                  Didn't receive the email? Try again
                 </button>
               </div>
-            </form>
-          ) : (
-            <div className="text-center space-y-6">
-              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto text-green-500">
-                <CheckCircle2 size={32} />
-              </div>
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold text-gray-900">
-                  Check your email
-                </h3>
-                <p className="text-sm text-gray-500">
-                  We've sent a password reset link to <br />
-                  <span className="font-bold text-gray-800">{email}</span>
-                </p>
-              </div>
-              <button
-                onClick={() => setSuccess(false)}
-                className="text-sm font-bold text-indigo-600 hover:text-indigo-600"
-              >
-                Didn't receive the email? Click to try again
-              </button>
-            </div>
-          )}
+            )}
 
-          <div className="mt-8 text-center">
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft size={16} /> Back to login
-            </Link>
+            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-center">
+              <Link
+                href="/login"
+                className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-bold hover:text-slate-900 dark:hover:text-white transition-all group"
+              >
+                <ArrowLeft
+                  size={16}
+                  className="group-hover:-translate-x-1 transition-transform"
+                />
+                Back to Login
+              </Link>
+            </div>
           </div>
         </div>
       </div>

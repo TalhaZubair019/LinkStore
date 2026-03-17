@@ -1,175 +1,250 @@
 "use client";
-
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { setCredentials } from "@/redux/slices/AuthSlice";
-import { Loader2, Eye, EyeOff, ShoppingBag } from "lucide-react";
-import axios from "axios";
+import { loginSuccess } from "@/redux/AuthSlice";
+import { initializeCart } from "@/redux/CartSlice";
+import { initializeWishlist } from "@/redux/WishListSlice";
+import { Loader2, ChevronRight, Eye, EyeOff } from "lucide-react";
+import db from "@data/db.json";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
   const dispatch = useDispatch();
-  
-  const { items: localCartItems } = useSelector((state: any) => state.cart);
+  const { cartItems: localCartItems } = useSelector((state: any) => state.cart);
+  const isDeleted = searchParams.get("msg") === "deleted";
+
+  React.useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedPassword = localStorage.getItem("rememberedPassword");
+    if (savedEmail) {
+      setFormData((prev) => ({
+        ...prev,
+        email: savedEmail,
+        password: savedPassword || prev.password,
+      }));
+      setRememberMe(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    if (rememberMe) {
+      localStorage.setItem("rememberedEmail", formData.email);
+      localStorage.setItem("rememberedPassword", formData.password);
+    } else {
+      localStorage.removeItem("rememberedEmail");
+      localStorage.removeItem("rememberedPassword");
+    }
+
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-      const res = await axios.post(`${apiUrl}/auth/login`, formData);
-      const data = res.data;
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-      // Handle successful login
-      dispatch(setCredentials({ user: data.user, token: data.token }));
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
 
-      // Redirect logic
+      if (data.user.wishlist && Array.isArray(data.user.wishlist)) {
+        dispatch(initializeWishlist(data.user.wishlist));
+      } else {
+        dispatch(initializeWishlist([]));
+      }
+
+      let mergedCart = [...(data.user.cart || [])];
+
+      localCartItems.forEach((localItem: any) => {
+        const existingItemIndex = mergedCart.findIndex(
+          (item: any) => item.id === localItem.id,
+        );
+        if (existingItemIndex > -1) {
+          mergedCart[existingItemIndex] = {
+            ...mergedCart[existingItemIndex],
+            quantity:
+              mergedCart[existingItemIndex].quantity + localItem.quantity,
+          };
+        } else {
+          mergedCart.push(localItem);
+        }
+      });
+
+      const totalQty = mergedCart.reduce(
+        (acc: number, item: any) => acc + (item.quantity || 1),
+        0,
+      );
+      const totalAmt = mergedCart.reduce(
+        (acc: number, item: any) => acc + item.price * (item.quantity || 1),
+        0,
+      );
+
+      dispatch(
+        initializeCart({
+          cartItems: mergedCart,
+          totalQuantity: totalQty,
+          totalAmount: totalAmt,
+        }),
+      );
+
+      dispatch(loginSuccess({ user: data.user, token: data.token }));
+
       if (redirect) {
         router.push(redirect);
-      } else if (data.user.role === "admin") {
+      } else if (data.user.isAdmin) {
         router.push("/admin/dashboard");
-      } else if (data.user.role === "vendor") {
-        router.push("/seller/dashboard");
       } else {
         router.push("/");
       }
     } catch (err: any) {
-      if (err.response?.data?.notVerified) {
-        router.push(`/signup?email=${encodeURIComponent(formData.email)}&notVerified=true`);
+      if (err.message.includes("not verified")) {
+        router.push(
+          `/signup?email=${encodeURIComponent(formData.email)}&notVerified=true`,
+        );
         return;
       }
-      setError(err.response?.data?.message || "Login failed. Please check your credentials.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Link href="/" className="flex justify-center items-center gap-2 mb-6">
-          <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-200">L</div>
-          <span className="text-3xl font-black text-gray-900 tracking-tighter uppercase">LinkStore</span>
-        </Link>
-        <h2 className="text-center text-3xl font-extrabold text-gray-900 tracking-tight">
-          Welcome back
-        </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          Or{" "}
-          <Link href="/signup" className="font-bold text-indigo-600 hover:text-indigo-600 transition-colors">
-            create a new account
-          </Link>
-        </p>
-      </div>
+    <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors">
+      <PageHeader title="Login" breadcrumb="Login" />
+      <div className="relative z-10">
+        <div className="max-w-7xl mx-auto mt-10 px-4 lg:px-8 pb-32">
+          <div className="max-w-md mx-auto bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 transition-all">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 text-center">
+              Welcome Back
+            </h2>
+            <p className="text-slate-500 dark:text-slate-400 text-center mb-8">
+              Sign in to your account
+            </p>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-xl shadow-gray-200/50 rounded-2xl border border-gray-100 sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium text-center animate-pulse">
-                {error}
-              </div>
-            )}
-            
-            <div>
-              <label htmlFor="email" className="block text-sm font-bold text-gray-700 uppercase tracking-widest mb-1">
-                Email address
-              </label>
-              <div className="mt-1">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 text-gray-900"
-                  placeholder="you@example.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-bold text-gray-700 uppercase tracking-widest mb-1">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  required
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl shadow-xs placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-all bg-gray-50/50 pr-12 text-gray-900"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 font-medium cursor-pointer">
-                  Remember me
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              {error && (
+                <div className="text-red-500 text-sm text-center bg-red-50 dark:bg-red-900/10 p-2 rounded border border-red-100 dark:border-red-900/20">
+                  {error}
+                </div>
+              )}
+              {isDeleted && !error && (
+                <div className="text-amber-600 text-sm text-center bg-amber-50 p-3 rounded-lg border border-amber-200 font-medium">
+                  Your account has been deleted by an administrator.
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Email Address
                 </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  className="w-full border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/20 bg-white dark:bg-slate-800 transition-all"
+                  placeholder="name@example.com"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    required
+                    className="w-full border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/20 bg-white dark:bg-slate-800 transition-all pr-12"
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
 
-              <div className="text-sm">
-                <Link href="/forgot-password/ " className="font-bold text-indigo-600 hover:text-indigo-600">
-                  Forgot your password?
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <div className="relative flex items-center justify-center">
+                    <input
+                      type="checkbox"
+                      className="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all checked:border-purple-500 checked:bg-purple-500 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/20"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                    />
+                    <svg
+                      className="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                    Remember me
+                  </span>
+                </label>
+
+                <Link
+                  href="/forgot-password"
+                  className="text-sm font-bold text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 hover:underline"
+                >
+                  Forgot password?
                 </Link>
               </div>
-            </div>
 
-            <div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-lg text-sm font-bold text-white bg-indigo-500 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100"
+                className="w-full py-3.5 rounded-lg bg-linear-to-r from-purple-600 to-teal-400 text-white font-bold shadow-lg shadow-purple-200 dark:shadow-purple-900/20 hover:shadow-xl hover:scale-[1.01] transition-all disabled:opacity-70 disabled:scale-100 flex justify-center items-center gap-2"
               >
                 {loading ? (
                   <Loader2 className="animate-spin h-5 w-5" />
                 ) : (
-                  "SIGN IN"
+                  "Sign In"
                 )}
               </button>
-            </div>
-          </form>
-
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500 font-medium">Securely sign in to LinkStore</span>
-              </div>
+            </form>
+            <div className="text-center text-sm mt-6">
+              <p className="text-slate-600 dark:text-slate-400">
+                Don't have an account?{" "}
+                <Link
+                  href="/signup"
+                  className="font-bold text-purple-600 dark:text-purple-400 hover:text-purple-500 dark:hover:text-purple-300 hover:underline"
+                >
+                  Sign up
+                </Link>
+              </p>
             </div>
           </div>
         </div>

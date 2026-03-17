@@ -1,7 +1,10 @@
 const jwt = require("jsonwebtoken");
 
+const ADMIN_EMAIL = process.env.EMAIL_USER;
 const JWT_SECRET = process.env.JWT_SECRET;
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+
+const { connectDB } = require("../lib/db");
+const { UserModel } = require("../lib/models");
 
 function extractToken(req) {
   const authHeader = req.headers["authorization"];
@@ -14,39 +17,48 @@ function extractToken(req) {
   return match ? match[1] : null;
 }
 
-const verifyToken = async (req, res, next) => {
+async function requireAuth(req, res, next) {
   const token = extractToken(req);
-  if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });
-  
+  if (!token) return res.status(401).json({ message: "Unauthorized" });
   try {
-    const verified = jwt.verify(token, JWT_SECRET);
-    req.user = verified;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    await connectDB();
+    const userExists = await UserModel.findOne({ id: decoded.id }).lean();
+    if (!userExists) {
+      return res.status(401).json({ 
+        message: "Account not found or deleted", 
+        isDeleted: true 
+      });
+    }
+    req.user = decoded;
     next();
-  } catch (err) {
-    res.status(401).json({ message: "Invalid or expired token" });
+  } catch {
+    return res.status(401).json({ message: "Invalid token" });
   }
-};
+}
 
-const isVendor = (req, res, next) => {
-  if (req.user.role !== "vendor" && req.user.role !== "admin") {
-    return res.status(403).json({ message: "Forbidden: Requires Vendor or Admin Role" });
-  }
-  next();
-};
+function requireAdmin(req, res, next) {
+  requireAuth(req, res, () => {
+    const isAdmin = req.user.isAdmin === true || req.user.email === ADMIN_EMAIL;
+    if (!isAdmin) return res.status(403).json({ message: "Forbidden" });
+    next();
+  });
+}
 
-const isAdmin = (req, res, next) => {
-  const userIsAdmin = req.user.role === "admin" || req.user.email === ADMIN_EMAIL;
-  if (!userIsAdmin) {
-    return res.status(403).json({ message: "Forbidden: Requires Admin Role" });
-  }
-  next();
-};
+function requireSuperAdmin(req, res, next) {
+  requireAuth(req, res, () => {
+    if (req.user.email !== ADMIN_EMAIL) {
+      return res.status(403).json({ message: "Only the super admin can perform this action" });
+    }
+    next();
+  });
+}
 
-module.exports = { 
-  verifyToken, 
-  isVendor, 
-  isAdmin,
+module.exports = {
+  extractToken,
+  requireAuth,
+  requireAdmin,
+  requireSuperAdmin,
   JWT_SECRET,
-  ADMIN_EMAIL
+  ADMIN_EMAIL,
 };
-

@@ -1,118 +1,48 @@
-"use client";
-
-import { useState } from "react";
-import { useParams } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { addToCart } from "@/redux/slices/CartSlice";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Star,
   Store,
   MapPin,
   Truck,
   ShieldCheck,
-  Plus,
-  Minus,
-  Heart,
-  Share2,
+  ChevronRight,
 } from "lucide-react";
 import SearchBar from "@/components/layout/SearchBar";
 import ProductReviews from "@/components/products/ProductReviews";
+import PDPClient from "@/components/products/PDPClient";
 
+async function getProduct(id: string) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000/api'}/public/products/${id}`, {
+      next: { revalidate: 30 } // Revalidate every 30 seconds
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+}
 
-// Dummy data for this single product experience
-const dummyProduct = {
-  _id: "1",
-  title:
-    "Sony WH-1000XM5 Wireless Noise Cancelling Headphones - Premium Silver Edition",
-  price: 299.0,
-  originalPrice: 399.0,
-  rating: 4.8,
-  reviewsCount: 1245,
-  soldCount: 3500,
-  images: [
-    "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?q=80&w=600&auto=format&fit=crop", // Main
-    "https://images.unsplash.com/photo-1546435770-a3e426bf472b?q=80&w=600&auto=format&fit=crop", // Variation 1
-    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop", // Variation 2
-  ],
-  store: {
-    name: "TechHaven Official",
-    slug: "techhaven",
-    rating: "98% Positive Feedback",
-  },
-  options: {
-    color: ["Silver", "Matte Black", "Midnight Blue"],
-  },
-  specs: [
-    { label: "Brand", value: "Sony" },
-    { label: "SKU", value: "SNY-WH1000XM5-SLV" },
-    { label: "Connection", value: "Wireless Bluetooth 5.2" },
-    { label: "Battery Life", value: "Up to 30 hours" },
-    { label: "Warranty", value: "1 Year Local Manufacturer Warranty" },
-  ],
-  description:
-    "The WH-1000XM5 headphones rewrite the rules for distraction-free listening. 2 processors control 8 microphones for unprecedented noise cancellation and exceptional call quality.",
-};
+export default async function ProductDetails({ params }: { params: { id: string } }) {
+  const { id } = params;
+  const product = await getProduct(id);
 
-export default function ProductDetails() {
-  const { id } = useParams();
-  const dispatch = useDispatch();
-
-  const [activeImage, setActiveImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(
-    dummyProduct.options.color[0],
-  );
-  const [quantity, setQuantity] = useState(1);
-
-  const handleAddToCart = () => {
-    dispatch(
-      addToCart({
-        productId: dummyProduct._id,
-        storeId: "s3",
-        title: `${dummyProduct.title} (${selectedColor})`,
-        price: dummyProduct.price,
-        quantity,
-        image: dummyProduct.images[0],
-      }),
-    );
-    alert("Added to cart successfully!");
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-800">
-      {/* 1. Reusable Top Bar & Header */}
-      <div className="bg-gray-100 text-[11px] text-gray-500 hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 lg:px-6 h-8 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="#" className="hover:text-indigo-600 hover:underline">
-              SAVE MORE ON APP
-            </Link>
-            <Link
-              href="/seller/dashboard"
-              className="text-indigo-600 font-bold hover:underline"
-            >
-              SELL ON LINKSTORE
-            </Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="hover:text-indigo-600 hover:underline"
-            >
-              LOGIN
-            </Link>
-            <Link
-              href="/signup"
-              className="hover:text-indigo-600 hover:underline"
-            >
-              SIGNUP
-            </Link>
-          </div>
+  if (!product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
+        <div className="text-center">
+          <h1 className="text-4xl font-black text-gray-900 mb-4">Product Not Found</h1>
+          <Link href="/" className="text-indigo-600 font-bold hover:underline">Return to Home</Link>
         </div>
       </div>
+    );
+  }
 
-      <header className="bg-white sticky top-0 z-50 shadow-xs border-b border-gray-100">
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-gray-800 pb-20">
+      {/* 1. Header */}
+      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-100/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 lg:px-6 h-20 flex items-center gap-6 lg:gap-12">
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <div className="w-10 h-10 bg-linear-to-br from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-md">
@@ -126,234 +56,107 @@ export default function ProductDetails() {
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-6 py-6 pb-20">
-        <div className="mb-4 text-xs text-gray-500">
-          <Link href="/" className="hover:underline hover:text-indigo-600">
-            Home
-          </Link>{" "}
-          &gt;
-          <span className="mx-1">Audio</span> &gt;
-          <span className="text-gray-900 truncate mx-1">
-            {dummyProduct.title}
-          </span>
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 lg:px-6 py-10">
+        {/* Breadcrumbs */}
+        <div className="mb-10 flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+          <Link href="/" className="hover:text-indigo-600 transition-colors">Home</Link>
+          <ChevronRight size={10} />
+          <span className="text-gray-900">{product.category || "Product"}</span>
         </div>
 
-        {/* Product Inner Core Layout */}
-        <div className="bg-white p-4 lg:p-6 rounded-xl border border-gray-100 mb-6 flex flex-col lg:flex-row gap-8">
-          {/* Left: Gallery */}
-          <div className="w-full lg:w-[400px] shrink-0">
-            <div className="relative w-full aspect-square bg-gray-50 rounded-lg overflow-hidden border border-gray-100 mb-3 cursor-crosshair">
-              <Image
-                src={dummyProduct.images[activeImage]}
-                alt="Product Image"
-                fill
-                className="object-cover hover:scale-150 transition-transform duration-500 origin-center"
-              />
-            </div>
-            {/* Thumbnail row */}
-            <div className="flex gap-2.5 overflow-x-auto hide-scrollbar">
-              {dummyProduct.images.map((img, idx) => (
-                <button
-                  key={idx}
-                  onMouseEnter={() => setActiveImage(idx)}
-                  className={`relative w-16 h-16 rounded-md overflow-hidden border-2 shrink-0 ${activeImage === idx ? "border-indigo-500" : "border-transparent"}`}
-                >
-                  <Image src={img} alt="Thumb" fill className="object-cover" />
-                </button>
-              ))}
-            </div>
+        {/* Main Product Section (Interactive Client Component) */}
+        <PDPClient product={product} />
+
+        {/* Store & Shipping Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-20">
+          {/* Store Badge */}
+          <div className="lg:col-span-2 bg-white rounded-[32px] p-8 border border-gray-100 flex items-center justify-between shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500 group">
+             <div className="flex items-center gap-6">
+               <div className="w-20 h-20 bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 relative group-hover:scale-105 transition-transform duration-500">
+                  {product.storeId?.logoUrl ? (
+                    <Image src={product.storeId.logoUrl} alt={product.storeId.name} fill className="object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-indigo-50 text-indigo-500 font-black text-2xl">
+                       {product.storeId?.name?.[0] || "S"}
+                    </div>
+                  )}
+               </div>
+               <div>
+                 <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-1 block">Verified Vendor</span>
+                 <h3 className="text-2xl font-black text-gray-900 tracking-tight">{product.storeId?.name || "Official Store"}</h3>
+                 <div className="flex items-center gap-4 mt-2">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-green-600">
+                      <ShieldCheck size={14} /> 98% Positive Feedback
+                    </div>
+                 </div>
+               </div>
+             </div>
+             
+             <Link 
+               href={`/shop/${product.storeId?.slug || "#"}`}
+               className="px-8 py-3 bg-gray-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-lg hover:shadow-indigo-200"
+             >
+               Visit Store
+             </Link>
           </div>
 
-          {/* Middle: Main Product Info */}
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl lg:text-2xl font-medium text-gray-900 leading-tight mb-2">
-              {dummyProduct.title}
-            </h1>
-
-            {/* Ratings & Sold Data */}
-            <div className="flex items-center gap-4 text-sm mb-4">
-              <div className="flex items-center text-yellow-500">
-                <Star className="w-4 h-4 fill-yellow-500" />
-                <Star className="w-4 h-4 fill-yellow-500" />
-                <Star className="w-4 h-4 fill-yellow-500" />
-                <Star className="w-4 h-4 fill-yellow-500" />
-                <Star className="w-4 h-4 fill-yellow-500" opacity={0.5} />
-                <span className="text-cyan-600 ml-2 hover:underline cursor-pointer">
-                  {dummyProduct.reviewsCount} Ratings
-                </span>
-              </div>
-              <div className="text-gray-400">|</div>
-              <div className="text-gray-500">
-                <span className="text-gray-900">{dummyProduct.soldCount}</span>{" "}
-                Sold
-              </div>
-            </div>
-
-            {/* Price Block */}
-            <div className="bg-gray-50/80 p-4 rounded-lg border border-indigo-100 mb-6">
-              <div className="flex items-end gap-3 mb-1">
-                <span className="text-3xl font-black text-indigo-600 tracking-tighter">
-                  ${dummyProduct.price.toFixed(2)}
-                </span>
-                <span className="text-sm text-gray-400 line-through mb-1">
-                  ${dummyProduct.originalPrice.toFixed(2)}
-                </span>
-                <span className="text-xs font-bold text-indigo-900 bg-indigo-200 px-1.5 py-0.5 rounded-sm mb-1.5 ml-1">
-                  -25%
-                </span>
-              </div>
-            </div>
-
-            {/* Variations */}
-            <div className="mb-6">
-              <span className="text-sm text-gray-500 font-medium w-16 inline-block">
-                Color_Family
-              </span>
-              <span className="text-sm font-bold text-gray-900 ml-2">
-                {selectedColor}
-              </span>
-              <div className="flex flex-wrap gap-3 mt-3 ml-18">
-                {dummyProduct.options.color.map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setSelectedColor(c)}
-                    className={`px-3 py-1.5 text-sm border ${selectedColor === c ? "border-indigo-500 text-indigo-600 bg-indigo-50" : "border-gray-200 text-gray-700 hover:border-indigo-300"} rounded-sm transition-colors`}
-                  >
-                    {c}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity and Actions */}
-            <div className="flex items-center gap-4 mb-8">
-              <span className="text-sm text-gray-500 font-medium w-16">
-                Quantity
-              </span>
-              <div className="flex items-center border border-gray-300 rounded-sm">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600"
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <input
-                  type="text"
-                  value={quantity}
-                  readOnly
-                  className="w-12 h-8 text-center border-x border-gray-300 text-sm outline-hidden font-medium"
-                />
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="w-8 h-8 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6">
-              <button className="flex-1 max-w-[200px] bg-indigo-50 text-indigo-600 hover:bg-indigo-200 py-3.5 rounded-sm font-bold transition-colors">
-                Buy Now
-              </button>
-              <button
-                onClick={handleAddToCart}
-                className="flex-1 max-w-[200px] bg-indigo-500 text-white py-3.5 hover:bg-indigo-600 rounded-sm font-bold transition-colors"
-              >
-                Add to Cart
-              </button>
-            </div>
-          </div>
-
-          {/* Right: Delivery & Store Info */}
-          <div className="w-full lg:w-[280px] shrink-0 bg-gray-50 p-4 rounded-xl border border-gray-100 self-start">
-            <div className="space-y-4 text-sm text-gray-600 border-b border-gray-200 pb-4 mb-4">
-              <h4 className="font-semibold text-gray-900 text-xs uppercase">
-                Delivery
-              </h4>
-              <div className="flex gap-3">
-                <MapPin className="w-5 h-5 shrink-0 text-gray-400" />
+          {/* Shipping Info Side Card */}
+          <div className="bg-indigo-600 rounded-[32px] p-8 text-white shadow-2xl shadow-indigo-500/30 flex flex-col justify-center gap-6">
+             <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center">
+                  <Truck className="w-6 h-6" />
+                </div>
                 <div>
-                  <p>Standard Delivery, 3-5 Days</p>
-                  <p className="font-bold text-gray-900 mt-1">$2.50</p>
+                   <p className="text-xs font-bold text-indigo-100 uppercase tracking-widest">Global Shipping</p>
+                   <p className="text-lg font-black">Free Delivery Available</p>
                 </div>
-              </div>
-              <div className="flex gap-3">
-                <Truck className="w-5 h-5 shrink-0 text-gray-400" />
-                <p>Cash on Delivery Available</p>
-              </div>
-            </div>
-
-            <div className="space-y-4 text-sm text-gray-600 border-b border-gray-200 pb-4 mb-4">
-              <h4 className="font-semibold text-gray-900 text-xs uppercase">
-                Return & Warranty
-              </h4>
-              <div className="flex gap-3">
-                <ShieldCheck className="w-5 h-5 shrink-0 text-gray-400" />
-                <p>14 days free return</p>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-gray-900 text-xs uppercase mb-3 border-b border-gray-200 pb-2">
-                Sold By
-              </h4>
-              <div className="flex items-center gap-2 mb-3">
-                <Store className="w-5 h-5 text-indigo-600" />
-                <Link
-                  href={`/shop/${dummyProduct.store.slug}`}
-                  className="font-bold text-gray-900 hover:text-indigo-600 hover:underline"
-                >
-                  {dummyProduct.store.name}
-                </Link>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-center mt-4">
-                <div className="bg-white border border-gray-200 p-2 rounded-lg">
-                  <p className="text-[10px] text-gray-500 mb-1">
-                    Positive Rating
-                  </p>
-                  <p className="font-bold text-base text-gray-900">92%</p>
+             </div>
+             <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center">
+                  <MapPin className="w-6 h-6" />
                 </div>
-                <div className="bg-white border border-gray-200 p-2 rounded-lg">
-                  <p className="text-[10px] text-gray-500 mb-1">Ship on Time</p>
-                  <p className="font-bold text-base text-gray-900">99%</p>
+                <div>
+                   <p className="text-xs font-bold text-indigo-100 uppercase tracking-widest">Location</p>
+                   <p className="text-lg font-black">International Warehouse</p>
                 </div>
-              </div>
-            </div>
+             </div>
           </div>
         </div>
 
-        {/* Specifications Table Section */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6 mb-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 border-b border-gray-100 pb-4 bg-gray-50 -mx-6 px-6 pt-2">
-            Product Details
-          </h3>
-          <p className="text-sm text-gray-600 leading-relaxed mb-8">
-            {dummyProduct.description}
-          </p>
-
-          <h4 className="font-semibold text-gray-800 text-sm mb-3 border-b border-gray-100 pb-2 bg-gray-50 p-2 rounded-t-md">
-            Specifications
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm pt-2">
-            {dummyProduct.specs.map((spec) => (
-              <div
-                key={spec.label}
-                className="flex border-b border-gray-50 pb-2"
-              >
-                <span className="w-1/3 text-gray-500">{spec.label}</span>
-                <span className="w-2/3 font-medium text-gray-900">
-                  {spec.value}
-                </span>
+        {/* Description & Specifications */}
+        <div className="mt-20">
+           <div className="flex items-center gap-12 border-b border-gray-100 mb-10">
+              <button className="pb-4 text-sm font-black text-gray-900 border-b-2 border-indigo-600 uppercase tracking-widest">
+                Product Specifications
+              </button>
+           </div>
+           
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-6">
+              {/* Dynamic specs could go here if available, using dummy defaults for visual completeness */}
+              <div className="flex items-center justify-between border-b border-gray-50 pb-4">
+                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Brand</span>
+                <span className="text-sm font-black text-gray-900 underline decoration-indigo-500/30 decoration-4 underline-offset-4">Premium Selection</span>
               </div>
-            ))}
-          </div>
+              <div className="flex items-center justify-between border-b border-gray-50 pb-4">
+                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Condition</span>
+                <span className="text-sm font-black text-gray-900">Brand New</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-gray-50 pb-4">
+                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Warranty</span>
+                <span className="text-sm font-black text-gray-900">2 Year Official</span>
+              </div>
+              <div className="flex items-center justify-between border-b border-gray-50 pb-4">
+                <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">In Stock</span>
+                <span className="text-sm font-black text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">Available</span>
+              </div>
+           </div>
         </div>
 
         {/* Reviews Section */}
-        <ProductReviews productId={id as string} />
+        <div className="mt-32">
+          <ProductReviews productId={id} />
+        </div>
       </main>
     </div>
   );
 }
-

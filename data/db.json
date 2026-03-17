@@ -1,0 +1,642 @@
+{
+  "about": {
+    "sectionLabel": "// ABOUT OUR COMPANY //",
+    "headingFirst": "Where Creativity Meets",
+    "headingHighlight": "Quality Printing",
+    "headerBtnLink": "/shop",
+    "description": "We combine artistic vision with premium printing techniques to deliver custom products that exceed expectations.",
+    "mainImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/a1-img-1.webp",
+    "secondaryImages": [
+      "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/a1-img-2.webp",
+      "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/a1-img-3.webp"
+    ],
+    "features": [
+      {
+        "title": "Live Order Tracking",
+        "desc": "Everyone's local printer, we partner with more than 50 print on demand suppliers in over 10 countries."
+      },
+      {
+        "title": "Secure Online Payment",
+        "desc": "Our platform ensures transparent draws, using secure verifiable procedures, ensuring absolute fairness."
+      },
+      {
+        "title": "Free Design Templates",
+        "desc": "Safely buy lottery tickets with confidence using our secure system, ensuring worry-free ordering."
+      }
+    ]
+  },
+  "blog": {
+    "sectionInfo": {
+      "label": "// Latest News //",
+      "headingMain": "Latest from the",
+      "headingHighlight": "Print Desk",
+      "description": "Stay informed with expert tips, trends, and print industry updates.",
+      "buttonText": "More Blog"
+    },
+    "posts": [
+      {
+        "id": 1,
+        "title": "How to Choose the Right Material for Your Prints",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/b1-img-1.webp",
+        "author": {
+          "name": "Printnest",
+          "avatar": "https://secure.gravatar.com/avatar/71a77267f30008ab3eef4b020e1b29155945405731d0f1e44dbc349e0ac7723e?s=50&d=mm&r=g"
+        },
+        "date": "May 17, 2025",
+        "readTime": "2 min read"
+      },
+      {
+        "id": 2,
+        "title": "The Power of Personalization in Modern Printing",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/b1-img-2.webp",
+        "author": {
+          "name": "Printnest",
+          "avatar": "https://secure.gravatar.com/avatar/71a77267f30008ab3eef4b020e1b29155945405731d0f1e44dbc349e0ac7723e?s=50&d=mm&r=g"
+        },
+        "date": "May 17, 2025",
+        "readTime": "2 min read"
+      },
+      {
+        "id": 3,
+        "title": "Why Custom Merchandise Can Elevate Your Brand",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/b1-img-3.webp",
+        "author": {
+          "name": "Printnest",
+          "avatar": "https://secure.gravatar.com/avatar/71a77267f30008ab3eef4b020e1b29155945405731d0f1e44dbc349e0ac7723e?s=50&d=mm&r=g"
+        },
+        "date": "January 10, 2024",
+        "readTime": "2 min read"
+      }
+    ]
+  },
+  "cart": {
+    "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/breadcrumb-bg.webp",
+    "breadcrumbs": {
+      "home": "Home",
+      "current": "Cart"
+    },
+    "emptyState": {
+      "message": "Your cart is currently empty.",
+      "buttonText": "Return to Shop",
+      "redirectUrl": "/shop"
+    },
+    "columns": {
+      "product": "Product",
+      "total": "Total"
+    },
+    "placeholders": {
+      "noImageText": "No Img",
+      "category": "Custom Print",
+      "description": "Premium quality custom printed product designed to your specifications."
+    },
+    "summary": {
+      "title": "Cart Totals",
+      "couponLabel": "Add coupons",
+      "couponPlaceholder": "Select a coupon",
+      "coupons": [
+        {
+          "code": "DISCOUNT20",
+          "label": "Winter Sale - 20% OFF"
+        },
+        {
+          "code": "WELCOME10",
+          "label": "New User - 10% OFF"
+        }
+      ],
+      "totalLabel": "Estimated total",
+      "checkoutButtonText": "Proceed to Checkout",
+      "checkoutUrl": "/checkout"
+    }
+  },
+  "categories": {
+    "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/breadcrumb-bg.webp",
+    "breadcrumbs": {
+      "home": "Home",
+      "current": "Products"
+    },
+    "sectionLabel": "// TOP CATEGORIES //",
+    "headingMain": "Personalize High-Quality",
+    "headingHighlight": "Print Categories",
+    "description": "Choose from top-quality products & customize them to match your brand perfectly.",
+    "btnText": "View More",
+    "btnLink": "/shop",
+    "categories": [
+      {
+        "id": 1,
+        "title": "T-shirts",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/c1-img-1.webp",
+        "link": "/product-category/t-shirts/"
+      },
+      {
+        "id": 2,
+        "title": "Business Card",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/c1-img-2.webp",
+        "link": "/product-category/business-card/"
+      },
+      {
+        "id": 3,
+        "title": "Hoodies",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/c1-img-3.webp",
+        "link": "/product-category/hoodies/"
+      },
+      {
+        "id": 4,
+        "title": "Packaging",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/c1-img-4.webp",
+        "link": "/product-category/packaging/"
+      }
+    ]
+  },
+  "checkout": {
+    "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/breadcrumb-bg.webp",
+    "breadcrumbs": {
+      "home": "Home",
+      "current": "Checkout"
+    }
+  },
+  "footer": {
+    "newsletter": {
+      "titlePart1": "Join Now for Special Deals",
+      "titlePart2": "& Updates",
+      "description": "Get early access to exclusive deals, offers, and updates.",
+      "placeholder": "Enter your email",
+      "buttonText": "Subscribe",
+      "modelImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/cta1-img-1.webp"
+    },
+    "brand": {
+      "logo": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/logo-2.svg",
+      "description": "Stay connected for updates, exclusive deals, helpful tips, & printing inspiration.",
+      "socials": [
+        {
+          "name": "Facebook",
+          "url": "#"
+        },
+        {
+          "name": "Twitter",
+          "url": "#"
+        },
+        {
+          "name": "Instagram",
+          "url": "#"
+        },
+        {
+          "name": "Linkedin",
+          "url": "#"
+        }
+      ]
+    },
+    "columns": [
+      {
+        "title": "Useful Links",
+        "links": [
+          {
+            "label": "About Us",
+            "url": "#"
+          },
+          {
+            "label": "Our Blog",
+            "url": "#"
+          },
+          {
+            "label": "Start a Return",
+            "url": "#"
+          },
+          {
+            "label": "Our Products",
+            "url": "#"
+          }
+        ]
+      },
+      {
+        "title": "Information",
+        "links": [
+          {
+            "label": "Our Services",
+            "url": "#"
+          },
+          {
+            "label": "Pricing Plan",
+            "url": "#"
+          },
+          {
+            "label": "Faq",
+            "url": "#"
+          },
+          {
+            "label": "Our Products",
+            "url": "#"
+          }
+        ]
+      },
+      {
+        "title": "Other Pages",
+        "links": [
+          {
+            "label": "My Account",
+            "url": "#"
+          },
+          {
+            "label": "Shipping",
+            "url": "#"
+          },
+          {
+            "label": "Contact & Support",
+            "url": "#"
+          },
+          {
+            "label": "Privacy Policy",
+            "url": "#"
+          }
+        ]
+      }
+    ],
+    "contact": {
+      "title": "Keep In touch",
+      "address": ["2118 Thornridge Cir. Syracuse,"],
+      "email": "tranthuy.nute@gmail.com",
+      "phone": "(252) 555-0126",
+      "phoneLink": "2525550126"
+    },
+    "bottom": {
+      "copyright": "© 2026 PrintNest. All rights reserved.",
+      "paymentMethods": [
+        "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/payment-1.webp",
+        "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/payment-2.webp",
+        "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/payment-3.webp",
+        "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/payment-4.webp",
+        "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/payment-5.webp"
+      ]
+    }
+  },
+  "hero": {
+    "assets": {
+      "background": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/h1-bg-clr.webp",
+      "avatars": [
+        "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-1.webp",
+        "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-2.webp",
+        "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-3.webp"
+      ],
+      "floating": [
+        {
+          "name": "cap",
+          "url": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/h1-illus-1.webp"
+        },
+        {
+          "name": "prism",
+          "url": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/h1-illus-3.webp"
+        },
+        {
+          "name": "prism1",
+          "url": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/h1-illus-2.webp"
+        }
+      ],
+      "products": {
+        "left": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/h1-img-1.webp",
+        "center": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/h1-img-2.webp",
+        "right": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/h1-img-3.webp"
+      }
+    },
+    "content": {
+      "statsLeft": {
+        "count": "1.5k+",
+        "label": "Orders shipped in 2025"
+      },
+      "heroText": {
+        "headerBtnLink": "/shop",
+        "titlePart1": "Custom T-Shirts That",
+        "titlePart2": "Define",
+        "highlight": "Your Style",
+        "descriptionPart1": "Express yourself with high-quality custom shirts tailored to reflect your",
+        "descriptionPart2": "unique personality and style.",
+        "buttonLabel": "Shop Now"
+      },
+      "statsRight": [
+        {
+          "value": "95%",
+          "label": "Satisfaction Rate"
+        },
+        {
+          "value": "14+",
+          "label": "Years of Experience"
+        }
+      ]
+    }
+  },
+  "howitworks": {
+    "sectionLabel": "// HOW DOES IT WORKS //",
+    "headingMain": "Step-by-Step Process to Bring Your",
+    "headingHighlight": "Custom Ideas to Life",
+    "assets": {
+      "arrowOne": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/p1-item-arrow-1.webp",
+      "arrowTwo": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/p1-item-arrow-2.webp"
+    },
+    "steps": [
+      {
+        "id": 1,
+        "title": "Choose Your Product",
+        "description": "Browse our wide range of customizable items including t-shirts, and more.",
+        "icon": "MousePointer2",
+        "positionClass": "lg:top-0 lg:left-0",
+        "theme": {
+          "bg": "bg-[#F4F1FE]",
+          "hoverBorder": "hover:border-purple-200",
+          "hoverShadow": "hover:shadow-purple-100/50",
+          "iconBg": "bg-[#A855F7]",
+          "iconShadow": "shadow-purple-300"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Personalize Your Design",
+        "description": "Upload your artwork or use our easy-to-use design tools to reflect your style.",
+        "icon": "PencilLine",
+        "positionClass": "lg:top-[160px] lg:left-[40%]",
+        "theme": {
+          "bg": "bg-[#FFF0F3]",
+          "hoverBorder": "hover:border-pink-200",
+          "hoverShadow": "hover:shadow-pink-100/50",
+          "iconBg": "bg-[#FFAEB8]",
+          "iconShadow": "shadow-pink-200"
+        }
+      },
+      {
+        "id": 3,
+        "title": "Print & Deliver",
+        "description": "We print with precision and deliver your order quickly to your guaranteed.",
+        "icon": "Printer",
+        "positionClass": "lg:top-[500px] lg:left-[10%]",
+        "theme": {
+          "bg": "bg-[#EFF6FF]",
+          "hoverBorder": "hover:border-blue-200",
+          "hoverShadow": "hover:shadow-blue-100/50",
+          "iconBg": "bg-[#8BB6FF]",
+          "iconShadow": "shadow-blue-200"
+        }
+      }
+    ],
+    "footerContent": {
+      "text": "We guide you through every step, from choosing a product to customizing your design, ensuring your creative vision becomes a printed reality.",
+      "btnText": "View More",
+      "videoText": "Watch Video"
+    }
+  },
+  "navbar": {
+    "assets": {
+      "background": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/h1-bg-clr.webp",
+      "logo": {
+        "src": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/logo-1.svg",
+        "alt": "PrintNest Logo",
+        "width": 160,
+        "height": 45
+      }
+    },
+    "search": {
+      "placeholder": "Search"
+    },
+    "actions": {
+      "cart": {
+        "badge": null
+      },
+      "user": {
+        "badge": null
+      },
+      "wishlist": {
+        "badge": null
+      }
+    },
+    "navigation": [
+      {
+        "label": "Home",
+        "href": "/"
+      },
+      {
+        "label": "About",
+        "href": "/#about"
+      },
+      {
+        "label": "Services",
+        "href": "/#services"
+      },
+      {
+        "label": "Products",
+        "href": "/#products"
+      },
+      {
+        "label": "Blog",
+        "href": "/#blog"
+      },
+      {
+        "label": "Contact",
+        "href": "/#testimonials"
+      }
+    ]
+  },
+  "packaging": {
+    "header": {
+      "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/v1-bg-clr.webp",
+      "label": "// Social Channels //",
+      "title": {
+        "main": "Packaging Solutions",
+        "highlight": "That Work"
+      },
+      "description": "Reliable, custom packaging designed to protect, impress, & elevate your brand image.",
+      "buttonText": "View More"
+    },
+    "video": {
+      "src": "https://themexriver.com/wp/printnest/v1-video-1.mp4",
+      "poster": ""
+    }
+  },
+  "price": {
+    "header": {
+      "label": "// PRICING & PLAN //",
+      "titleMain": "Flexible Pricing for",
+      "titleHighlight": "Every Need",
+      "description": "Select from best plans, ensuring a perfect match. Need more or less? Customize your subscription for a seamless fit!",
+      "ctaText": "Contact Us"
+    },
+    "toggles": {
+      "monthly": "Monthly",
+      "annual": "Annually"
+    },
+    "plans": [
+      {
+        "id": "starter",
+        "name": "Starter",
+        "description": "Ideal for growing teams needing essential features at affordable rates.",
+        "price": {
+          "monthly": 250,
+          "yearly": 750
+        },
+        "features": [
+          "Free licensed icons",
+          "Task delivered one-by-one",
+          "Updates via dashboard & slack",
+          "50k design & prints",
+          "Printing programs tailored company",
+          "24/7 business support"
+        ]
+      },
+      {
+        "id": "premium",
+        "name": "Premium",
+        "description": "Unlock advanced features, support, and maximum scalability growth.",
+        "price": {
+          "monthly": 375,
+          "yearly": 975
+        },
+        "features": [
+          "Free licensed icons",
+          "Task delivered one-by-one",
+          "Updates via dashboard & slack",
+          "50k design & prints",
+          "Printing programs tailored company",
+          "24/7 business support"
+        ]
+      }
+    ]
+  },
+  "products": {
+    "sectionLabel": "// FEATURED PRODUCTS //",
+    "headingMain": "Exceptional Print Items",
+    "headingHighlight": "Tailored to You",
+    "description": "High-quality custom prints tailored to match your style and needs",
+    "headerBtnText": "See Our Products",
+    "headerBtnLink": "/shop",
+    "featuredImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/p1-man-1.webp"
+  },
+  "social": {
+    "title": "Loved by over 100,000 brands",
+    "logos": [
+      {
+        "name": "Lattice",
+        "url": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/p1-img-5.webp"
+      },
+      {
+        "name": "Clearbit",
+        "url": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/p1-img-1.webp"
+      },
+      {
+        "name": "Airtable",
+        "url": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/p1-img-2.webp"
+      },
+      {
+        "name": "Monday",
+        "url": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/p1-img-3.webp"
+      },
+      {
+        "name": "Dropbox",
+        "url": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/p1-img-4.webp"
+      }
+    ]
+  },
+  "testimonials": {
+    "header": {
+      "label": "// CLIENT'S FEEDBACK //",
+      "titleMain": "Success Stories From",
+      "titleHighlight": "Our Customers"
+    },
+    "testimonials": [
+      {
+        "name": "Arlene McCoy",
+        "role": "Web Designer",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-1.webp",
+        "content": "Our company has been using this service for over a year now, and it transformed how we handle branded merchandise."
+      },
+      {
+        "name": "Brooklyn Simmons",
+        "role": "Web Designer",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-2.webp",
+        "content": "This printing service helped elevate my brand to the next level. I needed cost-effective yet premium-quality prints."
+      },
+      {
+        "name": "Guy Hawkins",
+        "role": "Marketing Manager",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-3.webp",
+        "content": "I've used several print services in the past, but none have matched the level of professionalism and consistency."
+      },
+      {
+        "name": "Jane Cooper",
+        "role": "Creative Director",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-1.webp",
+        "content": "The attention to detail in their packaging is second to none. Every order arrives in pristine condition."
+      },
+      {
+        "name": "Robert Fox",
+        "role": "Entrepreneur",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-2.webp",
+        "content": "Finding a reliable printing partner was a challenge until we found PrintNest. Their dashboard makes tracking easy."
+      },
+      {
+        "name": "Cody Fisher",
+        "role": "Store Owner",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-3.webp",
+        "content": "The quality of the prints for our custom apparel exceeded our expectations. The colors are crisp and vibrant."
+      },
+      {
+        "name": "Esther Howard",
+        "role": "Brand Strategist",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-1.webp",
+        "content": "Working with PrintNest has streamlined our entire production process. Their tools are incredibly intuitive."
+      },
+      {
+        "name": "Dianne Russell",
+        "role": "Product Designer",
+        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/author-2.webp",
+        "content": "The turnaround time is incredible without sacrificing quality. They delivered ahead of schedule for our show."
+      }
+    ]
+  },
+  "whyus": {
+    "header": {
+      "label": "// Why Choose Us //",
+      "titleMain": "Why Clients Love Working",
+      "titleHighlight": "With Us"
+    },
+    "features": [
+      {
+        "icon": "Printer",
+        "title": "Premium Print Quality",
+        "description": "We use top-tier materials and high-resolution printing for a finish every time.",
+        "theme": {
+          "iconBg": "bg-purple-400",
+          "accent": "bg-purple-200"
+        }
+      },
+      {
+        "icon": "Settings2",
+        "title": "Customization Options",
+        "description": "From t-shirts to photo books, choose your product, design, colors, and finishes.",
+        "theme": {
+          "iconBg": "bg-teal-400",
+          "accent": "bg-teal-200"
+        }
+      },
+      {
+        "icon": "Headset",
+        "title": "Expert Support Team",
+        "description": "Friendly customer service ready to assist with design orders, & more.",
+        "theme": {
+          "iconBg": "bg-pink-400",
+          "accent": "bg-pink-200"
+        }
+      },
+      {
+        "icon": "PenTool",
+        "title": "Modern Design Tools",
+        "description": "Easy-to-use online design tools to help you personalize product in minutes.",
+        "theme": {
+          "iconBg": "bg-amber-400",
+          "accent": "bg-amber-200"
+        }
+      }
+    ]
+  },
+  "shop": {
+    "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/breadcrumb-bg.webp",
+    "breadcrumbs": {
+      "home": "Home",
+      "current": "Shop"
+    }
+  }
+}

@@ -44,4 +44,34 @@ router.get("/profile", verifyToken, async (req, res) => {
   }
 });
 
+// Update User Profile
+router.put("/profile", verifyToken, async (req, res) => {
+  try {
+    const { name, image } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (name) user.name = name;
+    if (image) user.image = image;
+
+    await user.save();
+    res.json({ message: "Profile updated successfully", user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get User Orders
+router.get("/orders", verifyToken, async (req, res) => {
+  try {
+    const { Order } = require("../models");
+    const orders = await Order.find({ customerId: req.user.id })
+      .sort({ createdAt: -1 })
+      .populate("items.productId", "title images price");
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
