@@ -1,11 +1,11 @@
 @import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
 
 html { scroll-behavior: smooth; }
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --daraz-orange: #f85606;
 }
 
 .dark {
