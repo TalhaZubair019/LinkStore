@@ -41,7 +41,9 @@ const NavButton = ({ active, onClick, icon, label }: any) => (
     >
       {React.cloneElement(icon, { size: 20 })}
     </span>
-    <span className="truncate transition-opacity duration-300 font-medium">{label}</span>
+    <span className="truncate transition-opacity duration-300 font-medium">
+      {label}
+    </span>
   </button>
 );
 
@@ -133,7 +135,10 @@ const AdminSidebar = ({
             className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors w-full group"
             title="Back to Store"
           >
-            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            <ChevronLeft
+              size={16}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
             <span>Back to Store</span>
           </Link>
           <button
@@ -141,7 +146,10 @@ const AdminSidebar = ({
             className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors w-full group"
             title="Logout"
           >
-            <LogOut size={16} className="group-hover:translate-x-1 transition-transform" />
+            <LogOut
+              size={16}
+              className="group-hover:translate-x-1 transition-transform"
+            />
             <span>Logout</span>
           </button>
         </div>
