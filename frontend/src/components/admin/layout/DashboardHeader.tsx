@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Search, X, UserIcon } from "lucide-react";
+import { Search, X, Shield } from "lucide-react";
 
 interface DashboardHeaderProps {
   user: any;
@@ -11,6 +11,7 @@ interface DashboardHeaderProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   showSearch: boolean;
+  isAdminView?: boolean;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
@@ -20,6 +21,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   searchTerm,
   setSearchTerm,
   showSearch,
+  isAdminView = false,
 }) => {
   return (
     <>
@@ -38,9 +40,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <Link
             href="/account"
             className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 p-2 rounded-lg bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            title="Switch to User View"
+            title="Switch Dashboard"
           >
-            <UserIcon size={18} />
+            <Shield size={18} />
           </Link>
           <select
             value={activeTab}
@@ -48,16 +50,24 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             className="bg-slate-100 dark:bg-slate-800 text-purple-600 dark:text-purple-400 text-xs font-bold py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 outline-none max-w-[120px]"
           >
             <option value="overview">Overview</option>
-            <option value="products">Products</option>
-            <option value="reviews">Reviews</option>
-            <option value="users">Users</option>
-            <option value="admins">Admins</option>
-            <option value="orders">Orders</option>
-            <option value="categories">Categories</option>
-            <option value="warehouses">Warehouses</option>
-            <option value="inventory">Inventory</option>
-            {user?.adminRole === "super_admin" && (
-              <option value="logs">Activity Logs</option>
+            {isAdminView ? (
+              <>
+                <option value="users">Users</option>
+                <option value="admins">Admins</option>
+                <option value="vendors">Vendors</option>
+                {user?.adminRole === "super_admin" && (
+                  <option value="logs">Activity Logs</option>
+                )}
+              </>
+            ) : (
+              <>
+                <option value="products">Products</option>
+                <option value="reviews">Reviews</option>
+                <option value="orders">Orders</option>
+                <option value="categories">Categories</option>
+                <option value="warehouses">Warehouses</option>
+                <option value="inventory">Inventory</option>
+              </>
             )}
           </select>
         </div>

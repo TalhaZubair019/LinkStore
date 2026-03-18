@@ -110,4 +110,77 @@ router.delete("/:id", requireSuperAdmin, async (req, res) => {
   }
 });
 
+router.patch("/:id/approve-vendor", requireSuperAdmin, async (req, res) => {
+  try {
+    await connectDB();
+    const user = await UserModel.findOne({ id: req.params.id });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.vendorProfile.status !== "pending") {
+      return res.status(400).json({ message: "User does not have a pending vendor application" });
+    }
+
+    user.isVendor = true;
+    user.vendorProfile.status = "approved";
+    user.vendorApprovalPending = true;
+
+    await user.save();
+
+    await logActivity(req, {
+      action: "update",
+      entity: "user",
+      entityId: req.params.id,
+      details: `Approved vendor application for "${user.vendorProfile.storeName}" (User: ${user.name})`,
+    });
+
+    return res.json({ message: "Vendor application approved successfully", user });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Error" });
+  }
+});
+
+router.patch("/:id/reject-vendor", requireSuperAdmin, async (req, res) => {
+  try {
+    await connectDB();
+    const user = await UserModel.findOne({ id: req.params.id });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.vendorProfile.status = "rejected";
+    await user.save();
+
+    await logActivity(req, {
+      action: "update",
+      entity: "user",
+      entityId: req.params.id,
+      details: `Rejected vendor application for "${user.vendorProfile.storeName}" (User: ${user.name})`,
+    });
+
+    return res.json({ message: "Vendor application rejected" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Error" });
+  }
+});
+
+router.patch("/:id/suspend-vendor", requireSuperAdmin, async (req, res) => {
+  try {
+    await connectDB();
+    const user = await UserModel.findOne({ id: req.params.id });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.vendorProfile.status = "suspended";
+    await user.save();
+
+    await logActivity(req, {
+      action: "update",
+      entity: "user",
+      entityId: req.params.id,
+      details: `Suspended vendor account for "${user.vendorProfile.storeName}" (User: ${user.name})`,
+    });
+
+    return res.json({ message: "Vendor account suspended" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Error" });
+  }
+});
+
 module.exports = router;

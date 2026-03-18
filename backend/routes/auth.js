@@ -182,6 +182,7 @@ router.put("/me", requireAuth, async (req, res) => {
       "wishlist",
       "promotionPending",
       "demotionPending",
+      "vendorApprovalPending",
     ];
     const updateData = {};
     for (const field of allowedFields) {

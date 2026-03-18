@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import {
   Facebook,
   Twitter,
@@ -15,7 +16,17 @@ import db from "@data/db.json";
 
 function Footer() {
   const footerData = db.footer;
+  const pathname = usePathname();
   const { newsletter, brand, columns, contact, bottom } = footerData;
+
+  if (
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/vendor") ||
+    pathname?.startsWith("/account") ||
+    pathname === "/apply-vendor"
+  ) {
+    return null;
+  }
 
   const socialIcons = {
     Facebook: Facebook,

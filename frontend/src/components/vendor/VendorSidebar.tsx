@@ -11,19 +11,24 @@ import {
   LogOut,
   Shield,
   Tag,
-  ScrollText,
   Building2,
   Boxes,
   Store,
   ChevronLeft,
 } from "lucide-react";
 
-interface AdminSidebarProps {
-  user: { name: string; email?: string; adminRole?: string } | null | any;
-  activeTab: "overview" | "users" | "admins" | "vendors" | "logs";
-  setActiveTab: React.Dispatch<
-    React.SetStateAction<"overview" | "users" | "admins" | "vendors" | "logs">
-  >;
+interface VendorSidebarProps {
+  user: any;
+  activeTab:
+    | "overview"
+    | "products"
+    | "reviews"
+    | "orders"
+    | "categories"
+    | "warehouses"
+    | "inventory"
+    | "settings";
+  setActiveTab: (tab: any) => void;
   stats: any;
 }
 
@@ -45,12 +50,12 @@ const NavButton = ({ active, onClick, icon, label }: any) => (
   </button>
 );
 
-const AdminSidebar = ({
+export default function VendorSidebar({
   user,
   activeTab,
   setActiveTab,
   stats,
-}: AdminSidebarProps) => {
+}: VendorSidebarProps) {
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       window.location.href = "/api/auth/logout";
@@ -60,15 +65,15 @@ const AdminSidebar = ({
   return (
     <div className="w-64 h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed left-0 top-0 z-50 overflow-hidden">
       <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3 h-24">
-        <div className="h-10 w-10 min-w-[40px] rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-          {user?.name?.[0]?.toUpperCase() || "A"}
+        <div className="h-10 w-10 min-w-[40px] rounded-lg bg-orange-600 flex items-center justify-center text-white font-bold text-lg">
+          {user?.vendorProfile?.storeName?.[0]?.toUpperCase() || user?.name?.[0]?.toUpperCase() || "V"}
         </div>
         <div className="overflow-hidden">
           <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
-            {user?.name || "Admin User"}
+            {user?.vendorProfile?.storeName || user?.name || "Vendor"}
           </p>
-          <p className="text-[10px] text-blue-500 uppercase tracking-widest font-bold">
-            Administrator
+          <p className="text-[10px] text-orange-500 uppercase tracking-widest font-bold">
+            Vendor Portal
           </p>
         </div>
       </div>
@@ -81,43 +86,53 @@ const AdminSidebar = ({
           label="Dashboard"
         />
         <NavButton
-          active={activeTab === "users"}
-          onClick={() => setActiveTab("users")}
-          icon={<Users />}
-          label={`Users (${stats?.users?.filter((u: any) => !u.isAdmin).length ?? 0})`}
+          active={activeTab === "products"}
+          onClick={() => setActiveTab("products")}
+          icon={<Package />}
+          label={`Products ${stats?.products?.length ? `(${stats.products.length})` : ""}`}
         />
         <NavButton
-          active={activeTab === "admins"}
-          onClick={() => setActiveTab("admins")}
-          icon={<Shield />}
-          label={`Admins (${stats?.users?.filter((u: any) => u.isAdmin).length ?? 0})`}
+          active={activeTab === "reviews"}
+          onClick={() => setActiveTab("reviews")}
+          icon={<MessageSquare />}
+          label={`Reviews ${stats?.totalReviews ? `(${stats.totalReviews})` : ""}`}
         />
         <NavButton
-          active={activeTab === "vendors"}
-          onClick={() => setActiveTab("vendors")}
-          icon={<Store />}
-          label={`Vendors (${stats?.users?.filter((u: any) => u.isVendor || u.vendorProfile?.status === "pending").length ?? 0})`}
+          active={activeTab === "orders"}
+          onClick={() => setActiveTab("orders")}
+          icon={<ClipboardList />}
+          label={`Orders ${stats?.totalOrders ? `(${stats.totalOrders})` : ""}`}
         />
-        {user?.adminRole === "super_admin" && (
-          <NavButton
-            active={activeTab === "logs"}
-            onClick={() => setActiveTab("logs")}
-            icon={<ScrollText />}
-            label="Activity Logs"
-          />
-        )}
+        <NavButton
+          active={activeTab === "categories"}
+          onClick={() => setActiveTab("categories")}
+          icon={<Tag />}
+          label={`Categories ${stats?.categories?.length ? `(${stats.categories.length})` : ""}`}
+        />
+        <NavButton
+          active={activeTab === "warehouses"}
+          onClick={() => setActiveTab("warehouses")}
+          icon={<Building2 />}
+          label={`Warehouses ${stats?.warehouses?.length ? `(${stats.warehouses.length})` : ""}`}
+        />
+        <NavButton
+          active={activeTab === "inventory"}
+          onClick={() => setActiveTab("inventory")}
+          icon={<Boxes />}
+          label="Inventory"
+        />
       </nav>
 
       <div className="p-4 border-t border-slate-100 dark:border-slate-800/50 mt-auto">
         <div className="space-y-1">
-          {user?.isVendor && user?.vendorProfile?.status === "approved" && (
+          {user?.isAdmin && (
             <Link
-              href="/vendor/dashboard"
-              className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-orange-600 dark:text-orange-400 hover:bg-orange-500/10 rounded-lg transition-colors w-full"
-              title="Vendor Dashboard"
+              href="/admin/dashboard"
+              className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors w-full"
+              title="Admin Dashboard"
             >
-              <Store size={16} />
-              <span>Vendor Dashboard</span>
+              <Shield size={16} />
+              <span>Admin Dashboard</span>
             </Link>
           )}
           <Link
@@ -125,7 +140,7 @@ const AdminSidebar = ({
             className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-lg transition-colors w-full"
             title="Switch Dashboard"
           >
-            <Shield size={16} />
+            <UserIcon size={16} />
             <span>Switch Dashboard</span>
           </Link>
           <Link
@@ -148,6 +163,4 @@ const AdminSidebar = ({
       </div>
     </div>
   );
-};
-
-export default AdminSidebar;
+}

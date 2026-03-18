@@ -129,6 +129,8 @@ router.post("/place-order", async (req, res) => {
       fulfillmentDetails.push({
         productId: item.id,
         name: item.name,
+        vendorId: product.vendorId,
+        vendorStoreName: product.vendorStoreName,
         fulfilledFromWarehouse: itemFulfillmentList,
       });
     }
@@ -138,11 +140,20 @@ router.post("/place-order", async (req, res) => {
       if (match) {
         return {
           ...item,
+          vendorId: match.vendorId,
+          vendorStoreName: match.vendorStoreName,
           fulfilledFromWarehouse: match.fulfilledFromWarehouse,
         };
       }
       return item;
     });
+
+    // Dynamically generate vendorStatuses for multi-vendor tracking
+    const uniqueVendorIds = [...new Set(itemsWithFulfillment.map(item => item.vendorId))].filter(Boolean);
+    const vendorStatuses = uniqueVendorIds.map(vId => ({
+      vendorId: vId,
+      status: "Pending"
+    }));
 
     const orderId = Date.now().toString();
     let trackingNumber = "Pending";
@@ -157,6 +168,7 @@ router.post("/place-order", async (req, res) => {
       customer,
       trackingNumber,
       trackingUrl,
+      vendorStatuses, // Added for multi-vendor fulfillment
       trackingHistory: [
         {
           status: "Pending",

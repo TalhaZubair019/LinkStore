@@ -34,6 +34,9 @@ interface Product {
   sku?: string;
   stockQuantity?: number;
   lowStockThreshold?: number;
+  vendorId?: string;
+  vendorStoreName?: string;
+  vendorStoreSlug?: string;
 }
 
 export default function ProductPage() {
@@ -431,15 +434,34 @@ export default function ProductPage() {
 
               <div className="space-y-4 text-sm text-gray-600 dark:text-slate-400 border-t border-gray-100 dark:border-slate-800 pt-8 transition-colors">
                 <div className="flex justify-between">
-                  <span>SKU:</span>
-                  <span className="font-semibold">{product.sku || "N/A"}</span>
-                </div>
-                <div className="flex justify-between">
                   <span>Category:</span>
                   <span className="font-semibold">
                     {product.category || "Featured"}
                   </span>
                 </div>
+                {product.vendorStoreName && (
+                  <div className="pt-6 border-t border-gray-100 dark:border-slate-800">
+                    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
+                          {product.vendorStoreName[0].toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">Sold by</p>
+                          <p className="font-bold text-slate-900 dark:text-white line-clamp-1">{product.vendorStoreName}</p>
+                        </div>
+                      </div>
+                      {product.vendorStoreSlug && (
+                        <Link 
+                          href={`/store/${product.vendorStoreSlug}`}
+                          className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all text-blue-600 dark:text-blue-400 shadow-sm"
+                        >
+                          Visit Store
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

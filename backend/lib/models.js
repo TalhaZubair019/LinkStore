@@ -22,9 +22,25 @@ const userSchema = new mongoose.Schema(
     promotedBy: { type: String, default: null },
     promotionPending: { type: Boolean, default: false },
     demotionPending: { type: Boolean, default: false },
+    vendorApprovalPending: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     otp: { type: String, default: null },
     otpExpiresAt: { type: Date, default: null },
+    // Multi-Vendor Profiles
+    isVendor: { type: Boolean, default: false },
+    vendorProfile: {
+      storeName: { type: String, default: "" },
+      storeSlug: { type: String, default: "" },
+      storeDescription: { type: String, default: "" },
+      logo: { type: String, default: "" },
+      banner: { type: String, default: "" },
+      status: { type: String, enum: ["none", "pending", "approved", "suspended", "rejected"], default: "none" },
+      bankDetails: { type: Object, default: {} },
+      stripeAccountId: { type: String, default: null },
+      stripeOnboardingComplete: { type: Boolean, default: false },
+      averageRating: { type: Number, default: 0 },
+      totalReviews: { type: Number, default: 0 }
+    }
   },
   { timestamps: true },
 );
@@ -46,6 +62,7 @@ const orderSchema = new mongoose.Schema(
           quantity: { type: Number },
           totalPrice: { type: Number },
           image: { type: String },
+          vendorId: { type: String, required: true },
           fulfilledFromWarehouse: {
             type: [
               {
@@ -72,6 +89,16 @@ const orderSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    // Multi-Vendor Fulfillment
+    vendorStatuses: {
+      type: [
+        {
+          vendorId: { type: String, required: true },
+          status: { type: String, enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"], default: "Pending" }
+        }
+      ],
+      default: []
+    }
   },
   { timestamps: true },
 );
@@ -100,6 +127,11 @@ const productSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    // Product Ownership
+    vendorId: { type: String, required: true },
+    vendorStoreName: { type: String, required: true },
+    vendorStoreSlug: { type: String, required: true },
+    isApproved: { type: Boolean, default: true },
   },
   { timestamps: true },
 );
@@ -107,7 +139,9 @@ const productSchema = new mongoose.Schema(
 const reviewSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
-    productId: { type: Number, required: true },
+    productId: { type: Number },
+    vendorId: { type: String, default: null },
+    targetType: { type: String, enum: ["product", "vendor"], default: "product" },
     userId: { type: String },
     userName: { type: String },
     userImage: { type: String },

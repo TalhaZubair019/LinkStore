@@ -2,9 +2,12 @@
 
 import React from "react";
 import Image from "next/image";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, Star } from "lucide-react";
 import OrderStatusBadge from "./OrderStatusBadge";
 import OrderTrackingTimeline from "./OrderTrackingTimeline";
+import ReviewModal from "@/components/shop/ReviewModal";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/Store";
 
 interface Order {
   id: string;
@@ -17,6 +20,8 @@ interface Order {
     price: number;
     quantity: number;
     image?: string;
+    vendorId?: string;
+    vendorStoreName?: string;
   }[];
   customer?: {
     firstName?: string;
@@ -30,6 +35,7 @@ interface Order {
     postcode?: string;
     phone?: string;
   };
+  vendorStatuses?: { vendorId: string; status: string }[];
   trackingNumber?: string;
   trackingUrl?: string;
   trackingHistory?: { status: string; message: string; timestamp: string }[];
@@ -44,6 +50,19 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   selectedOrder,
   setSelectedOrder,
 }) => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const [reviewTarget, setReviewTarget] = React.useState<{
+    type: "product" | "vendor";
+    id: string | number;
+    name: string;
+    vendorId?: string;
+  } | null>(null);
+
+  const getItemStatus = (vendorId?: string) => {
+    if (!vendorId || !selectedOrder.vendorStatuses) return null;
+    return selectedOrder.vendorStatuses.find(vs => vs.vendorId === vendorId)?.status;
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 lg:px-8 py-16">
       <button
@@ -88,39 +107,74 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               </h3>
             </div>
             <div className="p-6 space-y-4">
-              {selectedOrder.items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-4 py-3 border-b border-slate-50 dark:border-slate-800/50 last:border-0 group transition-colors"
-                >
-                  <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-xl relative overflow-hidden shrink-0 border border-slate-100 dark:border-slate-700 transition-colors">
-                    {item.image ? (
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-contain p-2 group-hover:scale-110 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-slate-300 dark:text-slate-600">
-                        No Img
-                      </div>
-                    )}
+              {selectedOrder.items.map((item, idx) => {
+                const itemStatus = getItemStatus(item.vendorId);
+                return (
+                  <div
+                    key={idx}
+                    className="flex items-start gap-4 py-4 border-b border-slate-50 dark:border-slate-800/50 last:border-0 group transition-colors"
+                  >
+                    <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-xl relative overflow-hidden shrink-0 border border-slate-100 dark:border-slate-700 transition-colors">
+                      {item.image ? (
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-contain p-2 group-hover:scale-110 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-xs text-slate-300 dark:text-slate-600">
+                          No Img
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-slate-800 dark:text-slate-200 transition-colors leading-tight">
+                        {item.name}
+                      </h4>
+                      <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 transition-colors">
+                        Qty: {item.quantity} · ${item.price} each
+                      </p>
+                      {itemStatus && (
+                        <div className="mt-2 flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${
+                            itemStatus === "Delivered" ? "bg-emerald-500" :
+                            itemStatus === "Shipped" ? "bg-blue-500" :
+                            itemStatus === "Processing" ? "bg-amber-500" : "bg-slate-300"
+                          }`} />
+                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            {itemStatus} by {item.vendorStoreName || "Seller"}
+                          </span>
+                        </div>
+                      )}
+
+                      {itemStatus === "Delivered" && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <button 
+                            onClick={() => setReviewTarget({ type: "product", id: item.id, name: item.name })}
+                            className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-purple-600 hover:text-white transition-all"
+                          >
+                            Review Product
+                          </button>
+                          {item.vendorId && (
+                            <button 
+                              onClick={() => setReviewTarget({ type: "vendor", id: item.vendorId!, name: item.vendorStoreName || "Seller", vendorId: item.vendorId })}
+                              className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-100 dark:border-amber-800/30 hover:bg-amber-500 hover:text-white transition-all flex items-center gap-1"
+                            >
+                              <Star size={10} fill="currentColor" /> Rate Seller
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-slate-900 dark:text-white transition-colors">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-slate-800 dark:text-slate-200 transition-colors">{item.name}</h4>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm transition-colors">
-                      Qty: {item.quantity}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-slate-900 dark:text-white transition-colors">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 transition-colors">${item.price} each</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="p-6 border-t border-slate-50 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/30 flex justify-between items-center transition-colors">
               <span className="text-slate-500 dark:text-slate-400 font-medium text-sm transition-colors">
@@ -133,6 +187,12 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
           </div>
         </div>
       </div>
+      <ReviewModal 
+        isOpen={!!reviewTarget} 
+        onClose={() => setReviewTarget(null)} 
+        target={reviewTarget}
+        user={user}
+      />
     </div>
   );
 };

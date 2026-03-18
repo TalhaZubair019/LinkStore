@@ -7,15 +7,66 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     await connectDB();
-    const query = req.query.productId
-      ? { productId: req.query.productId.toString() }
-      : {};
+    const { productId, vendorId, targetType } = req.query;
+    
+    let query = {};
+    if (productId) query.productId = productId.toString();
+    if (vendorId) query.vendorId = vendorId;
+    if (targetType) query.targetType = targetType;
+
     const reviews = await ReviewModel.find(query)
       .sort({ createdAt: -1 })
       .lean();
     return res.json(reviews);
   } catch (error) {
     return res.status(500).json({ error: "Failed to fetch reviews" });
+  }
+});
+
+// POST /api/public/reviews/vendor
+router.post("/vendor", async (req, res) => {
+  try {
+    const { vendorId, rating, comment, userId, userName, userImage } = req.body;
+    
+    if (!vendorId || !rating) {
+      return res.status(400).json({ error: "Vendor ID and rating are required" });
+    }
+
+    await connectDB();
+    const { UserModel } = require("../../lib/models");
+
+    // 1. Create the review
+    const savedReview = await ReviewModel.create({
+      id: Date.now().toString(),
+      vendorId,
+      rating: Number(rating),
+      comment,
+      userId,
+      userName,
+      userImage,
+      targetType: "vendor",
+      date: new Date().toLocaleDateString()
+    });
+
+    // 2. Recalculate Vendor Stats
+    const allVendorReviews = await ReviewModel.find({ vendorId, targetType: "vendor" });
+    const totalReviews = allVendorReviews.length;
+    const averageRating = allVendorReviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews;
+
+    await UserModel.findOneAndUpdate(
+      { id: vendorId },
+      { 
+        $set: { 
+          "vendorProfile.averageRating": Number(averageRating.toFixed(1)),
+          "vendorProfile.totalReviews": totalReviews
+        } 
+      }
+    );
+
+    return res.status(201).json(savedReview);
+  } catch (error) {
+    console.error("Vendor review error:", error);
+    return res.status(500).json({ error: "Failed to save vendor review" });
   }
 });
 

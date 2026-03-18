@@ -42,6 +42,13 @@ export interface UserData {
   createdAt?: string;
   isAdmin?: boolean;
   adminRole?: "super_admin" | "admin" | null;
+  isVendor?: boolean;
+  vendorProfile?: {
+    storeName: string;
+    storeSlug: string;
+    storeDescription: string;
+    status: "pending" | "approved" | "suspended" | "";
+  };
 }
 
 export interface DashboardStats {
@@ -82,4 +89,6 @@ export interface DashboardStats {
   orderTrendData: { date: string; count: number }[];
   categories: { _id: string; name: string; slug: string; image: string | null }[];
   warehouses?: any[];
+  totalVendors?: number;
+  pendingVendors?: number;
 }

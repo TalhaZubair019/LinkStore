@@ -15,6 +15,20 @@ export interface User {
   wishlist?: any[];
   isAdmin?: boolean;
   adminRole?: "super_admin" | "admin" | null;
+  promotionPending?: boolean;
+  demotionPending?: boolean;
+  vendorApprovalPending?: boolean;
+  isVendor?: boolean;
+  vendorProfile?: {
+    storeName: string;
+    storeSlug: string;
+    storeDescription?: string;
+    logo?: string;
+    banner?: string;
+    status: "pending" | "approved" | "suspended";
+    stripeAccountId?: string | null;
+    stripeOnboardingComplete?: boolean;
+  };
 }
 
 interface AuthState {

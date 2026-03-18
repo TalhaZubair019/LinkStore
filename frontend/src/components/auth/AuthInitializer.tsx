@@ -7,7 +7,7 @@ import { initializeCart } from "@/redux/CartSlice";
 import { initializeWishlist } from "@/redux/WishListSlice";
 import { RootState } from "@/redux/Store";
 import { useRouter } from "next/navigation";
-import { X, Crown, ShieldOff, AlertTriangle, LogOut } from "lucide-react";
+import { X, Crown, ShieldOff, AlertTriangle, LogOut, Store } from "lucide-react";
 
 function AuthInitializer() {
   const dispatch = useDispatch();
@@ -21,6 +21,7 @@ function AuthInitializer() {
   const isFirstRender = useRef(true);
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [showDemotionModal, setShowDemotionModal] = useState(false);
+  const [showVendorModal, setShowVendorModal] = useState(false);
   const [showDeletedModal, setShowDeletedModal] = useState(false);
 
   useEffect(() => {
@@ -59,6 +60,8 @@ function AuthInitializer() {
             setShowPromotionModal(true);
           } else if (data.user.demotionPending) {
             setShowDemotionModal(true);
+          } else if (data.user.vendorApprovalPending) {
+            setShowVendorModal(true);
           }
         } else if (res.status === 401) {
           const data = await res.json().catch(() => ({}));
@@ -80,7 +83,7 @@ function AuthInitializer() {
 
   useEffect(() => {
     if (!isLoaded || !auth.isAuthenticated) return;
-    if (showPromotionModal || showDemotionModal) return;
+    if (showPromotionModal || showDemotionModal || showVendorModal) return;
 
     const interval = setInterval(async () => {
       try {
@@ -91,6 +94,8 @@ function AuthInitializer() {
             setShowPromotionModal(true);
           } else if (data.user.demotionPending) {
             setShowDemotionModal(true);
+          } else if (data.user.vendorApprovalPending) {
+            setShowVendorModal(true);
           }
         } else if (res.status === 401) {
           const data = await res.json().catch(() => ({}));
@@ -103,7 +108,7 @@ function AuthInitializer() {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [isLoaded, auth.isAuthenticated, showPromotionModal, showDemotionModal]);
+  }, [isLoaded, auth.isAuthenticated, showPromotionModal, showDemotionModal, showVendorModal]);
 
   useEffect(() => {
     if (!isLoaded || !auth.isAuthenticated) return;
@@ -132,15 +137,15 @@ function AuthInitializer() {
     return () => clearTimeout(timeoutId);
   }, [cart.cartItems, wishlist.items, auth.isAuthenticated, isLoaded]);
 
-  const handleDismiss = async (type: "promotion" | "demotion" | "deleted") => {
+  const handleDismiss = async (type: "promotion" | "demotion" | "deleted" | "vendor_approval") => {
     if (type !== "deleted") {
       try {
         await fetch("/api/auth/me", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            [type === "promotion" ? "promotionPending" : "demotionPending"]:
-              false,
+            [type === "promotion" ? "promotionPending" : 
+             type === "demotion" ? "demotionPending" : "vendorApprovalPending"]: false,
           }),
         });
       } catch {}
@@ -149,11 +154,12 @@ function AuthInitializer() {
     dispatch(logout());
     setShowPromotionModal(false);
     setShowDemotionModal(false);
+    setShowVendorModal(false);
     setShowDeletedModal(false);
     router.push(type === "deleted" ? "/login?msg=deleted" : "/login");
   };
 
-  if (!showPromotionModal && !showDemotionModal && !showDeletedModal)
+  if (!showPromotionModal && !showDemotionModal && !showDeletedModal && !showVendorModal)
     return null;
 
   return (
@@ -167,7 +173,9 @@ function AuthInitializer() {
                 ? "deleted"
                 : showPromotionModal
                   ? "promotion"
-                  : "demotion",
+                  : showVendorModal
+                    ? "vendor_approval"
+                    : "demotion",
             )
           }
           className="absolute top-4 right-4 p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors z-10"
@@ -223,6 +231,31 @@ function AuthInitializer() {
               <button
                 onClick={() => handleDismiss("demotion")}
                 className="mt-6 w-full py-3 bg-linear-to-r from-red-500 to-rose-500 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-red-200 text-sm"
+              >
+                OK
+              </button>
+            </div>
+          </>
+        ) : showVendorModal ? (
+          <>
+            <div className="bg-linear-to-br from-emerald-500 via-teal-500 to-cyan-600 px-8 pt-10 pb-8 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mb-4 shadow-lg">
+                <Store size={32} className="text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white tracking-tight">
+                Application Approved! 🏪
+              </h2>
+            </div>
+            <div className="px-8 py-6 text-center">
+              <p className="text-slate-700 text-sm leading-relaxed font-medium">
+                Your request to become a <span className="text-emerald-600 font-bold">Seller</span> has been approved! You now have access to the Vendor Dashboard.
+              </p>
+              <p className="text-slate-500 text-xs mt-3">
+                Please log in again to activate your seller account.
+              </p>
+              <button
+                onClick={() => handleDismiss("vendor_approval")}
+                className="mt-6 w-full py-3 bg-linear-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-emerald-200 text-sm"
               >
                 OK
               </button>

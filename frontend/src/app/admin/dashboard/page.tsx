@@ -16,6 +16,7 @@ import CategoriesTabContent from "@/components/admin/tabs/CategoriesTabContent";
 import WarehousesTabContent from "@/components/admin/tabs/WarehousesTabContent";
 import InventoryTabContent from "@/components/admin/tabs/InventoryTabContent";
 import ActivityLogsTabContent from "@/components/admin/tabs/ActivityLogsTabContent";
+import VendorsTabContent from "@/components/admin/tabs/VendorsTabContent";
 
 import { useAdminDashboard } from "@/hooks/useAdminDashboard";
 
@@ -38,16 +39,8 @@ export default function AdminDashboard() {
 
   if (d.isAuthLoading || d.loading || !d.stats) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/20 to-slate-50 dark:from-slate-950 dark:via-purple-900/10 dark:to-slate-950 font-sans transition-colors duration-300">
-        <PageHeader
-          title={
-            d.mounted ? `Welcome, ${d.user?.name || "Admin"}` : "Admin Panel"
-          }
-          breadcrumb="Dashboard"
-        />
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 py-32 flex justify-center items-center">
-          <div className="w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
-        </div>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex justify-center items-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -79,106 +72,46 @@ export default function AdminDashboard() {
   );
   const totalAdminPages =
     Math.ceil(filteredAdmins.length / d.ITEMS_PER_PAGE) || 1;
-  const filteredOrders = d.stats.recentOrders.filter(
-    (o) =>
-      o.id?.toLowerCase().includes(d.searchTerm.toLowerCase()) ||
-      o.customer?.name?.toLowerCase().includes(d.searchTerm.toLowerCase()) ||
-      o.customer?.email?.toLowerCase().includes(d.searchTerm.toLowerCase()) ||
-      o.status?.toLowerCase().includes(d.searchTerm.toLowerCase()),
-  );
 
-  const filteredProducts = d.stats.products.filter((p) => {
-    const s = d.searchTerm.toLowerCase();
-    return (
-      p.title?.toLowerCase().includes(s) ||
-      p.sku?.toLowerCase().includes(s) ||
-      p.category?.toLowerCase().includes(s)
-    );
-  });
-  const filteredReviews = d.stats.reviews.filter(
-    (r) =>
-      r.userName?.toLowerCase().includes(d.searchTerm.toLowerCase()) ||
-      r.comment?.toLowerCase().includes(d.searchTerm.toLowerCase()),
-  );
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-purple-50/20 to-slate-50 dark:from-slate-950 dark:via-slate-900/50 dark:to-slate-950 font-sans text-slate-800 dark:text-slate-200">
-      <PageHeader
-        title={
-          d.mounted ? `Welcome, ${d.user?.name || "Admin"}` : "Admin Panel"
-        }
-        breadcrumb="Dashboard"
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 flex">
+      <AdminSidebar
+        user={d.user}
+        activeTab={d.activeTab}
+        setActiveTab={(tab) => {
+          d.setActiveTab(tab);
+          setIsSidebarOpen(false);
+        }}
+        stats={d.stats}
       />
-      <div className="max-w-full mx-auto px-4 lg:px-6 pt-8 pb-12">
-        <DashboardHeader
-          user={d.user}
-          activeTab={d.activeTab}
-          setActiveTab={d.setActiveTab}
-          searchTerm={d.searchTerm}
-          setSearchTerm={d.setSearchTerm}
-          showSearch={[
-            "users",
-            "admins",
-            "orders",
-            "products",
-            "reviews",
-          ].includes(d.activeTab)}
-        />
 
-        <div className="flex flex-col lg:flex-row gap-0 lg:gap-8">
-          <AdminSidebar
+      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
+        <main className="flex-1 p-6 lg:p-8 pt-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              {d.activeTab.charAt(0).toUpperCase() + d.activeTab.slice(1)}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">
+              Welcome back, {d.user?.name || "Admin"}!
+            </p>
+          </div>
+
+          <DashboardHeader
             user={d.user}
             activeTab={d.activeTab}
-            setActiveTab={(tab) => {
-              d.setActiveTab(tab);
-              setIsSidebarOpen(false);
-            }}
-            stats={d.stats}
+            setActiveTab={d.setActiveTab}
+            searchTerm={d.searchTerm}
+            setSearchTerm={d.setSearchTerm}
+            showSearch={[
+              "users",
+              "admins",
+            ].includes(d.activeTab)}
           />
-
-          <div id="admin-content-area" className="flex-1 w-full lg:min-w-0 max-w-full overflow-x-hidden pb-10">
             {d.activeTab === "overview" && (
               <OverviewTab
                 stats={d.stats}
-                filteredRevenueData={d.filteredRevenueData}
-                showRevenueDropdown={d.showRevenueDropdown}
-                setShowRevenueDropdown={d.setShowRevenueDropdown}
-                revenueFilter={d.revenueFilter}
-                setRevenueFilter={d.setRevenueFilter}
-                applyRevenueFilter={d.applyRevenueFilter}
-                customStart={d.customStart}
-                setCustomStart={d.setCustomStart}
-                customEnd={d.customEnd}
-                setCustomEnd={d.setCustomEnd}
-                revenueLoading={d.revenueLoading}
-                filteredAovData={d.filteredAovData}
-                showAovDropdown={d.showAovDropdown}
-                setShowAovDropdown={d.setShowAovDropdown}
-                aovFilter={d.aovFilter}
-                setAovFilter={d.setAovFilter}
-                applyAovFilter={d.applyAovFilter}
-                aovCustomStart={d.aovCustomStart}
-                setAovCustomStart={d.setAovCustomStart}
-                aovCustomEnd={d.aovCustomEnd}
-                setAovCustomEnd={d.setAovCustomEnd}
-                aovLoading={d.aovLoading}
-              />
-            )}
-            {d.activeTab === "products" && (
-              <ProductsTabContent
-                allProducts={filteredProducts || []}
-                categories={d.stats.categories || []}
-                setProductDeleteConfirm={d.setProductDeleteConfirm}
-                productPage={d.productPage}
-                setProductPage={d.setProductPage}
-              />
-            )}
-            {d.activeTab === "reviews" && (
-              <ReviewsTabContent
-                onReviewDeleted={d.fetchStats}
-                reviews={filteredReviews || []}
-                products={d.stats.products}
-                users={d.stats.users}
+                isAdminView={true}
               />
             )}
             {d.activeTab === "users" && (
@@ -210,60 +143,18 @@ export default function AdminDashboard() {
                 isSuperAdmin={d.user?.adminRole === "super_admin"}
               />
             )}
-            {d.activeTab === "orders" && (
-              <OrdersTabContent
-                allOrders={filteredOrders || []}
-                handleStatusChange={d.handleStatusChange}
-                requestCancelOrder={d.setCancelOrderConfirm}
-                setSelectedOrder={d.setSelectedOrder}
-                orderPage={d.orderPage}
-                setOrderPage={d.setOrderPage}
-                users={d.stats.users}
-                updatingOrderId={d.updatingOrderId}
-              />
-            )}
-            {d.activeTab === "categories" && (
-              <CategoriesTabContent
-                categories={d.stats.categories || []}
-                products={d.stats.products || []}
-                onAdd={() => {
-                  d.setEditingCategory(null);
-                  d.setIsCategoryModalOpen(true);
-                }}
-                onEdit={(cat) => {
-                  d.setEditingCategory(cat);
-                  d.setIsCategoryModalOpen(true);
-                }}
-                onDelete={(cat) => d.setCategoryDeleteConfirm(cat)}
-              />
-            )}
-            {d.activeTab === "warehouses" && (
-              <WarehousesTabContent
-                warehouseData={d.stats.warehouses || []}
-                onRefresh={d.fetchStats}
-                showToast={d.showToast}
-                onCreate={() => {
-                  d.setEditingWarehouse(null);
-                  d.setIsWarehouseModalOpen(true);
-                }}
-                onEdit={(wh) => {
-                  d.setEditingWarehouse(wh);
-                  d.setIsWarehouseModalOpen(true);
-                }}
-                onDelete={(wh) => d.setWarehouseDeleteConfirm(wh)}
-              />
-            )}
-            {d.activeTab === "inventory" && (
-              <InventoryTabContent
-                products={d.stats.products || []}
-                onAdjustStock={d.setSelectedProductForInventory}
+            {d.activeTab === "vendors" && (
+              <VendorsTabContent
+                allUsers={d.stats.users || []}
+                onApprove={d.handleApproveVendor}
+                onReject={d.handleRejectVendor}
+                onSuspend={d.handleSuspendVendor}
               />
             )}
             {d.activeTab === "logs" && d.user?.adminRole === "super_admin" && (
               <ActivityLogsTabContent />
             )}
-          </div>
-        </div>
+        </main>
       </div>
 
       {d.toast && (
@@ -293,13 +184,6 @@ export default function AdminDashboard() {
         showToast={d.showToast}
         isAddAdminModalOpen={d.isAddAdminModalOpen}
         setIsAddAdminModalOpen={d.setIsAddAdminModalOpen}
-        isCategoryModalOpen={d.isCategoryModalOpen}
-        setIsCategoryModalOpen={d.setIsCategoryModalOpen}
-        editingCategory={d.editingCategory}
-        handleDeleteCategory={d.handleDeleteCategory}
-        isDeletingCategory={d.isDeletingCategory}
-        categoryDeleteConfirm={d.categoryDeleteConfirm}
-        setCategoryDeleteConfirm={d.setCategoryDeleteConfirm}
         selectedUser={d.selectedUser}
         setSelectedUser={d.setSelectedUser}
         viewType={d.viewType}
@@ -317,23 +201,6 @@ export default function AdminDashboard() {
         isRevoking={d.isRevoking}
         selectedOrder={d.selectedOrder}
         setSelectedOrder={d.setSelectedOrder}
-        cancelOrderConfirm={d.cancelOrderConfirm}
-        setCancelOrderConfirm={d.setCancelOrderConfirm}
-        handleCancelOrder={d.handleCancelOrder}
-        isCancellingOrder={d.isCancellingOrder}
-        productDeleteConfirm={d.productDeleteConfirm}
-        setProductDeleteConfirm={d.setProductDeleteConfirm}
-        handleDeleteProduct={d.handleDeleteProduct}
-        isDeletingProduct={d.isDeletingProduct}
-        selectedProductForInventory={d.selectedProductForInventory}
-        setSelectedProductForInventory={d.setSelectedProductForInventory}
-        isWarehouseModalOpen={d.isWarehouseModalOpen}
-        setIsWarehouseModalOpen={d.setIsWarehouseModalOpen}
-        editingWarehouse={d.editingWarehouse}
-        warehouseDeleteConfirm={d.warehouseDeleteConfirm}
-        setWarehouseDeleteConfirm={d.setWarehouseDeleteConfirm}
-        handleDeleteWarehouse={d.handleDeleteWarehouse}
-        isDeletingWarehouse={d.isDeletingWarehouse}
       />
     </div>
   );

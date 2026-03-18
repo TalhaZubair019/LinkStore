@@ -15,6 +15,9 @@ app.use(cors({ origin: true, credentials: true }));
 
 app.use(helmet({ crossOriginResourcePolicy: false }));
 
+// Stripe Webhook needs raw body - MUST be before express.json()
+app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
+
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
@@ -32,10 +35,15 @@ app.use((req, _res, next) => {
 
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/public", require("./routes/public"));
+app.use("/api/public/stores", require("./routes/public/stores"));
 app.use("/api/admin", require("./routes/admin"));
 app.use("/api/upload", require("./routes/upload"));
 app.use("/api/stripe", require("./routes/stripe"));
 app.use("/api/paypal", require("./routes/paypal"));
+app.use("/api/vendor/products", require("./routes/vendor/products"));
+app.use("/api/vendor/orders", require("./routes/vendor/orders"));
+app.use("/api/vendor/payouts", require("./routes/vendor/payouts"));
+app.use("/api/vendor-apply", require("./routes/vendor/apply"));
 
 app.get("/", (req, res) => {
   res.json({ status: "PrintNest backend running" });

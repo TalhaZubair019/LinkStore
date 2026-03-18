@@ -257,8 +257,11 @@ function AccountContent() {
 
   if (!isAuthenticated) {
     return (
-      <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors">
-        <PageHeader title="My Account" breadcrumb="Account" />
+      <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors flex flex-col items-center justify-center p-6">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">My Account</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Sign in to manage your link store</p>
+        </div>
         <div className="max-w-7xl mx-auto px-4 lg:px-8 pb-32 pt-10">
           <LoginForm
             handleLogin={handleLogin}
@@ -276,84 +279,110 @@ function AccountContent() {
 
   if (selectedOrder) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors">
-        <PageHeader
-          title={`Order #${selectedOrder.id.slice(-8).toUpperCase()}`}
-          breadcrumb="Order Details"
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 flex">
+        <UserSidebar
+          user={user}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          ordersCount={orders.length}
+          wishlistCount={wishlistItems.length}
+          cartCount={cartItems.length}
+          handleLogout={handleLogout}
         />
-        <OrderDetails
-          selectedOrder={selectedOrder}
-          setSelectedOrder={setSelectedOrder}
-        />
+        <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
+          <main className="flex-1 p-6 lg:p-8 pt-8">
+            <div className="mb-8">
+              <button
+                onClick={() => setSelectedOrder(null)}
+                className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2 mb-4"
+              >
+                ← Back to Dashboard
+              </button>
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                Order #{selectedOrder!.id.slice(-8).toUpperCase()}
+              </h1>
+            </div>
+            <OrderDetails
+              selectedOrder={selectedOrder!}
+              setSelectedOrder={setSelectedOrder}
+            />
+          </main>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 flex">
       <QuickViewModal
         product={quickViewProduct}
         onClose={() => setQuickViewProduct(null)}
         onAddToCart={handleAddToCart}
       />
-      <PageHeader
-        title={`Welcome, ${user?.name || "User"}`}
-        breadcrumb="Dashboard"
+
+      <UserSidebar
+        user={user}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        ordersCount={orders.length}
+        wishlistCount={wishlistItems.length}
+        cartCount={cartItems.length}
+        handleLogout={handleLogout}
       />
 
-      <div className="max-w-7xl mx-auto px-4 lg:px-8 py-16">
-        <div className="lg:hidden mb-6 flex items-center justify-between bg-white dark:bg-[#0f172a] p-3 sm:p-4 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 transition-colors">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="h-8 w-8 rounded-full bg-purple-600 border border-purple-500/20 flex items-center justify-center text-white font-bold text-sm shadow-sm shadow-purple-600/20 shrink-0">
-              {user?.name?.[0]?.toUpperCase() || "U"}
-            </div>
-            <div className="overflow-hidden">
-              <span className="text-base sm:text-xl font-bold text-slate-900 dark:text-white tracking-tight truncate block transition-colors">
-                {user?.name || "User"}
-              </span>
-            </div>
+      <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
+        <main className="flex-1 p-6 lg:p-8 pt-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">
+              Welcome back, {user?.name || "User"}!
+            </p>
           </div>
-          <div className="flex items-center gap-1 sm:gap-2">
-            {user?.isAdmin && (
-              <Link
-                href="/admin/dashboard"
-                className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 p-1.5 sm:p-2 rounded-lg bg-purple-50 dark:bg-slate-800/50 hover:bg-purple-100 dark:hover:bg-slate-700 transition-colors"
-                title="Switch to Admin View"
+          <div className="lg:hidden mb-6 flex items-center justify-between bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm shadow-blue-500/20 shrink-0">
+                {user?.name?.[0]?.toUpperCase() || "U"}
+              </div>
+              <div className="overflow-hidden">
+                <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight truncate block">
+                  {user?.name || "User"}
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 sm:gap-2">
+              {user?.isAdmin && (
+                <Link
+                  href="/admin/dashboard"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-1.5 sm:p-2 rounded-lg bg-blue-50 dark:bg-slate-800/50 hover:bg-blue-100 dark:hover:bg-slate-700 transition-colors"
+                  title="Switch to Admin View"
+                >
+                  <Shield size={16} />
+                </Link>
+              )}
+              <button
+                onClick={handleLogout}
+                className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 p-1.5 sm:p-2 rounded-lg bg-red-50 dark:bg-slate-800/50 hover:bg-red-100 dark:hover:bg-slate-700 transition-colors"
+                title="Logout"
               >
-                <Shield size={16} />
-              </Link>
-            )}
-            <button
-              onClick={handleLogout}
-              className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 p-1.5 sm:p-2 rounded-lg bg-red-50 dark:bg-slate-800/50 hover:bg-red-100 dark:hover:bg-slate-700 transition-colors"
-              title="Logout"
-            >
-              <LogOut size={16} />
-            </button>
-            <select
-              value={activeTab}
-              onChange={(e) => setActiveTab(e.target.value)}
-              className="bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-purple-400 text-[10px] sm:text-xs font-bold py-1.5 px-1.5 sm:py-2 sm:px-3 rounded-lg border border-slate-200 dark:border-slate-700 outline-none max-w-[90px] sm:max-w-none transition-colors"
-            >
-              <option value="dashboard">Dashboard</option>
-              <option value="profile">Edit Profile</option>
-              <option value="orders">Orders</option>
-              <option value="wishlist">Wishlist</option>
-              <option value="cart">Cart</option>
-            </select>
+                <LogOut size={16} />
+              </button>
+              <select
+                value={activeTab}
+                onChange={(e) => setActiveTab(e.target.value)}
+                className="bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-blue-400 text-[10px] sm:text-xs font-bold py-1.5 px-1.5 sm:py-2 sm:px-3 rounded-lg border border-slate-200 dark:border-slate-700 outline-none max-w-[90px] sm:max-w-none transition-colors"
+              >
+                <option value="dashboard">Dashboard</option>
+                <option value="profile">Edit Profile</option>
+                <option value="orders">Orders</option>
+                <option value="wishlist">Wishlist</option>
+                <option value="cart">Cart</option>
+              </select>
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col lg:flex-row gap-8">
-          <UserSidebar
-            user={user}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            ordersCount={orders.length}
-            wishlistCount={wishlistItems.length}
-            cartCount={cartItems.length}
-            handleLogout={handleLogout}
-          />
-          <div id="user-content-area" className="lg:flex-1">
+
+          <div id="user-content-area" className="w-full">
             {activeTab === "dashboard" && (
               <DashboardTab
                 user={user}
@@ -384,7 +413,7 @@ function AccountContent() {
             )}
             {activeTab === "cart" && <CartTab cartItems={cartItems} />}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

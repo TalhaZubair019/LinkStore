@@ -12,9 +12,35 @@ router.get("/", async (req, res) => {
     if (section === "products") {
       await connectDB();
       const { OrderModel } = require("../../lib/models");
+      const { search, category, minPrice, maxPrice, vendorId } = req.query;
 
+      // Build dynamic query
+      const query = { isApproved: true };
+
+      if (search) {
+        query.$or = [
+          { title: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } }
+        ];
+      }
+
+      if (category && category !== "All Categories") {
+        query.category = { $regex: new RegExp(`^${category}$`, "i") };
+      }
+
+      if (vendorId) {
+        query.vendorId = vendorId;
+      }
+
+      if (minPrice || maxPrice) {
+        query.price = {};
+        if (minPrice) query.price.$gte = minPrice; // Note: price is string in schema, might need conversion or schema update
+        if (maxPrice) query.price.$lte = maxPrice;
+      }
+
+      // Fetch filtered products
       const [shopProducts, orders] = await Promise.all([
-        ProductModel.find({}).sort({ id: -1 }).lean(),
+        ProductModel.find(query).sort({ id: -1 }).lean(),
         OrderModel.find({}).lean(),
       ]);
 
@@ -22,24 +48,16 @@ router.get("/", async (req, res) => {
       orders.forEach((order) => {
         if (order.status === "Cancelled") return;
         order.items?.forEach((item) => {
-          salesData[item.name] =
-            (salesData[item.name] || 0) + (item.quantity || 1);
+          salesData[item.name] = (salesData[item.name] || 0) + (item.quantity || 1);
         });
       });
 
-      const dbProducts = db.products?.products || [];
-      const allProducts = [...shopProducts, ...dbProducts];
-      const uniqueProducts = Array.from(
-        new Map(allProducts.map((p) => [p.id, p])).values(),
-      ).map((p) => {
+      const uniqueProducts = shopProducts.map((p) => {
         const salesCount = salesData[p.title] || 0;
-        return {
-          ...p,
-          salesCount,
-        };
+        return { ...p, salesCount };
       });
 
-      return res.json({ ...db.products, products: uniqueProducts });
+      return res.json({ products: uniqueProducts });
     }
 
     if (section === "categories") {

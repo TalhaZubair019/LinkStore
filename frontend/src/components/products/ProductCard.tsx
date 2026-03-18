@@ -70,6 +70,25 @@ function ProductCard({
           <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
             {product.printText}
           </p>
+          {product.vendorStoreName && (
+            <div className="mt-1">
+              <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">Sold by: </span>
+              {product.vendorStoreSlug ? (
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.location.href = `/store/${product.vendorStoreSlug}`;
+                  }}
+                  className="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-bold hover:underline transition-all cursor-pointer inline-block"
+                >
+                  {product.vendorStoreName}
+                </button>
+              ) : (
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">{product.vendorStoreName}</span>
+              )}
+            </div>
+          )}
         </div>
         <div className="relative h-48 w-full mb-8">
           <Image

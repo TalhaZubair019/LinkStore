@@ -72,6 +72,15 @@ function Navbar() {
     }
   };
 
+  if (
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/vendor") ||
+    pathname?.startsWith("/account") ||
+    pathname === "/apply-vendor"
+  ) {
+    return null;
+  }
+
   return (
     <header className="absolute top-0 left-0 w-full z-50 font-sans bg-transparent dark:bg-transparent">
       <div className="max-w-[1440px] mx-auto px-6 sm:px-12 pt-4 sm:pt-6 pb-3 flex items-center justify-between gap-4 lg:gap-8 relative w-full">
