@@ -1,6 +1,6 @@
 const express = require("express");
 const { connectDB } = require("../../lib/db");
-const { ProductModel, WarehouseModel, UserModel } = require("../../lib/models");
+const { ProductModel, WarehouseModel } = require("../../lib/models");
 const { requireVendor } = require("../../middleware/vendor");
 const { logActivity } = require("../../lib/activityLog");
 
@@ -10,7 +10,7 @@ router.post("/", requireVendor, async (req, res) => {
   try {
     await connectDB();
     const vendorId = req.user.id;
-    const vendorProfile = await UserModel.findOne({ id: vendorId }).lean();
+    const vendorProfile = req.vendor;
 
     const lastProduct = await ProductModel.findOne().sort({ id: -1 }).lean();
     const newId =
@@ -21,8 +21,8 @@ router.post("/", requireVendor, async (req, res) => {
       ...req.body,
       id: newId,
       vendorId: vendorId,
-      vendorStoreName: vendorProfile?.vendorProfile?.storeName || vendorProfile.name,
-      vendorStoreSlug: vendorProfile?.vendorProfile?.slug || vendorProfile.name.toLowerCase().replace(/\s+/g, '-'),
+      vendorStoreName: vendorProfile.vendorProfile?.storeName || vendorProfile.name,
+      vendorStoreSlug: vendorProfile.vendorProfile?.storeSlug || vendorProfile.name.toLowerCase().replace(/\s+/g, '-'),
       warehouseInventory: [],
       stockQuantity: 0,
       lowStockThreshold: 5,

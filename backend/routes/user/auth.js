@@ -2,8 +2,8 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { connectDB } = require("../../lib/db");
-const { UserModel } = require("../../lib/models");
-const { requireAuth, JWT_SECRET, ADMIN_EMAIL } = require("../../middleware/auth");
+const { UserModel, AdminModel, VendorModel } = require("../../lib/models");
+const { requireAuth, JWT_SECRET, ADMIN_EMAIL, findUserAcrossCollections } = require("../../middleware/auth");
 
 const router = express.Router();
 
@@ -22,7 +22,14 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     await connectDB();
-    const user = await UserModel.findOne({ email }).lean();
+
+    // Search across all three collections
+    const [adminUser, regularUser, vendorUser] = await Promise.all([
+      AdminModel.findOne({ email }).lean(),
+      UserModel.findOne({ email }).lean(),
+      VendorModel.findOne({ email }).lean(),
+    ]);
+    const user = adminUser || vendorUser || regularUser;
 
     if (!user || !user.password) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -35,21 +42,19 @@ router.post("/login", async (req, res) => {
 
     if (!user.isVerified) {
       return res.status(401).json({
-        message:
-          "Your email is not verified. Please verify your email to log in.",
+        message: "Your email is not verified. Please verify your email to log in.",
         notVerified: true,
       });
     }
 
-    const isAdmin = user.email === ADMIN_EMAIL || !!user.isAdmin;
-    const adminRole =
-      user.email === ADMIN_EMAIL
-        ? "super_admin"
-        : user.isAdmin
-          ? "admin"
-          : null;
+    const isAdmin = !!adminUser || user.email === ADMIN_EMAIL;
+    const isVendor = !!vendorUser;
+    const adminRole = adminUser
+      ? user.email === ADMIN_EMAIL ? "super_admin" : "admin"
+      : null;
+
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name, isAdmin, adminRole },
+      { id: user.id, email: user.email, name: user.name, isAdmin, isVendor, adminRole },
       JWT_SECRET,
       { expiresIn: "7d" },
     );
@@ -65,7 +70,7 @@ router.post("/login", async (req, res) => {
     const { password: _, ...userWithoutPassword } = user;
     return res.json({
       token,
-      user: { ...userWithoutPassword, isAdmin, adminRole },
+      user: { ...userWithoutPassword, isAdmin, isVendor, adminRole },
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -148,18 +153,16 @@ router.post("/signup", async (req, res) => {
 router.get("/me", requireAuth, async (req, res) => {
   try {
     await connectDB();
-    const user = await UserModel.findOne({ id: req.user.id }).lean();
+    const user = await findUserAcrossCollections(req.user.id);
     if (!user) return res.status(401).json({ message: "User not found" });
 
     const { password, ...userWithoutPassword } = user;
-    const isAdmin = user.email === ADMIN_EMAIL || !!user.isAdmin;
-    const adminRole =
-      user.email === ADMIN_EMAIL
-        ? "super_admin"
-        : user.isAdmin
-          ? "admin"
-          : null;
-    return res.json({ user: { ...userWithoutPassword, isAdmin, adminRole } });
+    const isAdmin = user.collection === "admins" || user.email === ADMIN_EMAIL;
+    const isVendor = user.collection === "vendors";
+    const adminRole = isAdmin
+      ? user.email === ADMIN_EMAIL ? "super_admin" : "admin"
+      : null;
+    return res.json({ user: { ...userWithoutPassword, isAdmin, isVendor, adminRole } });
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" });
   }
@@ -168,23 +171,10 @@ router.get("/me", requireAuth, async (req, res) => {
 router.put("/me", requireAuth, async (req, res) => {
   try {
     const allowedFields = [
-      "name",
-      "phone",
-      "address",
-      "city",
-      "province",
-      "postcode",
-      "country",
-      "countryCode",
-      "stateCode",
-      "savedCards",
-      "cart",
-      "wishlist",
-      "promotionPending",
-      "demotionPending",
-      "vendorApprovalPending",
-      "suspensionPending",
-      "unsuspensionPending"
+      "name", "phone", "address", "city", "province", "postcode",
+      "country", "countryCode", "stateCode", "savedCards", "cart", "wishlist",
+      "promotionPending", "demotionPending", "vendorApprovalPending",
+      "suspensionPending", "unsuspensionPending"
     ];
     const updateData = {};
     for (const field of allowedFields) {
@@ -192,11 +182,13 @@ router.put("/me", requireAuth, async (req, res) => {
     }
 
     await connectDB();
-    const updated = await UserModel.findOneAndUpdate(
-      { id: req.user.id },
-      updateData,
-      { returnDocument: "after" },
-    ).lean();
+    // Update in whichever collection the user exists
+    const [u, a, v] = await Promise.all([
+      UserModel.findOneAndUpdate({ id: req.user.id }, updateData, { returnDocument: "after" }).lean(),
+      AdminModel.findOneAndUpdate({ id: req.user.id }, updateData, { returnDocument: "after" }).lean(),
+      VendorModel.findOneAndUpdate({ id: req.user.id }, updateData, { returnDocument: "after" }).lean(),
+    ]);
+    const updated = u || a || v;
     if (updated) return res.json({ message: "User updated successfully" });
     return res.status(404).json({ message: "User not found" });
   } catch (error) {
@@ -215,19 +207,19 @@ router.post("/forgot-password", async (req, res) => {
     if (!email) return res.status(400).json({ message: "Email is required" });
 
     await connectDB();
-    const user = await UserModel.findOne({ email }).lean();
+    // Search all collections
+    const [adminUser, regularUser, vendorUser] = await Promise.all([
+      AdminModel.findOne({ email }).lean(),
+      UserModel.findOne({ email }).lean(),
+      VendorModel.findOne({ email }).lean(),
+    ]);
+    const user = adminUser || vendorUser || regularUser;
 
     if (!user) {
-      return res.status(404).json({
-        message: "No account found with this email address.",
-      });
+      return res.status(404).json({ message: "No account found with this email address." });
     }
-    const resetToken = jwt.sign({ id: user.id, purpose: "reset" }, JWT_SECRET, {
-      expiresIn: "15m",
-    });
-
-    const frontendUrl =
-      process.env.FRONTEND_URL || req.headers.origin || "http://localhost:3000";
+    const resetToken = jwt.sign({ id: user.id, purpose: "reset" }, JWT_SECRET, { expiresIn: "15m" });
+    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || "http://localhost:3000";
     const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
 
     const { transporter } = require("../../lib/mailer");
@@ -239,21 +231,17 @@ router.post("/forgot-password", async (req, res) => {
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; rounded: 8px;">
           <h2 style="color: #8B5CF6;">Password Reset</h2>
           <p>Hello ${user.name || "there"},</p>
-          <p>We received a request to reset your password for your LinkStore account. Click the button below to set a new password:</p>
+          <p>We received a request to reset your password. Click below to set a new password:</p>
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetLink}" style="background-color: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block;">Reset Password</a>
+            <a href="${resetLink}" style="background-color: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 50px; font-weight: bold;">Reset Password</a>
           </div>
-          <p>This link will expire in 15 minutes.</p>
-          <p>If you didn't request this, you can safely ignore this email.</p>
+          <p>This link expires in 15 minutes.</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
           <p style="font-size: 12px; color: #666;">Best regards,<br />The LinkStore Team</p>
         </div>
       `,
     });
-
-    return res.json({
-      message: "Reset link sent successfully. Please check your email.",
-    });
+    return res.json({ message: "Reset link sent successfully. Please check your email." });
   } catch (error) {
     console.error("Forgot password error:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -263,30 +251,27 @@ router.post("/forgot-password", async (req, res) => {
 router.post("/reset-password", async (req, res) => {
   try {
     const { token, password } = req.body;
-    if (!token || !password) {
-      return res
-        .status(400)
-        .json({ message: "Token and password are required" });
-    }
+    if (!token || !password) return res.status(400).json({ message: "Token and password are required" });
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
       if (decoded.purpose !== "reset") throw new Error("Invalid token purpose");
 
       await connectDB();
-      const user = await UserModel.findOne({ id: decoded.id });
+      // Find the user in any collection
+      const [adminUser, regularUser, vendorUser] = await Promise.all([
+        AdminModel.findOne({ id: decoded.id }),
+        UserModel.findOne({ id: decoded.id }),
+        VendorModel.findOne({ id: decoded.id }),
+      ]);
+      const user = adminUser || vendorUser || regularUser;
       if (!user) return res.status(404).json({ message: "User not found" });
 
       if (!isPasswordStrong(password)) {
-        return res.status(400).json({
-          message:
-            "Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character.",
-        });
+        return res.status(400).json({ message: "Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character." });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-      user.password = hashedPassword;
+      user.password = await bcrypt.hash(password, 10);
       await user.save();
-
       return res.json({ message: "Password has been reset successfully." });
     } catch (err) {
       return res.status(401).json({ message: "Invalid or expired reset link" });
@@ -300,31 +285,16 @@ router.post("/reset-password", async (req, res) => {
 router.post("/verify-otp", async (req, res) => {
   try {
     const { email, otp } = req.body;
-    if (!email || !otp) {
-      return res.status(400).json({ message: "Email and OTP are required" });
-    }
+    if (!email || !otp) return res.status(400).json({ message: "Email and OTP are required" });
 
     await connectDB();
+    // OTP verification only applies to newly signed-up users (users collection)
     const user = await UserModel.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    if (user.isVerified) {
-      return res.status(400).json({ message: "Account is already verified" });
-    }
-
-    if (user.otp !== otp) {
-      return res.status(400).json({ message: "Invalid verification code" });
-    }
-
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.isVerified) return res.status(400).json({ message: "Account is already verified" });
+    if (user.otp !== otp) return res.status(400).json({ message: "Invalid verification code" });
     if (user.otpExpiresAt && new Date() > user.otpExpiresAt) {
-      return res
-        .status(400)
-        .json({
-          message: "Verification code has expired. Please request a new one.",
-        });
+      return res.status(400).json({ message: "Verification code has expired. Please request a new one." });
     }
 
     user.isVerified = true;
@@ -332,23 +302,13 @@ router.post("/verify-otp", async (req, res) => {
     user.otpExpiresAt = null;
     await user.save();
 
-    const isAdmin = user.email === ADMIN_EMAIL || !!user.isAdmin;
-    const adminRole =
-      user.email === ADMIN_EMAIL
-        ? "super_admin"
-        : user.isAdmin
-          ? "admin"
-          : null;
-
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name, isAdmin, adminRole },
+      { id: user.id, email: user.email, name: user.name, isAdmin: false, isVendor: false, adminRole: null },
       JWT_SECRET,
       { expiresIn: "7d" },
     );
-
     res.cookie("token", token, {
-      httpOnly: true,
-      path: "/",
+      httpOnly: true, path: "/",
       secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 3600 * 1000,
       sameSite: "lax",
@@ -357,12 +317,7 @@ router.post("/verify-otp", async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
     delete userObj.otp;
-
-    return res.json({
-      message: "Email verified successfully. You are now logged in.",
-      token,
-      user: { ...userObj, isAdmin, adminRole },
-    });
+    return res.json({ message: "Email verified successfully. You are now logged in.", token, user: { ...userObj, isAdmin: false, isVendor: false } });
   } catch (error) {
     console.error("OTP verification error:", error);
     return res.status(500).json({ message: "Internal server error" });

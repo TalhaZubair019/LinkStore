@@ -1,5 +1,5 @@
 const express = require("express");
-const { UserModel, ProductModel } = require("../../lib/models");
+const { VendorModel, ProductModel } = require("../../lib/models");
 
 const router = express.Router();
 
@@ -9,10 +9,9 @@ router.get("/list/all", async (req, res) => {
     const { connectDB } = require("../../lib/db");
     await connectDB();
     
-    const vendors = await UserModel.find({
-      isVendor: true,
+    const vendors = await VendorModel.find({
       "vendorProfile.status": "approved"
-    }).select("id name vendorProfile.storeName").lean();
+    }).select("id name vendorProfile.storeName vendorProfile.logo vendorProfile.storeSlug").lean();
 
     return res.json({ vendors });
   } catch (error) {
@@ -29,9 +28,8 @@ router.get("/:storeSlug", async (req, res) => {
     const { storeSlug } = req.params;
 
     // Find vendor by storeSlug
-    const vendor = await UserModel.findOne({
+    const vendor = await VendorModel.findOne({
       "vendorProfile.storeSlug": storeSlug,
-      isVendor: true,
       "vendorProfile.status": "approved"
     }).select("id name vendorProfile createdAt");
 

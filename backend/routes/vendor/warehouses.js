@@ -10,7 +10,7 @@ router.get("/", requireVendor, async (req, res) => {
   try {
     await connectDB();
     const vendorId = req.user.id;
-    const warehouses = await WarehouseModel.find({}).sort({ name: 1 }).lean();
+    const warehouses = await WarehouseModel.find({ vendorId }).sort({ name: 1 }).lean();
 
     const aggregatedWarehouses = await ProductModel.aggregate([
       { $match: { vendorId: vendorId } },
@@ -63,7 +63,7 @@ router.post("/", requireVendor, async (req, res) => {
     }
 
     await connectDB();
-    const existing = await WarehouseModel.findOne({ name: name.trim() });
+    const existing = await WarehouseModel.findOne({ name: name.trim(), vendorId: req.user.id });
     if (existing) {
       return res.status(409).json({ message: "Warehouse with this name already exists" });
     }
@@ -72,6 +72,7 @@ router.post("/", requireVendor, async (req, res) => {
       id: "WH-" + Math.random().toString(36).substr(2, 9).toUpperCase(),
       name: name.trim(),
       location: location.trim(),
+      vendorId: req.user.id,
     });
 
     await logActivity(req, {
@@ -92,15 +93,15 @@ router.patch("/:id", requireVendor, async (req, res) => {
     const { name, location } = req.body;
     await connectDB();
 
-    const warehouse = await WarehouseModel.findOne({ id: req.params.id });
-    if (!warehouse) return res.status(404).json({ message: "Warehouse not found" });
+    const warehouse = await WarehouseModel.findOne({ id: req.params.id, vendorId: req.user.id });
+    if (!warehouse) return res.status(404).json({ message: "Warehouse not found or access denied" });
 
     const updateData = {};
     if (name?.trim()) updateData.name = name.trim();
     if (location?.trim()) updateData.location = location.trim();
 
     const updated = await WarehouseModel.findOneAndUpdate(
-      { id: req.params.id },
+      { id: req.params.id, vendorId: req.user.id },
       { $set: updateData },
       { new: true }
     );
@@ -121,10 +122,9 @@ router.patch("/:id", requireVendor, async (req, res) => {
 router.delete("/:id", requireVendor, async (req, res) => {
   try {
     await connectDB();
-    const warehouse = await WarehouseModel.findOne({ id: req.params.id });
-    if (!warehouse) return res.status(404).json({ message: "Warehouse not found" });
-
-    await WarehouseModel.findOneAndDelete({ id: req.params.id });
+    const warehouse = await WarehouseModel.findOne({ id: req.params.id, vendorId: req.user.id });
+    if (!warehouse) return res.status(404).json({ message: "Warehouse not found or access denied" });
+    await WarehouseModel.findOneAndDelete({ id: req.params.id, vendorId: req.user.id });
 
     await logActivity(req, {
       action: "delete",

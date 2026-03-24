@@ -1,7 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { connectDB } = require("../../lib/db");
-const { OrderModel, UserModel, ProductModel } = require("../../lib/models");
+const { OrderModel, UserModel, AdminModel, VendorModel, ProductModel } = require("../../lib/models");
 const { requireAuth, JWT_SECRET } = require("../../middleware/auth");
 const { transporter } = require("../../lib/mailer");
 const db = require("../../../data/db.json");
@@ -184,7 +184,11 @@ router.post("/place-order", async (req, res) => {
     await OrderModel.create(newOrder);
 
     if (userId !== "guest") {
-      await UserModel.findOneAndUpdate({ id: userId }, { cart: [] });
+      await Promise.all([
+        UserModel.findOneAndUpdate({ id: userId }, { cart: [] }),
+        AdminModel.findOneAndUpdate({ id: userId }, { cart: [] }),
+        VendorModel.findOneAndUpdate({ id: userId }, { cart: [] })
+      ]);
     }
 
     try {

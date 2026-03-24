@@ -94,10 +94,7 @@ export default function MarketplaceHero() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.8 }}
                 >
-                  <span className="inline-block text-[10px] font-black uppercase tracking-[0.5em] text-blue-400 mb-6 drop-shadow-lg">
-                    Introducing the Zenith Collection
-                  </span>
-                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 drop-shadow-2xl leading-[0.9] tracking-tighter uppercase">
+                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-black mb-4 drop-shadow-lg">
                     {BANNERS[currentSlide].title}
                   </h2>
                   <p className="text-lg md:text-xl font-medium mb-12 max-w-xl drop-shadow-xl text-slate-200 leading-relaxed">
@@ -125,13 +122,13 @@ export default function MarketplaceHero() {
             onClick={prevSlide}
             className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-xl p-3 rounded-full text-white transition-all opacity-0 group-hover:opacity-100 z-30 border border-white/20"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={32} />
           </button>
           <button
             onClick={nextSlide}
             className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-xl p-3 rounded-full text-white transition-all opacity-0 group-hover:opacity-100 z-30 border border-white/20"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={32} />
           </button>
 
           {/* Dots */}

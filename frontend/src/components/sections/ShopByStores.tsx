@@ -9,6 +9,7 @@ interface Vendor {
   id: string;
   name: string;
   logo?: string;
+  storeSlug: string;
   productCount?: number;
 }
 
@@ -75,7 +76,7 @@ const ShopByStores = () => {
               viewport={{ once: true }}
             >
               <Link
-                href={`/shop?vendor=${vendor.id}`}
+                href={`/store/${vendor.storeSlug}`}
                 className="group flex flex-col items-center p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-100 dark:border-slate-800 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 h-full text-center"
               >
                 <div className="relative mb-6">

@@ -2,6 +2,8 @@ const express = require("express");
 const { connectDB } = require("../../lib/db");
 const {
   UserModel,
+  AdminModel,
+  VendorModel,
   OrderModel,
   ProductModel,
   ReviewModel,
@@ -15,13 +17,17 @@ const ADMIN_EMAIL = process.env.EMAIL_USER;
 router.get("/", requireAdmin, async (req, res) => {
   try {
     await connectDB();
-    const [users, orders, products, reviews, categories] = await Promise.all([
+    const [users, admins, vendors, orders, products, reviews, categories] = await Promise.all([
       UserModel.find({}).lean(),
+      AdminModel.find({}).lean(),
+      VendorModel.find({}).lean(),
       OrderModel.find({}).lean(),
       ProductModel.find({}).lean(),
       ReviewModel.find({}).lean(),
       CategoryModel.find({}).sort({ name: 1 }).lean(),
     ]);
+    // Combine all user types for lookups
+    const allUsers = [...users, ...admins, ...vendors];
 
     const totalRevenue = orders
       .filter((o) => o.status !== "Cancelled")
@@ -91,7 +97,7 @@ router.get("/", requireAdmin, async (req, res) => {
     const recentOrders = [...orders]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .map((order) => {
-        const liveCustomer = users.find((u) => u.id === order.userId);
+        const liveCustomer = allUsers.find((u) => u.id === order.userId);
         return {
           ...order,
           customer: {
@@ -106,13 +112,15 @@ router.get("/", requireAdmin, async (req, res) => {
         };
       });
 
-    const usersWithDetails = users.map((user) => {
+    const usersWithDetails = allUsers.map((user) => {
       const { password, ...rest } = user;
-      const isAdmin = !!user.isAdmin || user.email === ADMIN_EMAIL;
-      const adminRole = user.email === ADMIN_EMAIL ? "super_admin" : user.isAdmin ? "admin" : null;
+      const isAdmin = admins.some(a => a.id === user.id);
+      const isVendor = vendors.some(v => v.id === user.id);
+      const adminRole = user.email === ADMIN_EMAIL ? "super_admin" : isAdmin ? "admin" : null;
       return {
         ...rest,
         isAdmin,
+        isVendor,
         adminRole,
         cartCount: user.cart?.length || 0,
         wishlistCount: user.wishlist?.length || 0,
@@ -231,12 +239,12 @@ router.get("/", requireAdmin, async (req, res) => {
     const nonCancelledOrders = orders.filter((o) => o.status !== "Cancelled");
     const averageOrderValue = nonCancelledOrders.length > 0 ? totalRevenue / nonCancelledOrders.length : 0;
 
-    const totalAdmins = users.filter((u) => u.isAdmin || u.email === ADMIN_EMAIL).length;
-    const totalVendors = users.filter((u) => u.vendorProfile?.status !== "none").length;
+    const totalAdmins = admins.length;
+    const totalVendors = vendors.length;
     const pendingVendors = users.filter((u) => u.vendorProfile?.status === "pending").length;
 
     return res.json({
-      totalUsers: users.length,
+      totalUsers: users.length + admins.length + vendors.length,
       totalAdmins,
       totalVendors,
       pendingVendors,

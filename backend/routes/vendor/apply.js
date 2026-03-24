@@ -42,7 +42,7 @@ router.post("/", requireAuth, async (req, res) => {
       status: "pending",
       storeSlug: storeName.toLowerCase().replace(/\s+/g, "-"),
     };
-
+    user.vendorApplicationPending = true;
     await user.save();
 
     await logActivity(req, {

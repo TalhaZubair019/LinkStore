@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Store, MapPin, Calendar, Star, Info, Package, ArrowLeft, Search, CheckCircle } from "lucide-react";
+import { Store, MapPin, Calendar, Star, Info, Package, ArrowLeft, Search, CheckCircle, Filter, ArrowDownUp } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import ProductCard from "@/components/products/ProductCard";
 import { motion, AnimatePresence } from "framer-motion";
@@ -31,6 +31,10 @@ export default function VendorStorePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("newest");
+
+  const categories = ["All", ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
 
   useEffect(() => {
     const fetchStoreData = async () => {
@@ -61,10 +65,18 @@ export default function VendorStorePage() {
     }
   }, [storeSlug]);
 
-  const filteredProducts = products.filter(p => 
-    p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.category?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products
+    .filter(p => {
+      const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.category?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => {
+      const parsePrice = (price: any) => typeof price === "string" ? parseFloat(price.replace(/[^0-9.]/g, "")) : (price || 0);
+      if (sortBy === "price-asc") return parsePrice(a.price) - parsePrice(b.price);
+      if (sortBy === "price-desc") return parsePrice(b.price) - parsePrice(a.price);
+      return 0; // maintain newest default from backend
+    });
 
   if (loading) {
     return (
@@ -227,7 +239,7 @@ export default function VendorStorePage() {
 
         {/* Filters & Products */}
         <div className="mt-16 space-y-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
               Store Collection
               <span className="text-sm font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">
@@ -235,15 +247,48 @@ export default function VendorStorePage() {
               </span>
             </h2>
 
-            <div className="relative group min-w-[300px]">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-              <input
-                type="text"
-                placeholder="Search this store..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 ring-blue-500/10 focus:border-blue-500/50 transition-all dark:text-white text-sm"
-              />
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+              {/* Category Filter */}
+              <div className="relative w-full sm:w-auto min-w-[160px]">
+                <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full pl-11 pr-10 py-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 ring-blue-500/10 focus:border-blue-500/50 transition-all dark:text-white text-sm font-semibold appearance-none cursor-pointer"
+                >
+                  {categories.map((cat: any) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-xs text-[9px]">▼</div>
+              </div>
+
+              {/* Sorting Filter */}
+              <div className="relative w-full sm:w-auto min-w-[180px]">
+                <ArrowDownUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full pl-11 pr-10 py-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 ring-blue-500/10 focus:border-blue-500/50 transition-all dark:text-white text-sm font-semibold appearance-none cursor-pointer"
+                >
+                  <option value="newest">Sort by: Newest</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-xs text-[9px]">▼</div>
+              </div>
+
+              {/* Search */}
+              <div className="relative group w-full sm:w-auto min-w-[280px]">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search this store..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl outline-none focus:ring-2 ring-blue-500/10 focus:border-blue-500/50 transition-all dark:text-white text-sm"
+                />
+              </div>
             </div>
           </div>
 

@@ -1,7 +1,7 @@
 const express = require("express");
 const Stripe = require("stripe");
 const { connectDB } = require("../../lib/db");
-const { UserModel } = require("../../lib/models");
+const { VendorModel } = require("../../lib/models");
 const { requireVendor } = require("../../middleware/vendor");
 
 const router = express.Router();
@@ -11,7 +11,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 router.post("/onboard", requireVendor, async (req, res) => {
   try {
     await connectDB();
-    const user = await UserModel.findOne({ id: req.user.id });
+    const user = await VendorModel.findOne({ id: req.user.id });
 
     let stripeAccountId = user.vendorProfile?.stripeAccountId;
 
@@ -53,7 +53,7 @@ router.post("/onboard", requireVendor, async (req, res) => {
 router.get("/status", requireVendor, async (req, res) => {
   try {
     await connectDB();
-    const user = await UserModel.findOne({ id: req.user.id });
+    const user = await VendorModel.findOne({ id: req.user.id });
     const stripeAccountId = user.vendorProfile?.stripeAccountId;
 
     if (!stripeAccountId) {

@@ -27,18 +27,40 @@ async function connectDB() {
 
   try {
     cached.conn = await cached.promise;
-
-    const { UserModel } = require("./models");
-    await UserModel.updateMany(
-      { isAdmin: { $exists: false } },
-      { $set: { isAdmin: false } },
-    );
+    
+    // Auto-promote EMAIL_USER to super admin
     const adminEmail = process.env.EMAIL_USER;
     if (adminEmail) {
-      await UserModel.updateOne(
-        { email: adminEmail },
-        { $set: { isAdmin: true } },
-      );
+      const { UserModel, AdminModel, VendorModel } = require("./models");
+      
+      const existingAdmin = await AdminModel.findOne({ email: adminEmail });
+      if (existingAdmin) {
+        if (existingAdmin.adminRole !== "super_admin" || !existingAdmin.isVerified) {
+          await AdminModel.updateOne(
+            { _id: existingAdmin._id },
+            { $set: { adminRole: "super_admin", isVerified: true } }
+          );
+        }
+      } else {
+        const existingUser = await UserModel.findOne({ email: adminEmail });
+        const existingVendor = await VendorModel.findOne({ email: adminEmail });
+        const target = existingUser || existingVendor;
+        
+        if (target) {
+          await AdminModel.create({
+            id: target.id,
+            name: target.name,
+            email: target.email,
+            password: target.password,
+            phone: target.phone,
+            isVerified: true,
+            adminRole: "super_admin",
+            promotedBy: "system"
+          });
+          if (existingUser) await UserModel.deleteOne({ _id: existingUser._id });
+          if (existingVendor) await VendorModel.deleteOne({ _id: existingVendor._id });
+        }
+      }
     }
   } catch (e) {
     cached.promise = null;

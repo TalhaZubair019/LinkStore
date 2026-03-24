@@ -1,5 +1,5 @@
 const express = require("express");
-const { UserModel, ProductModel } = require("../../lib/models");
+const { VendorModel, ProductModel } = require("../../lib/models");
 const { connectDB } = require("../../lib/db");
 
 const router = express.Router();
@@ -7,8 +7,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     await connectDB();
-    const vendors = await UserModel.find({
-      isVendor: true,
+    const vendors = await VendorModel.find({
       "vendorProfile.status": "approved",
     }).lean();
 
@@ -22,6 +21,7 @@ router.get("/", async (req, res) => {
           id: v.id,
           name: v.vendorProfile?.storeName || v.name,
           logo: v.vendorProfile?.logo,
+          storeSlug: v.vendorProfile?.storeSlug || v.name.toLowerCase().replace(/\s+/g, '-'),
           productCount,
         };
       })

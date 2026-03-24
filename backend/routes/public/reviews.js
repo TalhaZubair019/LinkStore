@@ -33,7 +33,7 @@ router.post("/vendor", async (req, res) => {
     }
 
     await connectDB();
-    const { UserModel } = require("../../lib/models");
+    const { VendorModel } = require("../../lib/models");
 
     // 1. Create the review
     const savedReview = await ReviewModel.create({
@@ -53,7 +53,7 @@ router.post("/vendor", async (req, res) => {
     const totalReviews = allVendorReviews.length;
     const averageRating = allVendorReviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews;
 
-    await UserModel.findOneAndUpdate(
+    await VendorModel.findOneAndUpdate(
       { id: vendorId },
       { 
         $set: { 

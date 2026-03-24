@@ -147,7 +147,7 @@ function AuthInitializer() {
     return () => clearTimeout(timeoutId);
   }, [cart.cartItems, wishlist.items, auth.isAuthenticated, isLoaded]);
 
-  const handleDismiss = async (type: "promotion" | "demotion" | "deleted" | "vendor_approval" | "suspension" | "unsuspension") => {
+  const handleDismiss = async (type: "promotion" | "demotion" | "deleted" | "vendorApproval" | "suspension" | "unsuspension") => {
     if (type !== "deleted") {
       try {
         await fetch("/api/auth/me", {
@@ -191,7 +191,7 @@ function AuthInitializer() {
                     : showUnsuspensionModal
                       ? "unsuspension"
                   : showVendorModal
-                    ? "vendor_approval"
+                    ? "vendorApproval"
                     : "demotion",
             )
           }
@@ -321,7 +321,7 @@ function AuthInitializer() {
                 Please log in again to activate your seller account.
               </p>
               <button
-                onClick={() => handleDismiss("vendor_approval")}
+                onClick={() => handleDismiss("vendorApproval")}
                 className="mt-6 w-full py-3 bg-linear-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-emerald-200 text-sm"
               >
                 OK

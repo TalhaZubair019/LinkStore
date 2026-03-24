@@ -127,12 +127,14 @@ export default function JustForYou() {
               className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 group border border-slate-100 dark:border-slate-800 flex flex-col h-full hover:-translate-y-2 hover:border-blue-500/30"
             >
               <div className="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-800">
-                <Image
-                  src={product.image}
-                  alt={product.title}
-                  fill
-                  className="object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+                <Link href={`/product/${product.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <Image
+                    src={product.image}
+                    alt={product.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </Link>
                 <button 
                   onClick={() => handleToggleWishlist(product)}
                   className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-slate-950/90 backdrop-blur-md text-slate-400 hover:text-rose-500 transition-all z-10 shadow-lg"
@@ -154,7 +156,7 @@ export default function JustForYou() {
                 </div>
 
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 line-clamp-2 mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-relaxed">
-                  <Link href={`/product/${product.id}`}>{product.title}</Link>
+                  <Link href={`/product/${product.title.toLowerCase().replace(/\s+/g, '-')}`}>{product.title}</Link>
                 </h3>
                 
                 <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-800/50">
