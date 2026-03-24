@@ -39,7 +39,6 @@ export default function JustForYou() {
       try {
         const response = await fetch("/api/public/content?section=products");
         const data = await response.json();
-        // Mimic high density by duplicating if needed or just using what's there
         setProducts(data.products || []);
       } catch (error) {
         console.error("Failed to fetch products:", error);

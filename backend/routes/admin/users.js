@@ -168,6 +168,8 @@ router.patch("/:id/suspend-vendor", requireSuperAdmin, async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     user.vendorProfile.status = "suspended";
+    user.isVendor = false;
+    user.suspensionPending = true;
     await user.save();
 
     await logActivity(req, {
@@ -178,6 +180,31 @@ router.patch("/:id/suspend-vendor", requireSuperAdmin, async (req, res) => {
     });
 
     return res.json({ message: "Vendor account suspended" });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal Error" });
+  }
+});
+
+router.patch("/:id/unsuspend-vendor", requireSuperAdmin, async (req, res) => {
+  try {
+    await connectDB();
+    const user = await UserModel.findOne({ id: req.params.id });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.vendorProfile.status = "approved";
+    user.isVendor = true;
+    user.suspensionPending = false;
+    user.unsuspensionPending = true;
+    await user.save();
+
+    await logActivity(req, {
+      action: "update",
+      entity: "user",
+      entityId: req.params.id,
+      details: `Unsuspended vendor account for "${user.vendorProfile.storeName}" (User: ${user.name})`,
+    });
+
+    return res.json({ message: "Vendor account unsuspended successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Internal Error" });
   }

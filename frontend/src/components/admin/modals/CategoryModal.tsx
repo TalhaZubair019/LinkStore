@@ -15,6 +15,7 @@ interface CategoryModalProps {
   editingCategory: Category | null;
   onSaved: () => void;
   showToast: (msg: string, type: "success" | "error") => void;
+  isAdminView?: boolean;
 }
 
 const CategoryModal = ({
@@ -23,6 +24,7 @@ const CategoryModal = ({
   editingCategory,
   onSaved,
   showToast,
+  isAdminView = true,
 }: CategoryModalProps) => {
   const [name, setName] = useState(editingCategory?.name || "");
   const [image, setImage] = useState(editingCategory?.image || "");
@@ -47,9 +49,10 @@ const CategoryModal = ({
     setIsSubmitting(true);
 
     try {
+      const apiPrefix = isAdminView ? "/api/admin" : "/api/vendor";
       const url = editingCategory
-        ? `/api/admin/categories/${editingCategory._id}`
-        : `/api/admin/categories`;
+        ? `${apiPrefix}/categories/${editingCategory._id}`
+        : `${apiPrefix}/categories`;
 
       const res = await fetch(url, {
         method: editingCategory ? "PATCH" : "POST",

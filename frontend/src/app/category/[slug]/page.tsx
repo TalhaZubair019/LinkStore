@@ -1,10 +1,10 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, ChevronDown, ShoppingBag, Heart } from "lucide-react";
+import { ChevronRight, ChevronDown, ShoppingBag, Heart, Filter, X } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/redux/CartSlice";
 import { toggleWishlist } from "@/redux/WishListSlice";
@@ -12,9 +12,10 @@ import { RootState } from "@/redux/Store";
 import Toast from "@/components/products/Toast";
 import db from "@data/db.json";
 import PageHeader from "@/components/ui/PageHeader";
+import FilterSidebar from "@/components/shop/FilterSidebar";
 
 interface Category {
-  id: number;
+  id: string | number;
   title: string;
   image: string;
   link: string;
@@ -30,6 +31,7 @@ interface Product {
   printText?: string;
   oldPrice?: string | null;
   category?: string;
+  vendorId?: string;
 }
 
 export default function CategoryPage() {
@@ -40,8 +42,11 @@ export default function CategoryPage() {
   const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
   const [category, setCategory] = useState<Category | null>(null);
   const [categoryProducts, setCategoryProducts] = useState<Product[]>([]);
+  const [allCategories, setAllCategories] = useState<any[]>([]);
+  const [vendors, setVendors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState("Default Sorting");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [toast, setToast] = useState<{
     show: boolean;
@@ -49,13 +54,19 @@ export default function CategoryPage() {
     type: "add" | "remove";
   }>({ show: false, message: "", type: "add" });
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   useEffect(() => {
     const fetchCategoryData = async () => {
       try {
         setLoading(true);
-        const [catRes, productsRes] = await Promise.all([
-          fetch("/api/admin/categories"),
-          fetch("/api/public/content?section=products"),
+        const params = new URLSearchParams(searchParams.toString());
+        
+        const [catRes, productsRes, vendorsRes] = await Promise.all([
+          fetch("/api/public/content?section=categories"),
+          fetch(`/api/public/content?section=products&${params.toString()}`),
+          fetch("/api/public/stores/list/all").catch(() => null),
         ]);
 
         let allProducts: Product[] = [];
@@ -64,33 +75,51 @@ export default function CategoryPage() {
           allProducts = productData.products || [];
         }
 
+        if (vendorsRes && vendorsRes.ok) {
+          const vData = await vendorsRes.json();
+          setVendors(vData.vendors || []);
+        }
+
         const filterForCategory = (catTitle: string) => {
           const lowerTitle = catTitle.toLowerCase();
           const singularTitle = lowerTitle.replace(/s$/, "");
           const slugFromTitle = lowerTitle.replace(/\s+/g, "-");
 
+          const search = searchParams.get("search")?.toLowerCase() || "";
+          const minPrice = parseFloat(searchParams.get("minPrice") || "0");
+          const maxPrice = parseFloat(searchParams.get("maxPrice") || "Infinity");
+          const vendorId = searchParams.get("vendorId");
+
           return allProducts.filter((p) => {
             const pTitle = p.title.toLowerCase();
             const pCat = p.category?.toLowerCase() || "";
+            const pPrice = parseFloat(p.price.replace(/[^0-9.]/g, ""));
             const singularPCat = pCat.replace(/s$/, "");
 
-            const isDirectMatch =
+            // Initial Category Match
+            const isCategoryMatch =
               pCat === lowerTitle ||
               singularPCat === singularTitle ||
               pCat.replace(/\s+/g, "-") === slug ||
-              pCat.replace(/\s+/g, "-") === slugFromTitle;
-
-            const isKeywordMatch =
+              pCat.replace(/\s+/g, "-") === slugFromTitle ||
               pTitle.includes(singularTitle) ||
               pTitle.includes(slug.replace(/-/g, " ").replace(/s$/, ""));
 
-            return isDirectMatch || isKeywordMatch;
+            if (!isCategoryMatch) return false;
+
+            // Extra Sidebar Filters
+            if (search && !pTitle.includes(search)) return false;
+            if (pPrice < minPrice || pPrice > maxPrice) return false;
+            if (vendorId && p.vendorId !== vendorId) return false;
+
+            return true;
           });
         };
 
         if (catRes.ok) {
           const catData = await catRes.json();
           const dbCategories: Category[] = catData.categories || [];
+          setAllCategories(dbCategories);
 
           const foundCategory = dbCategories.find(
             (cat: any) =>
@@ -119,17 +148,6 @@ export default function CategoryPage() {
               setCategory(null);
             }
           }
-        } else {
-          const staticCat = db.categories.categories.find(
-            (cat: Category) =>
-              cat.title.toLowerCase().replace(/\s+/g, "-") === slug,
-          );
-          if (staticCat) {
-            setCategory(staticCat);
-            setCategoryProducts(filterForCategory(staticCat.title));
-          } else {
-            setCategory(null);
-          }
         }
       } catch (error) {
         console.error("Failed to load data:", error);
@@ -141,7 +159,7 @@ export default function CategoryPage() {
     if (slug) {
       fetchCategoryData();
     }
-  }, [slug]);
+  }, [slug, searchParams]);
 
   const showToast = (message: string, type: "add" | "remove") => {
     setToast({ show: true, message, type });
@@ -186,7 +204,7 @@ export default function CategoryPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950 transition-colors">
-        <div className="text-slate-400 dark:text-slate-500">Loading...</div>
+        <div className="w-12 h-12 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -210,61 +228,88 @@ export default function CategoryPage() {
           { label: category.title },
         ]}
       />
-      <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
-        <div className="flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-full px-8 py-4 mt-8 mb-12 shadow-sm transition-colors">
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-2 sm:mb-0 transition-colors">
-            Showing {categoryProducts.length} Results
-          </p>
+      <div className="max-w-8xl mx-auto px-4 lg:px-8 py-12">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Sidebar */}
+          <aside className={`fixed inset-y-0 left-0 z-50 w-80 lg:relative lg:block transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-300 ease-in-out`}>
+            <FilterSidebar categories={allCategories} vendors={vendors} onClose={() => setIsSidebarOpen(false)} />
+          </aside>
 
-          <div className="relative">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="appearance-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 py-2 pl-4 pr-10 rounded-full text-sm font-semibold focus:outline-none focus:border-blue-400 dark:focus:border-blue-500 cursor-pointer transition-colors"
-            >
-              <option>Default Sorting</option>
-              <option>Popularity</option>
-              <option>Newest First</option>
-              <option>Price: Low to High</option>
-              <option>Price: High to Low</option>
-            </select>
-            <ChevronDown
-              size={14}
-              className="absolute right-3 top-3 text-slate-500 dark:text-slate-400 pointer-events-none transition-colors"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[...categoryProducts]
-            .sort((a: any, b: any) => {
-              const priceA = parseFloat(a.price.replace(/[^0-9.]/g, ""));
-              const priceB = parseFloat(b.price.replace(/[^0-9.]/g, ""));
-              if (sortBy === "Price: Low to High") return priceA - priceB;
-              if (sortBy === "Price: High to Low") return priceB - priceA;
-              if (sortBy === "Newest First") return (b.id || 0) - (a.id || 0);
-              if (sortBy === "Popularity")
-                return (b.salesCount || 0) - (a.salesCount || 0);
-              return (a.id || 0) - (b.id || 0);
-            })
-            .map((product) => (
-              <SimpleProductCard
-                key={product.id}
-                product={product}
-                isInCart={cartItems.some((item: any) => item.id === product.id)}
-                onAddToCart={() => handleAddToCart(product)}
-                isWishlisted={wishlistItems.some(
-                  (item) => item.id === product.id,
-                )}
-                onToggleWishlist={() => handleToggleWishlist(product)}
-              />
-            ))}
-
-          {categoryProducts.length === 0 && (
-            <div className="col-span-full flex flex-col items-center justify-center py-20 text-slate-400 dark:text-slate-500 transition-colors">
-              <p className="text-lg">No products found for {category.title}.</p>
-            </div>
+          {/* Background Overlay for Mobile Sidebar */}
+          {isSidebarOpen && (
+            <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
           )}
+
+          {/* Main Content */}
+          <main className="flex-1">
+            {/* Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-3xl border border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-black shadow-sm"
+                >
+                  <Filter size={18} />
+                  Filters
+                </button>
+                <p className="text-sm font-bold text-slate-500 hidden sm:block">
+                  Showing {categoryProducts.length} Results for "{category.title}"
+                </p>
+              </div>
+
+              <div className="relative group">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="appearance-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-6 py-2.5 pr-10 rounded-xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white"
+                >
+                  <option>Default Sorting</option>
+                  <option>Popularity</option>
+                  <option>Newest First</option>
+                  <option>Price: Low to High</option>
+                  <option>Price: High to Low</option>
+                </select>
+                <ChevronDown
+                  size={14}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 pointer-events-none transition-colors"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {[...categoryProducts]
+                .sort((a: any, b: any) => {
+                  const priceA = parseFloat(a.price.replace(/[^0-9.]/g, ""));
+                  const priceB = parseFloat(b.price.replace(/[^0-9.]/g, ""));
+                  if (sortBy === "Price: Low to High") return priceA - priceB;
+                  if (sortBy === "Price: High to Low") return priceB - priceA;
+                  if (sortBy === "Newest First") return (b.id || 0) - (a.id || 0);
+                  if (sortBy === "Popularity")
+                    return (b.salesCount || 0) - (a.salesCount || 0);
+                  return (a.id || 0) - (b.id || 0);
+                })
+                .map((product) => (
+                  <SimpleProductCard
+                    key={product.id}
+                    product={product}
+                    isInCart={cartItems.some((item: any) => item.id === product.id)}
+                    onAddToCart={() => handleAddToCart(product)}
+                    isWishlisted={wishlistItems.some(
+                      (item) => item.id === product.id,
+                    )}
+                    onToggleWishlist={() => handleToggleWishlist(product)}
+                  />
+                ))}
+
+              {categoryProducts.length === 0 && (
+                <div className="col-span-full flex flex-col items-center justify-center py-24 bg-slate-50 dark:bg-slate-900/30 rounded-[3rem] border border-dashed border-slate-200 dark:border-slate-800">
+                  <ShoppingBag size={48} className="text-slate-300 mb-4" />
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">No products found</h3>
+                  <p className="text-slate-500 mt-2">No products currently available for "{category.title}"</p>
+                </div>
+              )}
+            </div>
+          </main>
         </div>
       </div>
 

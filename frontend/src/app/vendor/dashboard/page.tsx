@@ -13,7 +13,7 @@ import CategoriesTabContent from "@/components/admin/tabs/CategoriesTabContent";
 import WarehousesTabContent from "@/components/admin/tabs/WarehousesTabContent";
 import InventoryTabContent from "@/components/admin/tabs/InventoryTabContent";
 
-import { useVendorDashboard } from "@/hooks/useVendorDashboard";
+import { useVendorDashboard } from "@/hooks/vendor/useVendorDashboard";
 
 export default function VendorDashboard() {
   const d = useVendorDashboard();
@@ -124,6 +124,7 @@ export default function VendorDashboard() {
                 setProductDeleteConfirm={d.setProductDeleteConfirm}
                 productPage={d.productPage}
                 setProductPage={d.setProductPage}
+                isAdminView={false}
               />
             )}
             {d.activeTab === "reviews" && (
@@ -237,6 +238,7 @@ export default function VendorDashboard() {
         setWarehouseDeleteConfirm={d.setWarehouseDeleteConfirm}
         handleDeleteWarehouse={d.handleDeleteWarehouse}
         isDeletingWarehouse={d.isDeletingWarehouse}
+        isAdminView={false}
       />
     </div>
   );

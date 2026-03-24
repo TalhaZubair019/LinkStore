@@ -11,16 +11,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { Country, State, City } from "country-state-city";
 import QuickViewModal from "@/components/products/QuickViewModal";
-import UserSidebar from "@/components/layout/UserSidebar";
+import UserSidebar from "@/components/user/UserSidebar";
 
 import PageHeader from "@/components/ui/PageHeader";
-import LoginForm from "@/components/account/LoginForm";
-import DashboardTab from "@/components/account/DashboardTab";
-import ProfileTab from "@/components/account/ProfileTab";
-import OrdersTab from "@/components/account/OrdersTab";
-import WishlistTab from "@/components/account/WishlistTab";
-import CartTab from "@/components/account/CartTab";
-import OrderDetails from "@/components/account/OrderDetails";
+import LoginForm from "@/components/user/LoginForm";
+import DashboardTab from "@/components/user/DashboardTab";
+import ProfileTab from "@/components/user/ProfileTab";
+import OrdersTab from "@/components/user/OrdersTab";
+import WishlistTab from "@/components/user/WishlistTab";
+import CartTab from "@/components/user/CartTab";
+import OrderDetails from "@/components/user/OrderDetails";
 
 interface TrackingEntry {
   status: string;

@@ -22,7 +22,7 @@ function Footer() {
   if (
     pathname?.startsWith("/admin") ||
     pathname?.startsWith("/vendor") ||
-    pathname?.startsWith("/account") ||
+    pathname?.startsWith("/user") ||
     pathname === "/apply-vendor"
   ) {
     return null;
@@ -36,32 +36,7 @@ function Footer() {
   };
 
   return (
-    <footer className="relative bg-[#020617] mt-32 sm:mt-40 lg:mt-48 px-4 sm:px-8 lg:px-20 pt-32 sm:pt-40 lg:pt-44 pb-12 font-sans">
-      <div className="absolute left-0 right-0 -top-32 px-4 md:px-6 z-30">
-        <div className="max-w-2xl mx-auto">
-          <div className="relative bg-linear-to-br from-[#6d05ff] to-[#06b3ca] rounded-4xl p-6 md:px-12 md:py-8 lg:py-10 shadow-2xl overflow-hidden shadow-blue-500/20">
-            <div className="relative z-10 flex flex-col items-center text-center max-w-2xl mx-auto">
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2 leading-tight tracking-tight">
-                {newsletter.titlePart1} {newsletter.titlePart2}
-              </h2>
-              <p className="text-white/90 mb-6 text-sm md:text-base max-w-2xl font-medium">
-                {newsletter.description}
-              </p>
-
-              <form className="flex flex-col sm:flex-row gap-4 w-full max-w-lg">
-                <input
-                  type="email"
-                  placeholder={newsletter.placeholder}
-                  className="flex-1 px-8 py-4 rounded-full bg-white/20 border border-white/30 placeholder-white/70 text-white text-base focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur-xl transition-all shadow-inner"
-                />
-                <button className="px-10 py-4 bg-white text-[#06b3ca] font-black rounded-full transition-all duration-300 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 whitespace-nowrap text-base cursor-pointer">
-                  {newsletter.buttonText}
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
+    <footer className="relative bg-[#020617] mt-10 sm:mt-20 lg:mt-30 px-4 sm:px-8 lg:px-20 pb-12 font-sans">
       <div className="max-w-7xl mx-auto px-6 relative z-10 pt-24 sm:pt-16 lg:pt-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10 mb-12 lg:mb-16 border-b border-gray-800 pb-8 lg:pb-12">
           <div className="md:col-span-2 lg:col-span-1">
@@ -71,7 +46,7 @@ function Footer() {
                 alt="Brand Logo"
                 width={140}
                 height={40}
-                className="h-8 w-auto dark:brightness-0 dark:invert"
+                className="h-8 w-auto brightness-0 invert"
                 unoptimized
               />
             </div>

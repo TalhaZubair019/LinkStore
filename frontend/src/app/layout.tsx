@@ -11,8 +11,8 @@ import ScrollToTop from "@/components/layout/ScrollToTop";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "PrintNest",
-  description: "Custom Printing Services",
+  title: "LinkStore",
+  description: "Premium Multi-Vendor Marketplace",
 };
 
 export default function RootLayout({

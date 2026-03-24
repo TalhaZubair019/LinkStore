@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import VendorsTable from "@/components/admin/tables/VendorsTable";
 import { UserData } from "@/app/admin/types";
-import { Clock, CheckCircle2, Search, Filter } from "lucide-react";
+import { Clock, CheckCircle2, Search, Filter, Ban } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface VendorsTabContentProps {
@@ -11,22 +11,25 @@ interface VendorsTabContentProps {
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onSuspend: (id: string) => void;
+  onUnsuspend: (id: string) => void;
 }
 
 const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
   allUsers,
   onApprove,
   onReject,
-  onSuspend
+  onSuspend,
+  onUnsuspend
 }) => {
-  const [viewMode, setViewMode] = useState<"pending" | "active">("pending");
+  const [viewMode, setViewMode] = useState<"pending" | "active" | "suspended">("pending");
   const [search, setSearch] = useState("");
 
   const filteredVendors = allUsers.filter(user => {
     const isPending = user.vendorProfile?.status === "pending";
     const isActive = user.isVendor && user.vendorProfile?.status === "approved";
+    const isSuspended = user.vendorProfile?.status === "suspended";
     
-    const matchesMode = viewMode === "pending" ? isPending : isActive;
+    const matchesMode = viewMode === "pending" ? isPending : viewMode === "suspended" ? isSuspended : isActive;
     const matchesSearch = 
       user.name.toLowerCase().includes(search.toLowerCase()) || 
       user.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -49,7 +52,7 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
             }`}
           >
             <Clock size={16} />
-            Pending Apps
+            Pending Applications
           </button>
           <button
             onClick={() => setViewMode("active")}
@@ -61,6 +64,17 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
           >
             <CheckCircle2 size={16} />
             Active Sellers
+          </button>
+          <button
+            onClick={() => setViewMode("suspended")}
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+              viewMode === "suspended"
+                ? "bg-rose-600 text-white shadow-lg shadow-rose-500/20"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
+            }`}
+          >
+            <Ban size={16} />
+            Suspended Account
           </button>
         </div>
 
@@ -90,6 +104,7 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
             onApprove={onApprove}
             onReject={onReject}
             onSuspend={onSuspend}
+            onUnsuspend={onUnsuspend}
           />
         </motion.div>
       </AnimatePresence>

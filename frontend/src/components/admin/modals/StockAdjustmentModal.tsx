@@ -11,13 +11,36 @@ interface StockAdjustmentModalProps {
   product: any;
   onClose: () => void;
   onSuccess: () => void;
+  isAdminView?: boolean;
 }
 
-export default function StockAdjustmentModal({ product, onClose, onSuccess }: StockAdjustmentModalProps) {
+export default function StockAdjustmentModal({ 
+  product, 
+  onClose, 
+  onSuccess,
+  isAdminView = true 
+}: StockAdjustmentModalProps) {
   const [sku, setSku] = useState(product.sku || "");
   const [lowStockThreshold, setLowStockThreshold] = useState(product.lowStockThreshold || 5);
   const [warehouses, setWarehouses] = useState<WarehouseInventory[]>(product.warehouseInventory || []);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableWarehouses, setAvailableWarehouses] = useState<any[]>([]);
+
+  React.useEffect(() => {
+    const fetchWH = async () => {
+      try {
+        const apiPrefix = isAdminView ? "/api/admin" : "/api/vendor";
+        const res = await fetch(`${apiPrefix}/warehouses`);
+        if (res.ok) {
+          const data = await res.json();
+          setAvailableWarehouses(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch warehouses", err);
+      }
+    };
+    fetchWH();
+  }, [isAdminView]);
 
   const totalStock = warehouses.reduce((acc, curr) => acc + (curr.quantity || 0), 0);
 
@@ -31,7 +54,17 @@ export default function StockAdjustmentModal({ product, onClose, onSuccess }: St
 
   const updateWarehouse = (index: number, field: keyof WarehouseInventory, value: string | number) => {
     const newW = [...warehouses];
-    newW[index] = { ...newW[index] as any, [field]: value };
+    const updated = { ...newW[index] as any, [field]: value };
+    
+    // If name changed, try to auto-fill location from availableWarehouses
+    if (field === "warehouseName") {
+      const found = availableWarehouses.find(w => w.name === value || w.warehouseName === value);
+      if (found) {
+        updated.location = found.location;
+      }
+    }
+    
+    newW[index] = updated;
     setWarehouses(newW);
   };
 
@@ -39,7 +72,8 @@ export default function StockAdjustmentModal({ product, onClose, onSuccess }: St
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/admin/products/${product.id}/inventory`, {
+      const apiPrefix = isAdminView ? "/api/admin" : "/api/vendor";
+      const res = await fetch(`${apiPrefix}/products/${product.id}/inventory`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -144,29 +178,34 @@ export default function StockAdjustmentModal({ product, onClose, onSuccess }: St
                         ×
                       </button>
                       <div className="grid grid-cols-12 gap-3 items-end">
-                        <div className="col-span-5">
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">Name</label>
-                          <input
+                        <div className="col-span-12 sm:col-span-5">
+                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">Warehouse Name</label>
+                          <select
                             required
-                            type="text"
-                            placeholder="e.g. Main Hub"
                             value={wh.warehouseName}
                             onChange={(e) => updateWarehouse(idx, "warehouseName", e.target.value)}
                             className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-purple-500 transition-colors"
-                          />
+                          >
+                            <option value="">Select Warehouse</option>
+                            {availableWarehouses.map((aw: any) => (
+                              <option key={aw.id || aw._id} value={aw.name || aw.warehouseName}>
+                                {aw.name || aw.warehouseName}
+                              </option>
+                            ))}
+                          </select>
                         </div>
-                        <div className="col-span-4">
+                        <div className="col-span-12 sm:col-span-4">
                           <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">Location</label>
                           <input
                             required
                             type="text"
                             placeholder="e.g. NY"
                             value={wh.location}
-                            onChange={(e) => updateWarehouse(idx, "location", e.target.value)}
-                            className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-purple-500 transition-colors"
+                            readOnly
+                            className="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-500 dark:text-slate-400 outline-none transition-colors cursor-not-allowed"
                           />
                         </div>
-                        <div className="col-span-3">
+                        <div className="col-span-12 sm:col-span-3">
                           <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">Qty</label>
                           <input
                             required

@@ -7,18 +7,12 @@ import DashboardHeader from "@/components/admin/layout/DashboardHeader";
 import DashboardModals from "@/components/admin/layout/DashboardModals";
 
 import OverviewTab from "@/components/admin/tabs/OverviewTab";
-import ProductsTabContent from "@/components/admin/tabs/ProductsTabContent";
-import ReviewsTabContent from "@/components/admin/tabs/ReviewsTabContent";
 import UsersTabContent from "@/components/admin/tabs/UsersTabContent";
 import AdminsTabContent from "@/components/admin/tabs/AdminsTabContent";
-import OrdersTabContent from "@/components/admin/tabs/OrdersTabContent";
-import CategoriesTabContent from "@/components/admin/tabs/CategoriesTabContent";
-import WarehousesTabContent from "@/components/admin/tabs/WarehousesTabContent";
-import InventoryTabContent from "@/components/admin/tabs/InventoryTabContent";
 import ActivityLogsTabContent from "@/components/admin/tabs/ActivityLogsTabContent";
 import VendorsTabContent from "@/components/admin/tabs/VendorsTabContent";
 
-import { useAdminDashboard } from "@/hooks/useAdminDashboard";
+import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
 
 export default function AdminDashboard() {
   const d = useAdminDashboard();
@@ -73,7 +67,6 @@ export default function AdminDashboard() {
   const totalAdminPages =
     Math.ceil(filteredAdmins.length / d.ITEMS_PER_PAGE) || 1;
 
-
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 flex">
       <AdminSidebar
@@ -103,57 +96,51 @@ export default function AdminDashboard() {
             setActiveTab={d.setActiveTab}
             searchTerm={d.searchTerm}
             setSearchTerm={d.setSearchTerm}
-            showSearch={[
-              "users",
-              "admins",
-            ].includes(d.activeTab)}
+            showSearch={["users", "admins"].includes(d.activeTab)}
+            isAdminView={true}
           />
-            {d.activeTab === "overview" && (
-              <OverviewTab
-                stats={d.stats}
-                isAdminView={true}
-              />
-            )}
-            {d.activeTab === "users" && (
-              <UsersTabContent
-                paginatedUsers={paginatedUsers || []}
-                setSelectedUser={d.setSelectedUser}
-                setViewType={d.setViewType}
-                setDeleteConfirm={d.setDeleteConfirm}
-                onPromoteToAdmin={(id, name) =>
-                  d.setPromoteConfirm({ id, name })
-                }
-                userPage={d.userPage}
-                setUserPage={d.setUserPage}
-                totalUserPages={totalUserPages}
-                isSuperAdmin={d.user?.adminRole === "super_admin"}
-              />
-            )}
-            {d.activeTab === "admins" && (
-              <AdminsTabContent
-                paginatedAdmins={paginatedAdmins || []}
-                setSelectedUser={d.setSelectedUser}
-                setViewType={d.setViewType}
-                setDeleteConfirm={d.setDeleteConfirm}
-                onRevokeAdmin={(id, name) => d.setRevokeConfirm({ id, name })}
-                adminPage={d.adminPage}
-                setAdminPage={d.setAdminPage}
-                totalAdminPages={totalAdminPages}
-                onAddAdmin={() => d.setIsAddAdminModalOpen(true)}
-                isSuperAdmin={d.user?.adminRole === "super_admin"}
-              />
-            )}
-            {d.activeTab === "vendors" && (
-              <VendorsTabContent
-                allUsers={d.stats.users || []}
-                onApprove={d.handleApproveVendor}
-                onReject={d.handleRejectVendor}
-                onSuspend={d.handleSuspendVendor}
-              />
-            )}
-            {d.activeTab === "logs" && d.user?.adminRole === "super_admin" && (
-              <ActivityLogsTabContent />
-            )}
+          {d.activeTab === "overview" && (
+            <OverviewTab stats={d.stats} isAdminView={true} />
+          )}
+          {d.activeTab === "users" && (
+            <UsersTabContent
+              paginatedUsers={paginatedUsers || []}
+              setSelectedUser={d.setSelectedUser}
+              setViewType={d.setViewType}
+              setDeleteConfirm={d.setDeleteConfirm}
+              onPromoteToAdmin={(id, name) => d.setPromoteConfirm({ id, name })}
+              userPage={d.userPage}
+              setUserPage={d.setUserPage}
+              totalUserPages={totalUserPages}
+              isSuperAdmin={d.user?.adminRole === "super_admin"}
+            />
+          )}
+          {d.activeTab === "admins" && (
+            <AdminsTabContent
+              paginatedAdmins={paginatedAdmins || []}
+              setSelectedUser={d.setSelectedUser}
+              setViewType={d.setViewType}
+              setDeleteConfirm={d.setDeleteConfirm}
+              onRevokeAdmin={(id, name) => d.setRevokeConfirm({ id, name })}
+              adminPage={d.adminPage}
+              setAdminPage={d.setAdminPage}
+              totalAdminPages={totalAdminPages}
+              onAddAdmin={() => d.setIsAddAdminModalOpen(true)}
+              isSuperAdmin={d.user?.adminRole === "super_admin"}
+            />
+          )}
+          {d.activeTab === "vendors" && (
+            <VendorsTabContent
+              allUsers={d.stats.users || []}
+              onApprove={d.handleApproveVendor}
+              onReject={d.handleRejectVendor}
+              onSuspend={d.handleSuspendVendor}
+              onUnsuspend={d.handleUnsuspendVendor}
+            />
+          )}
+          {d.activeTab === "logs" && d.user?.adminRole === "super_admin" && (
+            <ActivityLogsTabContent />
+          )}
         </main>
       </div>
 

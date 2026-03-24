@@ -18,6 +18,7 @@ interface ProductsTableProps {
   setProductDeleteConfirm: (product: any) => void;
   productPage: number;
   setProductPage: React.Dispatch<React.SetStateAction<number>>;
+  isAdminView?: boolean;
 }
 
 const ProductsTable = ({
@@ -26,6 +27,7 @@ const ProductsTable = ({
   setProductDeleteConfirm,
   productPage,
   setProductPage,
+  isAdminView = true,
 }: ProductsTableProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedBadge, setSelectedBadge] = useState<string>("all");
@@ -105,7 +107,7 @@ const ProductsTable = ({
           </div>
           <div className="flex items-center gap-3">
             <Link
-              href="/admin/products/new"
+              href={`${isAdminView ? "/admin" : "/vendor"}/products/new`}
               className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-purple-600 dark:hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm whitespace-nowrap border border-transparent dark:border-slate-700"
             >
               <Plus size={16} /> Add Product
@@ -236,7 +238,7 @@ const ProductsTable = ({
                     </div>
                     <div className="flex items-center gap-2">
                       <Link
-                        href={`/admin/products/edit/${p.id}?fromPage=${productPage}`}
+                        href={`${isAdminView ? "/admin" : "/vendor"}/products/edit/${p.id}?fromPage=${productPage}`}
                         className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
                       >
                         <Edit size={16} />
@@ -363,7 +365,7 @@ const ProductsTable = ({
                   <td className="px-8 py-4 text-right">
                     <div className="flex items-center justify-end gap-2 text-right">
                       <Link
-                        href={`/admin/products/edit/${p.id}?fromPage=${productPage}`}
+                        href={`${isAdminView ? "/admin" : "/vendor"}/products/edit/${p.id}?fromPage=${productPage}`}
                         className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg inline-flex"
                       >
                         <Edit size={16} />

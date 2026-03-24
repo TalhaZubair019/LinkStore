@@ -65,7 +65,7 @@ export default function CategoriesSection() {
               viewport={{ once: true }}
             >
               <Link
-                href={`/category/${category.title.toLowerCase().replace(/\s+/g, "-")}`}
+                href={category.link}
                 className="flex flex-col items-center group"
               >
                 <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 overflow-hidden flex items-center justify-center mb-2 transition-all group-hover:shadow-lg group-hover:border-blue-500/50 group-hover:-translate-y-1">

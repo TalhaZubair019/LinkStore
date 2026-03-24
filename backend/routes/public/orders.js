@@ -149,10 +149,12 @@ router.post("/place-order", async (req, res) => {
     });
 
     // Dynamically generate vendorStatuses for multi-vendor tracking
-    const uniqueVendorIds = [...new Set(itemsWithFulfillment.map(item => item.vendorId))].filter(Boolean);
-    const vendorStatuses = uniqueVendorIds.map(vId => ({
+    const uniqueVendorIds = [
+      ...new Set(itemsWithFulfillment.map((item) => item.vendorId)),
+    ].filter(Boolean);
+    const vendorStatuses = uniqueVendorIds.map((vId) => ({
       vendorId: vId,
-      status: "Pending"
+      status: "Pending",
     }));
 
     const orderId = Date.now().toString();
@@ -197,7 +199,7 @@ router.post("/place-order", async (req, res) => {
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Order Confirmation - PrintNest</title>
+          <title>Order Confirmation - LinkStore</title>
           <style>
             body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; }
             .wrapper { width: 100%; padding: 40px 20px; box-sizing: border-box; }
@@ -320,7 +322,7 @@ router.post("/place-order", async (req, res) => {
                 </div>
               </div>
               <div class="footer">
-                <p>&copy; ${new Date().getFullYear()} PrintNest Studio. All rights reserved.</p>
+                <p>&copy; ${new Date().getFullYear()} LinkStore. All rights reserved.</p>
                 <p>If you have any questions, reply to this email or contact support.</p>
               </div>
             </div>

@@ -22,6 +22,8 @@ function AuthInitializer() {
   const [showPromotionModal, setShowPromotionModal] = useState(false);
   const [showDemotionModal, setShowDemotionModal] = useState(false);
   const [showVendorModal, setShowVendorModal] = useState(false);
+  const [showSuspensionModal, setShowSuspensionModal] = useState(false);
+  const [showUnsuspensionModal, setShowUnsuspensionModal] = useState(false);
   const [showDeletedModal, setShowDeletedModal] = useState(false);
 
   useEffect(() => {
@@ -60,6 +62,10 @@ function AuthInitializer() {
             setShowPromotionModal(true);
           } else if (data.user.demotionPending) {
             setShowDemotionModal(true);
+          } else if (data.user.suspensionPending) {
+            setShowSuspensionModal(true);
+          } else if (data.user.unsuspensionPending) {
+            setShowUnsuspensionModal(true);
           } else if (data.user.vendorApprovalPending) {
             setShowVendorModal(true);
           }
@@ -83,7 +89,7 @@ function AuthInitializer() {
 
   useEffect(() => {
     if (!isLoaded || !auth.isAuthenticated) return;
-    if (showPromotionModal || showDemotionModal || showVendorModal) return;
+    if (showPromotionModal || showDemotionModal || showVendorModal || showSuspensionModal) return;
 
     const interval = setInterval(async () => {
       try {
@@ -94,6 +100,10 @@ function AuthInitializer() {
             setShowPromotionModal(true);
           } else if (data.user.demotionPending) {
             setShowDemotionModal(true);
+          } else if (data.user.suspensionPending) {
+            setShowSuspensionModal(true);
+          } else if (data.user.unsuspensionPending) {
+            setShowUnsuspensionModal(true);
           } else if (data.user.vendorApprovalPending) {
             setShowVendorModal(true);
           }
@@ -108,7 +118,7 @@ function AuthInitializer() {
     }, 10000);
 
     return () => clearInterval(interval);
-  }, [isLoaded, auth.isAuthenticated, showPromotionModal, showDemotionModal, showVendorModal]);
+  }, [isLoaded, auth.isAuthenticated, showPromotionModal, showDemotionModal, showVendorModal, showSuspensionModal, showUnsuspensionModal]);
 
   useEffect(() => {
     if (!isLoaded || !auth.isAuthenticated) return;
@@ -137,29 +147,32 @@ function AuthInitializer() {
     return () => clearTimeout(timeoutId);
   }, [cart.cartItems, wishlist.items, auth.isAuthenticated, isLoaded]);
 
-  const handleDismiss = async (type: "promotion" | "demotion" | "deleted" | "vendor_approval") => {
+  const handleDismiss = async (type: "promotion" | "demotion" | "deleted" | "vendor_approval" | "suspension" | "unsuspension") => {
     if (type !== "deleted") {
       try {
         await fetch("/api/auth/me", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            [type === "promotion" ? "promotionPending" : 
-             type === "demotion" ? "demotionPending" : "vendorApprovalPending"]: false,
+            [`${type}Pending`]: false,
           }),
         });
-      } catch {}
+      } catch (err) {
+        console.error("Failed to update status", err);
+      }
     }
     await fetch("/api/auth/logout", { method: "POST" });
     dispatch(logout());
     setShowPromotionModal(false);
     setShowDemotionModal(false);
     setShowVendorModal(false);
+    setShowSuspensionModal(false);
+    setShowUnsuspensionModal(false);
     setShowDeletedModal(false);
     router.push(type === "deleted" ? "/login?msg=deleted" : "/login");
   };
 
-  if (!showPromotionModal && !showDemotionModal && !showDeletedModal && !showVendorModal)
+  if (!showPromotionModal && !showDemotionModal && !showDeletedModal && !showVendorModal && !showSuspensionModal && !showUnsuspensionModal)
     return null;
 
   return (
@@ -173,6 +186,10 @@ function AuthInitializer() {
                 ? "deleted"
                 : showPromotionModal
                   ? "promotion"
+                  : showSuspensionModal
+                    ? "suspension"
+                    : showUnsuspensionModal
+                      ? "unsuspension"
                   : showVendorModal
                     ? "vendor_approval"
                     : "demotion",
@@ -231,6 +248,56 @@ function AuthInitializer() {
               <button
                 onClick={() => handleDismiss("demotion")}
                 className="mt-6 w-full py-3 bg-linear-to-r from-red-500 to-rose-500 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-red-200 text-sm"
+              >
+                OK
+              </button>
+            </div>
+          </>
+        ) : showSuspensionModal ? (
+          <>
+            <div className="bg-linear-to-br from-orange-500 via-amber-500 to-yellow-500 px-8 pt-10 pb-8 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mb-4 shadow-lg">
+                <Store size={32} className="text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white tracking-tight">
+                Store Suspended
+              </h2>
+            </div>
+            <div className="px-8 py-6 text-center">
+              <p className="text-slate-700 text-sm leading-relaxed font-medium">
+                Your <span className="text-orange-600 font-bold">Seller Dashboard</span> access has been suspended.
+              </p>
+              <p className="text-slate-500 text-xs mt-3">
+                Please log out and log in again to continue as a regular user. Contact support for more information.
+              </p>
+              <button
+                onClick={() => handleDismiss("suspension")}
+                className="mt-6 w-full py-3 bg-linear-to-r from-orange-500 to-amber-500 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-orange-200 text-sm"
+              >
+                OK
+              </button>
+            </div>
+          </>
+        ) : showUnsuspensionModal ? (
+          <>
+            <div className="bg-linear-to-br from-indigo-500 via-blue-500 to-cyan-500 px-8 pt-10 pb-8 text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm mb-4 shadow-lg">
+                <Store size={32} className="text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white tracking-tight">
+                Store Restored
+              </h2>
+            </div>
+            <div className="px-8 py-6 text-center">
+              <p className="text-slate-700 text-sm leading-relaxed font-medium">
+                Your <span className="text-indigo-600 font-bold">Seller Dashboard</span> access has been restored!
+              </p>
+              <p className="text-slate-500 text-xs mt-3">
+                Please log out and log in again to regain full access to your vendor account.
+              </p>
+              <button
+                onClick={() => handleDismiss("unsuspension")}
+                className="mt-6 w-full py-3 bg-linear-to-r from-indigo-500 to-blue-500 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-indigo-200 text-sm"
               >
                 OK
               </button>

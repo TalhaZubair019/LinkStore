@@ -61,31 +61,25 @@ router.get("/", async (req, res) => {
     }
 
     if (section === "categories") {
-      const { all } = req.query;
+      await connectDB();
+      const { CategoryModel } = require("../../lib/models");
+      const dbCategories = await CategoryModel.find({}).sort({ name: 1 }).lean();
 
-      if (all === "true") {
-        await connectDB();
-        const { CategoryModel } = require("../../lib/models");
-        const dbCategories = await CategoryModel.find({}).lean();
+      const formattedCategories = dbCategories.map((cat) => ({
+        id: cat._id.toString(),
+        title: cat.name,
+        name: cat.name,
+        image: cat.image,
+        link: `/category/${cat.slug}`,
+      }));
 
-        const formattedCategories = dbCategories.map((cat) => ({
-          id: cat._id,
-          title: cat.name,
-          name: cat.name,
-          image: cat.image,
-          link: `/product-category/${cat.slug}/`,
-        }));
-
-        return res.json({
-          ...db.categories,
-          categories:
-            formattedCategories.length > 0
-              ? formattedCategories
-              : db.categories.categories,
-        });
-      }
-
-      return res.json(db.categories);
+      // Merge metadata from db.json with dynamic categories
+      return res.json({
+        ...db.categories,
+        categories: formattedCategories.length > 0 
+          ? formattedCategories 
+          : db.categories.categories,
+      });
     }
 
     if (section && section in db) {

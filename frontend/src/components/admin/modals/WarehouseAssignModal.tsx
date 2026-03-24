@@ -7,9 +7,16 @@ interface WarehouseAssignModalProps {
   location: string;
   onClose: () => void;
   onSuccess: () => void;
+  isAdminView?: boolean;
 }
 
-export default function WarehouseAssignModal({ warehouseName, location, onClose, onSuccess }: WarehouseAssignModalProps) {
+export default function WarehouseAssignModal({ 
+  warehouseName, 
+  location, 
+  onClose, 
+  onSuccess,
+  isAdminView = true 
+}: WarehouseAssignModalProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +26,8 @@ export default function WarehouseAssignModal({ warehouseName, location, onClose,
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("/api/admin/stats");
+        const apiPrefix = isAdminView ? "/api/admin" : "/api/vendor";
+        const res = await fetch(`${apiPrefix}/stats`);
         if (res.ok) {
           const data = await res.json();
           setProducts(data.products || []);
@@ -31,7 +39,7 @@ export default function WarehouseAssignModal({ warehouseName, location, onClose,
       }
     };
     fetchProducts();
-  }, []);
+  }, [isAdminView]);
 
   const filteredProducts = products.filter(p => 
     p.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -66,7 +74,8 @@ export default function WarehouseAssignModal({ warehouseName, location, onClose,
 
     setIsSubmitting(true);
     try {
-      const res = await fetch("/api/admin/warehouses/bulk-assign", {
+      const apiPrefix = isAdminView ? "/api/admin" : "/api/vendor";
+      const res = await fetch(`${apiPrefix}/warehouses/bulk-assign`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

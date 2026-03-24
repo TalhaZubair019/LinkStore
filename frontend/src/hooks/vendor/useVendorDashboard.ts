@@ -71,8 +71,8 @@ export function useVendorDashboard() {
   const fetchStats = useCallback(async () => {
     try {
       const [res, whRes] = await Promise.all([
-        fetch("/api/admin/stats"),
-        fetch("/api/admin/warehouses"),
+        fetch("/api/vendor/stats"),
+        fetch("/api/vendor/warehouses"),
       ]);
 
       if (res.ok && whRes.ok) {
@@ -164,7 +164,7 @@ export function useVendorDashboard() {
   const fetchRevenueData = async (startDate: string, endDate: string) => {
     setRevenueLoading(true);
     try {
-      const res = await fetch(`/api/admin/stats?startDate=${startDate}&endDate=${endDate}`);
+      const res = await fetch(`/api/vendor/stats?startDate=${startDate}&endDate=${endDate}`);
       if (res.ok) {
         const data = await res.json();
         setFilteredRevenueData(data.revenueData);
@@ -179,7 +179,7 @@ export function useVendorDashboard() {
   const fetchAovData = async (startDate: string, endDate: string) => {
     setAovLoading(true);
     try {
-      const res = await fetch(`/api/admin/stats?startDate=${startDate}&endDate=${endDate}`);
+      const res = await fetch(`/api/vendor/stats?startDate=${startDate}&endDate=${endDate}`);
       if (res.ok) {
         const data = await res.json();
         setFilteredAovData(data.revenueData);
@@ -242,7 +242,7 @@ export function useVendorDashboard() {
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setUpdatingOrderId(orderId);
     try {
-      const res = await fetch(`/api/admin/orders/${orderId}`, {
+      const res = await fetch(`/api/vendor/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -263,7 +263,7 @@ export function useVendorDashboard() {
   const handleDeleteProduct = async (id: number) => {
     setIsDeletingProduct(true);
     try {
-      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/vendor/products/${id}`, { method: "DELETE" });
       if (res.ok) {
         await fetchStats();
         setProductDeleteConfirm(null);
@@ -282,7 +282,7 @@ export function useVendorDashboard() {
     if (!cancelOrderConfirm) return;
     setIsCancellingOrder(true);
     try {
-      const res = await fetch(`/api/admin/orders/${cancelOrderConfirm.id}`, {
+      const res = await fetch(`/api/vendor/orders/${cancelOrderConfirm.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "Cancelled" }),
@@ -304,7 +304,7 @@ export function useVendorDashboard() {
   const handleDeleteCategory = async (id: string) => {
     setIsDeletingCategory(true);
     try {
-      const res = await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/vendor/categories/${id}`, { method: "DELETE" });
       if (res.ok) {
         await fetchStats();
         setCategoryDeleteConfirm(null);
@@ -322,7 +322,7 @@ export function useVendorDashboard() {
   const handleDeleteWarehouse = async (id: string) => {
     setIsDeletingWarehouse(true);
     try {
-      const res = await fetch(`/api/admin/warehouses/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/vendor/warehouses/${id}`, { method: "DELETE" });
       if (res.ok) {
         await fetchStats();
         setWarehouseDeleteConfirm(null);

@@ -9,6 +9,7 @@ interface ProductsTabContentProps {
   setProductDeleteConfirm: (product: any) => void;
   productPage: number;
   setProductPage: Dispatch<SetStateAction<number>>;
+  isAdminView?: boolean;
 }
 
 const ProductsTabContent: React.FC<ProductsTabContentProps> = ({
@@ -17,6 +18,7 @@ const ProductsTabContent: React.FC<ProductsTabContentProps> = ({
   setProductDeleteConfirm,
   productPage,
   setProductPage,
+  isAdminView = true,
 }) => {
   return (
     <ProductsTable
@@ -25,6 +27,7 @@ const ProductsTabContent: React.FC<ProductsTabContentProps> = ({
       setProductDeleteConfirm={setProductDeleteConfirm}
       productPage={productPage}
       setProductPage={setProductPage}
+      isAdminView={isAdminView}
     />
   );
 };

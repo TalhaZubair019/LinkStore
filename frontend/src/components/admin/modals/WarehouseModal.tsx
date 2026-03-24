@@ -8,6 +8,7 @@ interface WarehouseModalProps {
   editingWarehouse: any | null;
   onSaved: () => void;
   showToast: (message: string, type: "success" | "error") => void;
+  isAdminView?: boolean;
 }
 
 export default function WarehouseModal({
@@ -16,6 +17,7 @@ export default function WarehouseModal({
   editingWarehouse,
   onSaved,
   showToast,
+  isAdminView = true,
 }: WarehouseModalProps) {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -100,9 +102,10 @@ export default function WarehouseModal({
 
     try {
       const isEditing = !!editingWarehouse;
+      const apiPrefix = isAdminView ? "/api/admin" : "/api/vendor";
       const url = isEditing
-        ? `/api/admin/warehouses/${editingWarehouse.id}`
-        : "/api/admin/warehouses";
+        ? `${apiPrefix}/warehouses/${editingWarehouse.id}`
+        : `${apiPrefix}/warehouses`;
       const method = isEditing ? "PATCH" : "POST";
 
       const res = await fetch(url, {

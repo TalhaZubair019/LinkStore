@@ -1,35 +1,15 @@
-"use client";
 import React from "react";
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  Package,
-  MessageSquare,
-  Users,
-  ClipboardList,
-  User as UserIcon,
-  LogOut,
-  Shield,
-  Tag,
-  Building2,
-  Boxes,
-  Store,
-  ChevronLeft,
-} from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/Store";
+import { LayoutDashboard, Package, MessageSquare, ClipboardList, Tag, Building2, Boxes, Shield, UserIcon, ChevronLeft, LogOut } from "lucide-react";
 
 interface VendorSidebarProps {
-  user: any;
-  activeTab:
-    | "overview"
-    | "products"
-    | "reviews"
-    | "orders"
-    | "categories"
-    | "warehouses"
-    | "inventory"
-    | "settings";
-  setActiveTab: (tab: any) => void;
-  stats: any;
+  user?: any;
+  activeTab?: string;
+  setActiveTab?: (tab: any) => void;
+  stats?: any;
 }
 
 const NavButton = ({ active, onClick, icon, label }: any) => (
@@ -51,11 +31,18 @@ const NavButton = ({ active, onClick, icon, label }: any) => (
 );
 
 export default function VendorSidebar({
-  user,
-  activeTab,
+  user: initialUser,
+  activeTab: initialActiveTab,
   setActiveTab,
-  stats,
+  stats: initialStats,
 }: VendorSidebarProps) {
+  const pathname = usePathname();
+  const { user: reduxUser } = useSelector((state: RootState) => state.auth);
+
+  const user = initialUser || reduxUser;
+
+  const activeTab = initialActiveTab || "overview";
+
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       window.location.href = "/api/auth/logout";
@@ -81,43 +68,43 @@ export default function VendorSidebar({
       <nav className="flex-1 px-2 space-y-1 scrollbar-hide overflow-y-auto overflow-x-hidden pt-4">
         <NavButton
           active={activeTab === "overview"}
-          onClick={() => setActiveTab("overview")}
+          onClick={() => setActiveTab && setActiveTab("overview")}
           icon={<LayoutDashboard />}
           label="Dashboard"
         />
         <NavButton
           active={activeTab === "products"}
-          onClick={() => setActiveTab("products")}
+          onClick={() => setActiveTab && setActiveTab("products")}
           icon={<Package />}
-          label={`Products ${stats?.products?.length ? `(${stats.products.length})` : ""}`}
+          label="Products"
         />
         <NavButton
           active={activeTab === "reviews"}
-          onClick={() => setActiveTab("reviews")}
+          onClick={() => setActiveTab && setActiveTab("reviews")}
           icon={<MessageSquare />}
-          label={`Reviews ${stats?.totalReviews ? `(${stats.totalReviews})` : ""}`}
+          label="Reviews"
         />
         <NavButton
           active={activeTab === "orders"}
-          onClick={() => setActiveTab("orders")}
+          onClick={() => setActiveTab && setActiveTab("orders")}
           icon={<ClipboardList />}
-          label={`Orders ${stats?.totalOrders ? `(${stats.totalOrders})` : ""}`}
+          label="Orders"
         />
         <NavButton
           active={activeTab === "categories"}
-          onClick={() => setActiveTab("categories")}
+          onClick={() => setActiveTab && setActiveTab("categories")}
           icon={<Tag />}
-          label={`Categories ${stats?.categories?.length ? `(${stats.categories.length})` : ""}`}
+          label="Categories"
         />
         <NavButton
           active={activeTab === "warehouses"}
-          onClick={() => setActiveTab("warehouses")}
+          onClick={() => setActiveTab && setActiveTab("warehouses")}
           icon={<Building2 />}
-          label={`Warehouses ${stats?.warehouses?.length ? `(${stats.warehouses.length})` : ""}`}
+          label="Warehouses"
         />
         <NavButton
           active={activeTab === "inventory"}
-          onClick={() => setActiveTab("inventory")}
+          onClick={() => setActiveTab && setActiveTab("inventory")}
           icon={<Boxes />}
           label="Inventory"
         />
@@ -136,7 +123,7 @@ export default function VendorSidebar({
             </Link>
           )}
           <Link
-            href="/account"
+            href="/user"
             className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-lg transition-colors w-full"
             title="Switch Dashboard"
           >

@@ -1,4 +1,4 @@
-# 🖨️ PrintNest — Modern Print-on-Demand E-Commerce Store
+# 🛒 LinkStore — Premium Multi-Vendor E-Commerce Store
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js)](https://nextjs.org)
 [![React](https://img.shields.io/badge/React-19.2.3-blue?logo=react)](https://reactjs.org)
@@ -89,7 +89,7 @@ A professional, full-stack monorepo e-commerce platform for custom print-on-dema
 
 ### 🏗️ 1. Hybrid Monorepo Architecture
 
-PrintNest has evolved from a unified Next.js app into a sophisticated **full-stack monorepo**, separating concerns for maximum scalability.
+LinkStore has evolved from a unified Next.js app into a sophisticated **full-stack monorepo**, separating concerns for maximum scalability.
 
 - **Frontend (`/frontend`)**: A **Next.js 16** (App Router) powerhouse. It handles the complete user journey, dynamic SEO rendering, and complex client-side interactions.
 - **Backend (`/backend`)**: A robust **Express.js** engine. This dedicated server manages the "heavy lifting"—database transactions, payment gateway handshakes, AI orchestration, and secure authentication.
@@ -135,7 +135,7 @@ The `/admin` dashboard is more than a control panel—it's a business intelligen
 
 ### 📧 7. Premium Communication Stack
 
-Communication is a cornerstone of the PrintNest experience:
+Communication is a cornerstone of the LinkStore experience:
 
 - **Nodemailer (SMTP)**: Configured for high-deliverability via Gmail.
 - **Rich HTML Receipts**: Customers receive pixel-perfect receipts featuring product thumbnails, itemized pricing tables, and dynamic tracking links.
@@ -200,7 +200,7 @@ npm install -D nodemon typescript tailwindcss @tailwindcss/postcss eslint
 ## 📁 Project Structure
 
 ```
-printnest/
+linkstore/
 ├── backend/                              # Express.js Server
 │   ├── lib/                              # DB Connection & Mongoose Models
 │   │   ├── models/                       # User, Product, Order, Review
@@ -239,7 +239,7 @@ printnest/
 
    ```bash
    git clone <repo-url>
-   cd printnest
+   cd linkstore
    npm install
    ```
 
@@ -356,4 +356,4 @@ The frontend uses **Redux Persist** to ensure the shopping experience remains un
 
 ---
 
-**Happy printing!** 🖨️✨
+**Happy shopping!** 🛒✨

@@ -1,9 +1,9 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { connectDB } = require("../lib/db");
-const { UserModel } = require("../lib/models");
-const { requireAuth, JWT_SECRET, ADMIN_EMAIL } = require("../middleware/auth");
+const { connectDB } = require("../../lib/db");
+const { UserModel } = require("../../lib/models");
+const { requireAuth, JWT_SECRET, ADMIN_EMAIL } = require("../../middleware/auth");
 
 const router = express.Router();
 
@@ -110,14 +110,14 @@ router.post("/signup", async (req, res) => {
     });
 
     try {
-      const { transporter } = require("../lib/mailer");
+      const { transporter } = require("../../lib/mailer");
       await transporter.sendMail({
-        from: `"PrintNest" <${process.env.EMAIL_USER}>`,
+        from: `"LinkStore" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: "Verify your email - PrintNest",
+        subject: "Verify your email - LinkStore",
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-            <h2 style="color: #8B5CF6; text-align: center;">Welcome to PrintNest!</h2>
+            <h2 style="color: #8B5CF6; text-align: center;">Welcome to LinkStore!</h2>
             <p>Hello ${name},</p>
             <p>Thank you for signing up. Please use the following One-Time Password (OTP) to verify your email address and complete your registration:</p>
             <div style="text-align: center; margin: 30px 0;">
@@ -126,7 +126,7 @@ router.post("/signup", async (req, res) => {
             <p>This code will expire in 5 minutes.</p>
             <p>If you didn't request this, you can safely ignore this email.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-            <p style="font-size: 12px; color: #666; text-align: center;">Best regards,<br />The PrintNest Team</p>
+            <p style="font-size: 12px; color: #666; text-align: center;">Best regards,<br />The LinkStore Team</p>
           </div>
         `,
       });
@@ -183,6 +183,8 @@ router.put("/me", requireAuth, async (req, res) => {
       "promotionPending",
       "demotionPending",
       "vendorApprovalPending",
+      "suspensionPending",
+      "unsuspensionPending"
     ];
     const updateData = {};
     for (const field of allowedFields) {
@@ -228,23 +230,23 @@ router.post("/forgot-password", async (req, res) => {
       process.env.FRONTEND_URL || req.headers.origin || "http://localhost:3000";
     const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
 
-    const { transporter } = require("../lib/mailer");
+    const { transporter } = require("../../lib/mailer");
     await transporter.sendMail({
-      from: `"PrintNest Support" <${process.env.EMAIL_USER}>`,
+      from: `"LinkStore Support" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Password Reset Request - PrintNest",
+      subject: "Password Reset Request - LinkStore",
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; rounded: 8px;">
           <h2 style="color: #8B5CF6;">Password Reset</h2>
           <p>Hello ${user.name || "there"},</p>
-          <p>We received a request to reset your password for your PrintNest account. Click the button below to set a new password:</p>
+          <p>We received a request to reset your password for your LinkStore account. Click the button below to set a new password:</p>
           <div style="text-align: center; margin: 30px 0;">
             <a href="${resetLink}" style="background-color: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block;">Reset Password</a>
           </div>
           <p>This link will expire in 15 minutes.</p>
           <p>If you didn't request this, you can safely ignore this email.</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #666;">Best regards,<br />The PrintNest Team</p>
+          <p style="font-size: 12px; color: #666;">Best regards,<br />The LinkStore Team</p>
         </div>
       `,
     });
@@ -384,11 +386,11 @@ router.post("/resend-otp", async (req, res) => {
     user.otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
     await user.save();
 
-    const { transporter } = require("../lib/mailer");
+    const { transporter } = require("../../lib/mailer");
     await transporter.sendMail({
-      from: `"PrintNest" <${process.env.EMAIL_USER}>`,
+      from: `"LinkStore" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Your new verification code - PrintNest",
+      subject: "Your new verification code - LinkStore",
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
           <h2 style="color: #8B5CF6; text-align: center;">New Verification Code</h2>
@@ -399,7 +401,7 @@ router.post("/resend-otp", async (req, res) => {
           </div>
           <p>This code will expire in 10 minutes.</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #666; text-align: center;">Best regards,<br />The PrintNest Team</p>
+          <p style="font-size: 12px; color: #666; text-align: center;">Best regards,<br />The LinkStore Team</p>
         </div>
       `,
     });

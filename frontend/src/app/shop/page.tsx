@@ -19,7 +19,6 @@ import {
   Search,
 } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import db from "@data/db.json";
 import Toast from "@/components/products/Toast";
 import QuickViewModal from "@/components/products/QuickViewModal";
 import PageHeader from "@/components/ui/PageHeader";
@@ -67,7 +66,7 @@ export default function ShopPage() {
       const [productsRes, categoriesRes, vendorsRes] = await Promise.all([
         fetch(`/api/public/content?${params.toString()}`),
         fetch("/api/public/content?section=categories&all=true"),
-        fetch("/api/public/stores/list/all").catch(() => null), // I'll need to create this or handle it
+        fetch("/api/public/stores/list/all").catch(() => null),
       ]);
 
       if (productsRes.ok) {

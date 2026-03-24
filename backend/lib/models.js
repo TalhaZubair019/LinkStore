@@ -23,6 +23,8 @@ const userSchema = new mongoose.Schema(
     promotionPending: { type: Boolean, default: false },
     demotionPending: { type: Boolean, default: false },
     vendorApprovalPending: { type: Boolean, default: false },
+    suspensionPending: { type: Boolean, default: false },
+    unsuspensionPending: { type: Boolean, default: false },
     isVerified: { type: Boolean, default: false },
     otp: { type: String, default: null },
     otpExpiresAt: { type: Date, default: null },

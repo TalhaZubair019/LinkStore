@@ -33,20 +33,17 @@ app.use((req, _res, next) => {
   next();
 });
 
-app.use("/api/auth", require("./routes/auth"));
+app.use("/api/auth", require("./routes/user/auth"));
 app.use("/api/public", require("./routes/public"));
 app.use("/api/public/stores", require("./routes/public/stores"));
 app.use("/api/admin", require("./routes/admin"));
-app.use("/api/upload", require("./routes/upload"));
-app.use("/api/stripe", require("./routes/stripe"));
-app.use("/api/paypal", require("./routes/paypal"));
-app.use("/api/vendor/products", require("./routes/vendor/products"));
-app.use("/api/vendor/orders", require("./routes/vendor/orders"));
-app.use("/api/vendor/payouts", require("./routes/vendor/payouts"));
-app.use("/api/vendor-apply", require("./routes/vendor/apply"));
+app.use("/api/upload", require("./routes/common/upload"));
+app.use("/api/stripe", require("./routes/user/stripe"));
+app.use("/api/paypal", require("./routes/user/paypal"));
+app.use("/api/vendor", require("./routes/vendor"));
 
 app.get("/", (req, res) => {
-  res.json({ status: "PrintNest backend running" });
+  res.json({ status: "LinkStore backend running" });
 });
 
 app.use((req, res) => {
@@ -59,7 +56,7 @@ app.use((err, req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`PrintNest backend running on http://localhost:${PORT}`);
+  console.log(`LinkStore backend running on http://localhost:${PORT}`);
   console.log(
     `   /api/auth   /api/public   /api/admin   /api/upload   /api/stripe   /api/paypal`,
   );

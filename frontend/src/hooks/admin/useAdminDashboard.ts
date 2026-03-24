@@ -18,17 +18,7 @@ export function useAdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    | "overview"
-    | "users"
-    | "admins"
-    | "orders"
-    | "products"
-    | "reviews"
-    | "categories"
-    | "logs"
-    | "warehouses"
-    | "vendors"
-    | "inventory"
+    "overview" | "users" | "admins" | "vendors" | "logs"
   >("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -74,7 +64,7 @@ export function useAdminDashboard() {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");
       const page = params.get("page");
-      const validTabs = ["overview", "users", "admins", "logs", "vendors"];
+      const validTabs = ["overview", "users", "admins", "vendors", "logs"];
 
       if (tab && validTabs.includes(tab)) {
         setActiveTab(tab as any);
@@ -92,7 +82,7 @@ export function useAdminDashboard() {
       return;
     }
     if (user && !user.isAdmin) {
-      router.push("/account");
+      router.push("/user");
       return;
     }
     if (user?.isAdmin) {
@@ -262,6 +252,23 @@ export function useAdminDashboard() {
     }
   };
 
+  const handleUnsuspendVendor = async (userId: string) => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/unsuspend-vendor`, {
+        method: "PATCH",
+      });
+      if (res.ok) {
+        fetchStats();
+        showToast("Vendor account unsuspended successfully.", "success");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.message || "Failed to unsuspend account.", "error");
+      }
+    } catch {
+      showToast("Error unsuspending account.", "error");
+    }
+  };
+
   return {
     user,
     isAuthenticated,
@@ -304,6 +311,7 @@ export function useAdminDashboard() {
     handleApproveVendor,
     handleRejectVendor,
     handleSuspendVendor,
+    handleUnsuspendVendor,
     ITEMS_PER_PAGE,
   };
 }

@@ -1,15 +1,18 @@
 "use client";
 
 import React from "react";
-import { Check, X, Store, Mail, Calendar, ExternalLink, ShieldCheck, Clock } from "lucide-react";
+import Link from "next/link";
+import { Check, X, Store, Mail, Calendar, ExternalLink, ShieldCheck, ShieldAlert, Shield } from "lucide-react";
 import { UserData } from "@/app/admin/types";
+import DeleteConfirmationModal from "@/components/admin/modals/DeleteConfirmationModal";
 
 interface VendorsTableProps {
   vendors: UserData[];
-  viewMode: "pending" | "active";
+  viewMode: "pending" | "active" | "suspended";
   onApprove: (id: string) => void;
   onReject?: (id: string) => void;
   onSuspend?: (id: string) => void;
+  onUnsuspend?: (id: string) => void;
   isLoading?: boolean;
 }
 
@@ -19,18 +22,24 @@ const VendorsTable = ({
   onApprove,
   onReject,
   onSuspend,
+  onUnsuspend,
   isLoading
 }: VendorsTableProps) => {
+  const [suspendConfirm, setSuspendConfirm] = React.useState<UserData | null>(null);
+  const [unsuspendConfirm, setUnsuspendConfirm] = React.useState<UserData | null>(null);
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in duration-300 transition-colors">
       <div className="p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
         <div>
           <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-            {viewMode === "pending" ? "Vendor Applications" : "Active Vendors"}
+            {viewMode === "pending" ? "Vendor Applications" : viewMode === "suspended" ? "Suspended Stores" : "Active Vendors"}
           </h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             {viewMode === "pending" 
               ? `Review and approve new store requests (${vendors.length})` 
+              : viewMode === "suspended"
+              ? `Review suspended accounts (${vendors.length})`
               : `Manage your marketplace sellers (${vendors.length})`}
           </p>
         </div>
@@ -113,19 +122,32 @@ const VendorsTable = ({
                         </>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => onSuspend?.(v.id)}
-                            disabled={isLoading}
-                            className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50"
-                          >
-                            <X size={16} /> Suspend
-                          </button>
-                          <button
+                          {viewMode === "active" && (
+                            <button
+                              onClick={() => setSuspendConfirm(v)}
+                              disabled={isLoading}
+                              className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50"
+                            >
+                              <X size={16} /> Suspend
+                            </button>
+                          )}
+                          {viewMode === "suspended" && (
+                            <button
+                              onClick={() => setUnsuspendConfirm(v)}
+                              disabled={isLoading}
+                              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                            >
+                              <Check size={16} /> Unsuspend
+                            </button>
+                          )}
+                          <Link
+                            href={`/store/${v.vendorProfile?.storeSlug}`}
+                            target="_blank"
                             className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                             title="View Storefront"
                           >
                             <ExternalLink size={18} />
-                          </button>
+                          </Link>
                         </div>
                       )}
                     </div>
@@ -136,6 +158,58 @@ const VendorsTable = ({
           </tbody>
         </table>
       </div>
+
+      {/* Suspend Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!suspendConfirm}
+        onClose={() => setSuspendConfirm(null)}
+        onConfirm={() => {
+          if (suspendConfirm) {
+            onSuspend?.(suspendConfirm.id);
+            setSuspendConfirm(null);
+          }
+        }}
+        title="Suspend Store?"
+        message={
+          <>
+            Are you sure you want to suspend access for{" "}
+            <span className="font-bold text-slate-900 dark:text-white">
+              {suspendConfirm?.vendorProfile?.storeName || suspendConfirm?.name}
+            </span>
+            ? They will lose access to the seller dashboard.
+          </>
+        }
+        confirmLabel="Suspend"
+        confirmClassName="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700"
+        isLoading={isLoading || false}
+        icon={<ShieldAlert size={32} />}
+      />
+
+      {/* Unsuspend Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!unsuspendConfirm}
+        onClose={() => setUnsuspendConfirm(null)}
+        onConfirm={() => {
+          if (unsuspendConfirm) {
+            onUnsuspend?.(unsuspendConfirm.id);
+            setUnsuspendConfirm(null);
+          }
+        }}
+        title="Unsuspend Store?"
+        message={
+          <>
+            Restore access for{" "}
+            <span className="font-bold text-slate-900 dark:text-white">
+              {unsuspendConfirm?.vendorProfile?.storeName || unsuspendConfirm?.name}
+            </span>
+            ? They will regain full access to the seller dashboard.
+          </>
+        }
+        confirmLabel="Unsuspend"
+        confirmClassName="flex-1 px-4 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700"
+        isLoading={isLoading || false}
+        icon={<Shield size={32} />}
+      />
     </div>
   );
 };

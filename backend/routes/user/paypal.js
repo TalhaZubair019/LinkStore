@@ -57,7 +57,7 @@ router.post("/checkout", async (req, res) => {
         purchase_units: [
           {
             reference_id: orderId,
-            description: "PrintNest Products",
+            description: "LinkStore Products",
             amount: {
               currency_code: "USD",
               value: Number(totalAmount).toFixed(2),
@@ -68,7 +68,7 @@ router.post("/checkout", async (req, res) => {
           paypal: {
             experience_context: {
               payment_method_preference: "IMMEDIATE_PAYMENT_REQUIRED",
-              brand_name: "PrintNest",
+              brand_name: "LinkStore",
               user_action: "PAY_NOW",
               return_url: `${clientUrl}/thank-you?order=${orderId}`,
               cancel_url: `${clientUrl}/checkout?error=paypal_cancelled`,

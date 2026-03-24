@@ -400,7 +400,7 @@ export default function SignupPage() {
               <div className="animate-in fade-in duration-700">
                 <div className="text-center mb-10">
                   <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight transition-colors">
-                    Join PrintNest
+                    Join LinkStore
                   </h2>
                   <p className="text-slate-500 dark:text-slate-400 font-medium transition-colors">
                     Start your journey today

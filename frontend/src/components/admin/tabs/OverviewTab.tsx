@@ -18,6 +18,8 @@ import CategoryInventoryChart from "@/components/admin/charts/CategoryInventoryC
 import SentimentChart from "@/components/admin/charts/SentimentChart";
 import WarehouseStockChart from "@/components/admin/charts/WarehouseStockChart";
 import { DashboardStats } from "@/app/admin/types";
+import VendorsStatCard from "@/components/admin/ui/VendorsStatCard";
+import AdminsStatCard from "@/components/admin/ui/AdminsStatCard";
 
 interface OverviewTabProps {
   stats: DashboardStats;
@@ -97,35 +99,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           totalAdmins={stats.totalAdmins ?? 0}
         />
         {isAdminView && (
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <span className="text-orange-600 dark:text-orange-400">
-                <Store size={48} />
-              </span>
-            </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Vendors</p>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-              {stats.totalVendors || 0}
-            </h3>
-            <div className="mt-4 flex items-center gap-2 text-xs font-medium text-orange-600 dark:text-orange-400">
-              <span className="px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-500/10">
-                {stats.pendingVendors || 0} Pending
-              </span>
-            </div>
-          </div>
+          <VendorsStatCard
+            totalVendors={stats.totalVendors || 0}
+            pendingVendors={stats.pendingVendors || 0}
+          />
         )}
         {isAdminView && (
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <span className="text-purple-600 dark:text-purple-400">
-                <Users size={48} />
-              </span>
-            </div>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Total Admins</p>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-2">
-              {stats.totalAdmins || 0}
-            </h3>
-          </div>
+          <AdminsStatCard
+            totalAdmins={stats.totalAdmins || 0}
+            users={stats.users || []}
+          />
         )}
       </div>
 

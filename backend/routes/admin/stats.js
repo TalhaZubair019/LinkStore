@@ -232,10 +232,14 @@ router.get("/", requireAdmin, async (req, res) => {
     const averageOrderValue = nonCancelledOrders.length > 0 ? totalRevenue / nonCancelledOrders.length : 0;
 
     const totalAdmins = users.filter((u) => u.isAdmin || u.email === ADMIN_EMAIL).length;
+    const totalVendors = users.filter((u) => u.vendorProfile?.status !== "none").length;
+    const pendingVendors = users.filter((u) => u.vendorProfile?.status === "pending").length;
 
     return res.json({
       totalUsers: users.length,
       totalAdmins,
+      totalVendors,
+      pendingVendors,
       totalOrders: orders.length,
       cancelledOrders: orders.filter((o) => o.status === "Cancelled").length,
       totalRevenue,

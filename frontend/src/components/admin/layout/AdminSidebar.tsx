@@ -123,7 +123,7 @@ const AdminSidebar = ({
             </Link>
           )}
           <Link
-            href="/account"
+            href="/user"
             className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-lg transition-colors w-full"
             title="Switch Dashboard"
           >

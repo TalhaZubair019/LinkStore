@@ -10,13 +10,13 @@ const transporter = {
       throw new Error("BREVO_API_KEY is not set in environment variables");
     }
 
-    let senderName = "PrintNest";
+    let senderName = "LinkStore";
     let senderEmail = process.env.EMAIL_USER;
 
     if (options.from) {
       const match = options.from.match(/"?([^"<]*)"?\s*<?([^>]*)>?/);
       if (match) {
-        senderName = match[1]?.trim() || "PrintNest";
+        senderName = match[1]?.trim() || "LinkStore";
         senderEmail = match[2]?.trim() || process.env.EMAIL_USER;
       }
     }

@@ -8,7 +8,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const BANNERS = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop",
     title: "Mega Sale Event",
     subtitle: "Up to 70% Off on Electronics & Gadgets",
     buttonText: "Shop Now",
@@ -16,7 +17,8 @@ const BANNERS = [
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop",
     title: "Fashion Forward",
     subtitle: "New Arrivals: Spring Collection 2026",
     buttonText: "Explore Trends",
@@ -24,11 +26,21 @@ const BANNERS = [
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?q=80&w=2070&auto=format&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?q=80&w=2070&auto=format&fit=crop",
     title: "Home Essentials",
     subtitle: "Modern Furniture for Modern Living",
     buttonText: "View Collection",
     color: "from-emerald-500 to-teal-900",
+  },
+  {
+    id: 4,
+    image:
+      "https://assets.aboutamazon.com/dims4/default/9282b84/2147483647/strip/false/crop/2000x1125+0+0/resize/1486x836!/quality/90/?url=https%3A%2F%2Famazon-blogs-brightspot.s3.amazonaws.com%2F5b%2F41%2Fcf9810ca4445aa14d4c71c672fd5%2Fprime-day-2023-deals-you-can-only-get-in-stores-hero-v2.jpg",
+    title: "Prime Day Deals",
+    subtitle: "In-Store & Online: Exclusive Member Offers",
+    buttonText: "Check Deals",
+    color: "from-amber-500 to-orange-700",
   },
 ];
 
@@ -42,11 +54,13 @@ export default function MarketplaceHero() {
     return () => clearInterval(timer);
   }, []);
 
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % BANNERS.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + BANNERS.length) % BANNERS.length);
+  const nextSlide = () =>
+    setCurrentSlide((prev) => (prev + 1) % BANNERS.length);
+  const prevSlide = () =>
+    setCurrentSlide((prev) => (prev - 1 + BANNERS.length) % BANNERS.length);
 
   return (
-    <section className="relative w-full bg-white dark:bg-slate-950 pt-4 pb-8 transition-colors duration-300">
+    <section className="relative w-full bg-white dark:bg-slate-950 pt-20 pb-8 transition-colors duration-300">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="relative h-[300px] md:h-[450px] lg:h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl group">
           <AnimatePresence mode="wait">
@@ -65,8 +79,10 @@ export default function MarketplaceHero() {
                 priority
                 className="object-cover"
               />
-              <div className={`absolute inset-0 bg-linear-to-r ${BANNERS[currentSlide].color} opacity-40 mix-blend-multiply`} />
-              
+              <div
+                className={`absolute inset-0 bg-linear-to-r ${BANNERS[currentSlide].color} opacity-40 mix-blend-multiply`}
+              />
+
               <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 lg:px-24 text-white">
                 <motion.div
                   initial={{ y: 30, opacity: 0 }}

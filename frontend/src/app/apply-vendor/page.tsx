@@ -39,7 +39,7 @@ export default function ApplyVendorPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/vendor-apply", {
+      const response = await fetch("/api/vendor/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

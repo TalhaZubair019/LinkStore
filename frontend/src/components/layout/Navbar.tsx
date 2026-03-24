@@ -75,7 +75,7 @@ function Navbar() {
   if (
     pathname?.startsWith("/admin") ||
     pathname?.startsWith("/vendor") ||
-    pathname?.startsWith("/account") ||
+    pathname?.startsWith("/user") ||
     pathname === "/apply-vendor"
   ) {
     return null;
@@ -90,7 +90,7 @@ function Navbar() {
             alt={navbarData.assets.logo.alt}
             width={navbarData.assets.logo.width}
             height={navbarData.assets.logo.height}
-            className="h-8 sm:h-10 w-auto object-contain dark:brightness-0 dark:invert transition-all"
+            className="h-8 sm:h-10 w-auto object-contain transition-all brightness-0 dark:invert"
             priority
           />
         </Link>
@@ -204,7 +204,7 @@ function Navbar() {
           {mounted && isAuthenticated ? (
             <div className="relative group">
               <Link
-                href={user?.isAdmin ? "/admin/dashboard" : "/account"}
+                href={user?.isAdmin ? "/admin/dashboard" : "/user"}
                 className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-md transition-all"
               >
                 <User className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -225,7 +225,7 @@ function Navbar() {
                       Admin Dashboard
                     </Link>
                     <Link
-                      href="/account"
+                      href="/user"
                       className="block px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md transition-colors"
                     >
                       User Dashboard
@@ -233,7 +233,7 @@ function Navbar() {
                   </>
                 ) : (
                   <Link
-                    href="/account"
+                    href="/user"
                     className="block px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md transition-colors"
                   >
                     My Account
@@ -412,7 +412,7 @@ function Navbar() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-4 px-4 py-4 bg-white dark:bg-slate-900/50 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-[24px] shadow-sm">
                       <Link
-                        href={user?.isAdmin ? "/admin/dashboard" : "/account"}
+                        href={user?.isAdmin ? "/admin/dashboard" : "/user"}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="flex flex-1 items-center gap-4 min-w-0"
                       >

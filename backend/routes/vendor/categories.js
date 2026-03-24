@@ -1,7 +1,7 @@
 const express = require("express");
 const { connectDB } = require("../../lib/db");
 const { CategoryModel } = require("../../lib/models");
-const { requireAdmin } = require("../../middleware/auth");
+const { requireVendor } = require("../../middleware/vendor");
 const { logActivity } = require("../../lib/activityLog");
 
 const router = express.Router();
@@ -16,7 +16,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", requireAdmin, async (req, res) => {
+router.post("/", requireVendor, async (req, res) => {
   try {
     const { name, image } = req.body;
     if (!name?.trim())
@@ -42,7 +42,7 @@ router.post("/", requireAdmin, async (req, res) => {
       action: "add",
       entity: "category",
       entityId: category._id.toString(),
-      details: `Added category "${name.trim()}"`,
+      details: `Vendor added category "${name.trim()}"`,
     });
 
     return res.status(201).json({ message: "Category created", category });
@@ -51,7 +51,7 @@ router.post("/", requireAdmin, async (req, res) => {
   }
 });
 
-router.patch("/:id", requireAdmin, async (req, res) => {
+router.patch("/:id", requireVendor, async (req, res) => {
   try {
     const { name, image } = req.body;
     const updateData = {};
@@ -88,8 +88,8 @@ router.patch("/:id", requireAdmin, async (req, res) => {
     }
 
     const detailStr = changes.length > 0
-      ? `Updated category "${updated.name}" — ${changes.join(", ")}`
-      : `Updated category "${updated.name}" (no field changes)`;
+      ? `Vendor updated category "${updated.name}" — ${changes.join(", ")}`
+      : `Vendor updated category "${updated.name}" (no field changes)`;
 
     await logActivity(req, {
       action: "update",
@@ -104,7 +104,7 @@ router.patch("/:id", requireAdmin, async (req, res) => {
   }
 });
 
-router.delete("/:id", requireAdmin, async (req, res) => {
+router.delete("/:id", requireVendor, async (req, res) => {
   try {
     await connectDB();
     const deleted = await CategoryModel.findByIdAndDelete(req.params.id);

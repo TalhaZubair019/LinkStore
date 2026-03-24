@@ -1,7 +1,7 @@
 const express = require("express");
 const Stripe = require("stripe");
-const { connectDB } = require("../lib/db");
-const { ProductModel } = require("../lib/models");
+const { connectDB } = require("../../lib/db");
+const { ProductModel } = require("../../lib/models");
 const router = express.Router();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -97,7 +97,7 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
     const transferGroup = session.payment_intent_data?.transfer_group || session.transfer_group;
 
     try {
-      const { OrderModel, UserModel } = require("../lib/models");
+      const { OrderModel, UserModel } = require("../../lib/models");
       await connectDB();
       
       const order = await OrderModel.findOne({ id: orderId });

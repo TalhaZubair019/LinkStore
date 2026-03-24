@@ -58,6 +58,7 @@ interface DashboardModalsProps {
   setWarehouseDeleteConfirm?: (val: any) => void;
   handleDeleteWarehouse?: (id: string) => void;
   isDeletingWarehouse?: boolean;
+  isAdminView?: boolean;
 }
 
 const DashboardModals: React.FC<DashboardModalsProps> = ({
@@ -107,6 +108,7 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
   setWarehouseDeleteConfirm,
   handleDeleteWarehouse,
   isDeletingWarehouse,
+  isAdminView = true,
 }) => {
   return (
     <>
@@ -126,6 +128,7 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
           editingCategory={editingCategory}
           onSaved={fetchStats}
           showToast={showToast}
+          isAdminView={isAdminView}
         />
       )}
 
@@ -277,7 +280,7 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
         />
       )}
 
-      {selectedProductForInventory !== undefined && setSelectedProductForInventory && (
+      {!!selectedProductForInventory && setSelectedProductForInventory && (
         <StockAdjustmentModal
           product={selectedProductForInventory}
           onClose={() => setSelectedProductForInventory(null)}
@@ -286,6 +289,7 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
             setSelectedProductForInventory(null);
             showToast("Inventory adjusted successfully.", "success");
           }}
+          isAdminView={isAdminView}
         />
       )}
 
@@ -296,6 +300,7 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
           editingWarehouse={editingWarehouse}
           onSaved={fetchStats}
           showToast={showToast}
+          isAdminView={isAdminView}
         />
       )}
 
