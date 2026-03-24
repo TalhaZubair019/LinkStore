@@ -32,17 +32,25 @@ router.get("/", async (req, res) => {
         query.vendorId = vendorId;
       }
 
-      if (minPrice || maxPrice) {
-        query.price = {};
-        if (minPrice) query.price.$gte = minPrice; // Note: price is string in schema, might need conversion or schema update
-        if (maxPrice) query.price.$lte = maxPrice;
-      }
-
-      // Fetch filtered products
+      // Fetch products matching core filters first
       const [shopProducts, orders] = await Promise.all([
         ProductModel.find(query).sort({ id: -1 }).lean(),
         OrderModel.find({}).lean(),
       ]);
+
+      // Apply price range filter in-memory for accurate numeric comparison (since price is String in DB)
+      let filteredProducts = shopProducts;
+      if (minPrice || maxPrice) {
+        const min = minPrice ? parseFloat(minPrice) : -Infinity;
+        const max = maxPrice ? parseFloat(maxPrice) : Infinity;
+
+        filteredProducts = shopProducts.filter((p) => {
+          if (!p.price) return false;
+          // Extract numeric value from string (e.g. "$99.00" -> 99.0)
+          const priceValue = parseFloat(String(p.price).replace(/[^0-9.]/g, ""));
+          return !isNaN(priceValue) && priceValue >= min && priceValue <= max;
+        });
+      }
 
       const salesData = {};
       orders.forEach((order) => {
@@ -52,7 +60,7 @@ router.get("/", async (req, res) => {
         });
       });
 
-      const uniqueProducts = shopProducts.map((p) => {
+      const uniqueProducts = filteredProducts.map((p) => {
         const salesCount = salesData[p.title] || 0;
         return { ...p, salesCount };
       });

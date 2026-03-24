@@ -26,6 +26,7 @@ export default function WarehouseModal({
   const [stateCode, setStateCode] = useState("");
   const [stateName, setStateName] = useState("");
   const [city, setCity] = useState("");
+  const [capacity, setCapacity] = useState("");
   const [countries] = useState(Country.getAllCountries());
   const [states, setStates] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
@@ -35,6 +36,7 @@ export default function WarehouseModal({
     if (isOpen) {
       if (editingWarehouse) {
         setName(editingWarehouse.warehouseName || "");
+        setCapacity(editingWarehouse.capacity?.toString() || "0");
 
         const loc = editingWarehouse.location || "";
         const parts = loc.split(", ").map((p: string) => p.trim());
@@ -72,6 +74,7 @@ export default function WarehouseModal({
         setStateCode("");
         setStateName("");
         setCity("");
+        setCapacity("0");
       }
     }
   }, [isOpen, editingWarehouse, countries]);
@@ -111,7 +114,7 @@ export default function WarehouseModal({
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, location: fullLocation }),
+        body: JSON.stringify({ name, location: fullLocation, capacity }),
       });
 
       if (res.ok) {
@@ -181,6 +184,19 @@ export default function WarehouseModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., East Coast Hub"
+                className={InputClass}
+              />
+            </div>
+            
+            <div>
+              <label className={LabelClass}>Warehouse Capacity (Max Units)</label>
+              <input
+                type="number"
+                required
+                min="0"
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+                placeholder="e.g., 500"
                 className={InputClass}
               />
             </div>

@@ -2,6 +2,7 @@ const express = require("express");
 const { connectDB } = require("../../lib/db");
 const { requireSuperAdmin } = require("../../middleware/auth");
 const { ActivityLogModel } = require("../../lib/activityLog");
+const { VendorModel, AdminModel } = require("../../lib/models");
 
 const router = express.Router();
 
@@ -11,34 +12,33 @@ router.get("/", requireSuperAdmin, async (req, res) => {
     const { entity, action, adminId, limit = 100, page = 1 } = req.query;
 
     const filter = {};
-    if (entity) filter.entity = entity;
-    if (action) filter.action = action;
-    if (adminId) filter.adminId = adminId;
+    if (entity && entity !== "all") filter.entity = entity;
+    if (action && action !== "all") filter.action = action;
+    if (adminId && adminId !== "all") filter.adminId = adminId;
 
     const skip = (Number(page) - 1) * Number(limit);
-    const [logs, total, uniqueAdmins] = await Promise.all([
+    const [logs, total, admins, vendors] = await Promise.all([
       ActivityLogModel.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit))
         .lean(),
       ActivityLogModel.countDocuments(filter),
-      ActivityLogModel.aggregate([
-        {
-          $group: {
-            _id: "$adminId",
-            name: { $first: "$adminName" },
-            email: { $first: "$adminEmail" },
-          },
-        },
-        { $sort: { name: 1 } },
-      ]),
+      AdminModel.find({}, "id name email adminRole").lean(),
+      VendorModel.find({}, "id name email vendorProfile.storeName").lean(),
     ]);
 
-    const formattedAdmins = uniqueAdmins.map((a) => ({
-      id: a._id,
+    const formattedAdmins = admins.map((a) => ({
+      id: a.id,
       name: a.name,
       email: a.email,
+      role: a.adminRole,
+    }));
+
+    const formattedVendors = vendors.map((v) => ({
+      id: v.id,
+      name: v.vendorProfile?.storeName || v.name,
+      email: v.email,
     }));
 
     return res.json({
@@ -47,6 +47,7 @@ router.get("/", requireSuperAdmin, async (req, res) => {
       page: Number(page),
       totalPages: Math.ceil(total / Number(limit)),
       admins: formattedAdmins,
+      vendors: formattedVendors,
     });
   } catch (error) {
     console.error("Logs fetch error:", error);

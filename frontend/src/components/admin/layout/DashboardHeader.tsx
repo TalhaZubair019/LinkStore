@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { Search, X, Shield } from "lucide-react";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface DashboardHeaderProps {
   user: any;
@@ -37,6 +38,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <Link
             href="/user"
             className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 p-2 rounded-lg bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"

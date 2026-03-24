@@ -18,7 +18,7 @@ router.get("/", requireAdmin, async (req, res) => {
   try {
     await connectDB();
     const [users, admins, vendors, orders, products, reviews, categories] = await Promise.all([
-      UserModel.find({}).lean(),
+      UserModel.find({ "vendorProfile.status": { $ne: "approved" } }).lean(),
       AdminModel.find({}).lean(),
       VendorModel.find({}).lean(),
       OrderModel.find({}).lean(),

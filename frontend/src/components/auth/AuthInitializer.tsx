@@ -6,12 +6,13 @@ import { loginSuccess, logout, setAuthLoaded } from "@/redux/AuthSlice";
 import { initializeCart } from "@/redux/CartSlice";
 import { initializeWishlist } from "@/redux/WishListSlice";
 import { RootState } from "@/redux/Store";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { X, Crown, ShieldOff, AlertTriangle, LogOut, Store } from "lucide-react";
 
 function AuthInitializer() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
 
   const cart = useSelector((state: RootState) => state.cart);
   const wishlist = useSelector((state: RootState) => state.wishlist);
@@ -146,6 +147,22 @@ function AuthInitializer() {
     const timeoutId = setTimeout(syncData, 1000);
     return () => clearTimeout(timeoutId);
   }, [cart.cartItems, wishlist.items, auth.isAuthenticated, isLoaded]);
+
+  // Strict role-based dashboard enforcement
+  useEffect(() => {
+    if (!isLoaded || !auth.isAuthenticated || !auth.user || !pathname) return;
+
+    if (auth.user.isAdmin) {
+      if (!pathname.startsWith("/admin")) {
+        router.push("/admin/dashboard");
+      }
+    } else if (auth.user.isVendor) {
+      // Vendors should be restricted to /vendor or /admin (if they have dual access, though unlikely)
+      if (!pathname.startsWith("/vendor") && !pathname.startsWith("/admin")) {
+        router.push("/vendor/dashboard");
+      }
+    }
+  }, [isLoaded, auth.isAuthenticated, auth.user, pathname, router]);
 
   const handleDismiss = async (type: "promotion" | "demotion" | "deleted" | "vendorApproval" | "suspension" | "unsuspension") => {
     if (type !== "deleted") {

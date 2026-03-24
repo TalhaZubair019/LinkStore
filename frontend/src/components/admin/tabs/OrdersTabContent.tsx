@@ -13,6 +13,7 @@ interface OrdersTabContentProps {
   setOrderPage: Dispatch<SetStateAction<number>>;
   users: UserData[];
   updatingOrderId: string | null;
+  hideEmail?: boolean;
 }
 
 const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
@@ -24,6 +25,7 @@ const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
   setOrderPage,
   users,
   updatingOrderId,
+  hideEmail = false,
 }) => {
   return (
     <OrdersTable
@@ -35,6 +37,7 @@ const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
       setOrderPage={setOrderPage}
       users={users}
       updatingOrderId={updatingOrderId}
+      hideEmail={hideEmail}
     />
   );
 };

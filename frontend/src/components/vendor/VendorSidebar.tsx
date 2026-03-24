@@ -112,32 +112,6 @@ export default function VendorSidebar({
 
       <div className="p-4 border-t border-slate-100 dark:border-slate-800/50 mt-auto">
         <div className="space-y-1">
-          {user?.isAdmin && (
-            <Link
-              href="/admin/dashboard"
-              className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors w-full"
-              title="Admin Dashboard"
-            >
-              <Shield size={16} />
-              <span>Admin Dashboard</span>
-            </Link>
-          )}
-          <Link
-            href="/user"
-            className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:bg-purple-500/10 rounded-lg transition-colors w-full"
-            title="Switch Dashboard"
-          >
-            <UserIcon size={16} />
-            <span>Switch Dashboard</span>
-          </Link>
-          <Link
-            href="/"
-            className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors w-full group"
-            title="Back to Store"
-          >
-            <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            <span>Back to Store</span>
-          </Link>
           <button
             onClick={handleLogout}
             className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors w-full group"

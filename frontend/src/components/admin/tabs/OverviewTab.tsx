@@ -97,6 +97,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         <UsersStatCard
           totalUsers={stats.totalUsers}
           totalAdmins={stats.totalAdmins ?? 0}
+          totalVendors={stats.totalVendors ?? 0}
         />
         {isAdminView && (
           <VendorsStatCard

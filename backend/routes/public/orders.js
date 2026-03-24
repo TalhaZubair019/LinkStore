@@ -192,18 +192,23 @@ router.post("/place-order", async (req, res) => {
     }
 
     try {
-      console.log(
-        `Generating confirmation email for order ${orderId}. Items:`,
-        items.length,
-      );
+      // Group items by vendor for individual notifications
+      const itemsByVendor = itemsWithFulfillment.reduce((acc, item) => {
+        if (item.vendorId) {
+          if (!acc[item.vendorId]) acc[item.vendorId] = [];
+          acc[item.vendorId].push(item);
+        }
+        return acc;
+      }, {});
 
-      const emailHtml = `
+      // Function to generate email HTML for a specific set of items
+      const generateEmailHtml = (orderItems, isVendor = false) => `
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Order Confirmation - LinkStore</title>
+          <title>${isVendor ? "New Order" : "Order Confirmation"} - LinkStore</title>
           <style>
             body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; }
             .wrapper { width: 100%; padding: 40px 20px; box-sizing: border-box; }
@@ -228,9 +233,6 @@ router.post("/place-order", async (req, res) => {
             .summary-box { background: #f8fafc; border-radius: 16px; padding: 24px; margin-top: 24px; }
             .summary-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; font-weight: 500; color: #64748b; }
             .summary-row.total { margin-top: 16px; padding-top: 16px; border-top: 1px dashed #cbd5e1; font-size: 20px; font-weight: 800; color: #6366f1; }
-            .tracking-card { background: #eff6ff; border-radius: 16px; padding: 24px; margin-bottom: 40px; border: 1px solid #dbeafe; }
-            .tracking-card p { margin: 0 0 16px; font-size: 14px; color: #1e40af; font-weight: 600; }
-            .btn { display: inline-block; padding: 14px 28px; background: #6366f1; color: #ffffff !important; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 15px; text-align: center; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3); }
             .footer { padding: 40px; text-align: center; color: #94a3b8; font-size: 13px; font-weight: 500; }
             .footer p { margin: 8px 0; }
             @media (max-width: 600px) { .header { padding: 40px 20px; } .content { padding: 30px 20px; } .info-grid td { width: 100%; display: block; } }
@@ -240,11 +242,11 @@ router.post("/place-order", async (req, res) => {
           <div class="wrapper">
             <div class="container">
               <div class="header">
-                <h1>Order Confirmed!</h1>
-                <p>We're getting your items ready for delivery.</p>
+                <h1>${isVendor ? "New Order Received!" : "Order Confirmed!"}</h1>
+                <p>${isVendor ? "A customer has placed an order from your store." : "We're getting your items ready for delivery."}</p>
               </div>
               <div class="content">
-                <div class="status-badge">Processing Order</div>
+                <div class="status-badge">${isVendor ? "Action Required" : "Processing Order"}</div>
 
                 <div class="section">
                   <div class="section-title">Order Information</div>
@@ -282,7 +284,7 @@ router.post("/place-order", async (req, res) => {
                 </div>
 
                 <div class="section" style="margin-bottom: 0;">
-                  <div class="section-title">Order Summary</div>
+                  <div class="section-title">${isVendor ? "Items to Fulfill" : "Order Summary"}</div>
                   <table class="items-table">
                     <thead>
                       <tr>
@@ -291,7 +293,7 @@ router.post("/place-order", async (req, res) => {
                       </tr>
                     </thead>
                     <tbody>
-                      ${items
+                      ${orderItems
                         .map((i) => {
                           const price = Number(i.price) || 0;
                           const qty = Number(i.quantity) || 1;
@@ -310,17 +312,9 @@ router.post("/place-order", async (req, res) => {
                   </table>
 
                   <div class="summary-box">
-                    <div class="summary-row">
-                      <span>Subtotal</span>
-                      <span>$${Number(totalAmount).toFixed(2)}</span>
-                    </div>
-                    <div class="summary-row">
-                      <span>Shipping</span>
-                      <span>Free</span>
-                    </div>
                     <div class="summary-row total">
-                      <span>Grand Total</span>
-                      <span>$${Number(totalAmount).toFixed(2)}</span>
+                      <span>${isVendor ? "Your Subtotal" : "Grand Total"}</span>
+                      <span>$${orderItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0).toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -334,24 +328,31 @@ router.post("/place-order", async (req, res) => {
         </body>
         </html>`;
 
-      console.log(`Sending email to ${customer.email} and admin...`);
-      Promise.all([
-        transporter.sendMail({
-          from: `"Store Orders" <${process.env.EMAIL_USER}>`,
-          to: process.env.EMAIL_USER,
-          replyTo: customer.email,
-          subject: `New Order #${orderId} from ${customer.firstName}`,
-          html: emailHtml,
-        }),
-        transporter.sendMail({
-          from: `"Store Orders" <${process.env.EMAIL_USER}>`,
-          to: customer.email,
-          subject: `Order Confirmation #${orderId}`,
-          html: emailHtml,
-        }),
-      ])
-        .then(() => console.log("Emails sent successfully."))
-        .catch((e) => console.error("Email error:", e));
+      // 1. Send customer confirmation email (full order)
+      transporter.sendMail({
+        from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+        to: customer.email,
+        subject: `Order Confirmation #${orderId}`,
+        html: generateEmailHtml(itemsWithFulfillment, false),
+      }).catch(e => console.error("Customer email error:", e));
+
+      // 2. Send individual vendor notifications
+      for (const [vendorId, vendorItems] of Object.entries(itemsByVendor)) {
+        try {
+          const vendor = await VendorModel.findOne({ id: vendorId }).lean();
+          if (vendor && vendor.email) {
+            transporter.sendMail({
+              from: `"LinkStore Marketplace" <${process.env.EMAIL_USER}>`,
+              to: vendor.email,
+              subject: `New Order #${orderId} - Fulfill Items`,
+              html: generateEmailHtml(vendorItems, true),
+            }).catch(e => console.error(`Vendor ${vendorId} email error:`, e));
+          }
+        } catch (fetchErr) {
+          console.error(`Failed to fetch vendor ${vendorId} for email:`, fetchErr);
+        }
+      }
+
     } catch (e) {
       console.error("Critical error generating email HTML:", e);
     }

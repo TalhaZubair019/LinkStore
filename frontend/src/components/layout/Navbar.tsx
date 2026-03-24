@@ -12,6 +12,7 @@ import {
   X,
   LogOut,
   Menu,
+  Search,
 } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import db from "@data/db.json";
@@ -39,6 +40,7 @@ function Navbar() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setMounted(true);
@@ -72,6 +74,15 @@ function Navbar() {
     }
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm("");
+      setIsMobileMenuOpen(false);
+    }
+  };
+
   if (
     pathname?.startsWith("/admin") ||
     pathname?.startsWith("/vendor") ||
@@ -95,7 +106,23 @@ function Navbar() {
           />
         </Link>
 
-        <div className="hidden min-[830px]:flex flex-1 justify-center px-4">
+        <div className="hidden min-[830px]:flex flex-1 items-center gap-6 lg:gap-12 px-4 justify-between">
+          <form 
+            onSubmit={handleSearch}
+            className="flex-1 max-w-md relative group"
+          >
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+              <Search size={18} />
+            </div>
+            <input
+              type="text"
+              placeholder={navbarData.search?.placeholder || "Search products..."}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-full text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all dark:text-white"
+            />
+          </form>
+
           <nav>
             <ul className="flex flex-wrap items-center justify-center gap-2 min-[830px]:gap-3 lg:gap-8 xl:gap-10">
               {navbarData.navigation.map(
@@ -103,7 +130,7 @@ function Navbar() {
                   <li key={index}>
                     <Link
                       href={item.href}
-                      className="text-[15px] lg:text-[18px] text-[#333333] dark:text-slate-200 hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200"
+                      className="text-[15px] lg:text-[16px] xl:text-[18px] font-bold text-[#333333] dark:text-slate-200 hover:text-blue-800 dark:hover:text-blue-400 transition-colors duration-200 whitespace-nowrap"
                     >
                       {item.label}
                     </Link>
@@ -384,6 +411,24 @@ function Navbar() {
                 >
                   <X className="w-5 h-5" />
                 </button>
+              </div>
+
+              <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+                <form 
+                  onSubmit={handleSearch}
+                  className="relative group"
+                >
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors">
+                    <Search size={18} />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all dark:text-white"
+                  />
+                </form>
               </div>
 
               <nav className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">

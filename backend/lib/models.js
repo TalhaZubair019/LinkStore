@@ -246,6 +246,7 @@ const warehouseSchema = new mongoose.Schema(
     name: { type: String, required: true },
     location: { type: String, required: true },
     vendorId: { type: String, required: true, index: true },
+    capacity: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

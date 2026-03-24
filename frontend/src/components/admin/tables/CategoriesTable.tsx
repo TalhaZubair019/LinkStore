@@ -23,29 +23,60 @@ const CategoriesTable = ({
   onEdit,
   onDelete,
 }: CategoriesTableProps) => {
+  const [filterType, setFilterType] = React.useState<"used" | "all">("used");
+
+  const filteredCategories = React.useMemo(() => {
+    if (filterType === "all") return categories;
+    return categories.filter((cat) => (cat.itemCount || 0) > 0);
+  }, [categories, filterType]);
+
   return (
     <div
       key="categories"
       className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in duration-300 transition-colors"
     >
       <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30 transition-colors">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-          Category Management
-        </h3>
+        <div className="space-y-1">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+            Category Management
+          </h3>
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+            <button
+              onClick={() => setFilterType("used")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                filterType === "used"
+                  ? "bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              Store Categories
+            </button>
+            <button
+              onClick={() => setFilterType("all")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                filterType === "all"
+                  ? "bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-400 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              }`}
+            >
+              All Categories
+            </button>
+          </div>
+        </div>
         <button
           onClick={onAdd}
-          className="flex items-center gap-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-purple-600 dark:hover:bg-purple-400 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95"
+          className="flex items-center gap-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:bg-purple-600 dark:hover:bg-purple-400 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95 shrink-0"
         >
           <Plus size={16} /> Add Category
         </button>
       </div>
       <div className="lg:hidden divide-y divide-slate-100 dark:divide-slate-800 transition-colors">
-        {categories.length === 0 ? (
+        {filteredCategories.length === 0 ? (
           <div className="px-6 py-10 text-center text-slate-500 dark:text-slate-400 italic">
             No categories found.
           </div>
         ) : (
-          categories.map((cat) => (
+          filteredCategories.map((cat) => (
             <div
               key={cat._id}
               className="p-4 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
@@ -105,7 +136,7 @@ const CategoriesTable = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800 transition-colors">
-            {categories.length === 0 ? (
+            {filteredCategories.length === 0 ? (
               <tr>
                 <td
                   colSpan={4}
@@ -115,7 +146,7 @@ const CategoriesTable = ({
                 </td>
               </tr>
             ) : (
-              categories.map((cat) => (
+              filteredCategories.map((cat) => (
                 <tr
                   key={cat._id}
                   className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"

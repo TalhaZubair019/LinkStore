@@ -26,6 +26,7 @@ interface WarehouseData {
   _id?: string;
   warehouseName: string;
   location: string;
+  capacity?: number;
   items: WarehouseItem[];
   totalItemsInWarehouse: number;
 }
@@ -81,13 +82,10 @@ function WarehouseCard({
     (i) => i.stock > 0 && i.stock <= 5,
   ).length;
   const outOfStock = warehouse.items.filter((i) => i.stock === 0).length;
-  const maxTotal = Math.max(
-    ...allWarehouses.map((w) => w.totalItemsInWarehouse),
-    1,
-  );
-  const fillPct = Math.round(
-    (warehouse.totalItemsInWarehouse / maxTotal) * 100,
-  );
+  const fillPct = warehouse.capacity 
+    ? Math.round((warehouse.totalItemsInWarehouse / warehouse.capacity) * 100) 
+    : 0;
+  const displayFillPct = Math.min(fillPct, 100);
 
   const ProductTable = () => (
     <>
@@ -219,16 +217,16 @@ function WarehouseCard({
 
             <div className="mb-1 flex items-center justify-between text-[10px]">
               <span className="font-bold text-slate-400 flex items-center gap-1">
-                <BarChart3 size={10} /> Capacity
+                <BarChart3 size={10} /> Usage ({warehouse.totalItemsInWarehouse} / {warehouse.capacity || 0})
               </span>
               <span className="font-black text-slate-600 dark:text-slate-300">
-                {fillPct}%
+                {displayFillPct}%
               </span>
             </div>
             <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-3">
               <div
-                className="h-full rounded-full bg-linear-to-r from-purple-500 to-indigo-400 transition-all duration-700"
-                style={{ width: `${fillPct}%` }}
+                className={`h-full rounded-full transition-all duration-700 ${fillPct > 100 ? "bg-red-500" : "bg-linear-to-r from-purple-500 to-indigo-400"}`}
+                style={{ width: `${displayFillPct}%` }}
               />
             </div>
             {(lowStock > 0 || outOfStock > 0) && (
@@ -341,16 +339,16 @@ function WarehouseCard({
 
           <div className="mb-1 flex items-center justify-between text-[10px]">
             <span className="font-bold text-slate-400 flex items-center gap-1">
-              <BarChart3 size={10} /> Capacity
+              <BarChart3 size={10} /> Usage ({warehouse.totalItemsInWarehouse} / {warehouse.capacity || 0})
             </span>
             <span className="font-black text-slate-600 dark:text-slate-300">
-              {fillPct}%
+              {displayFillPct}%
             </span>
           </div>
           <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
             <div
-              className="h-full rounded-full bg-linear-to-r from-purple-500 to-indigo-400 transition-all duration-700"
-              style={{ width: `${fillPct}%` }}
+              className={`h-full rounded-full transition-all duration-700 ${fillPct > 100 ? "bg-red-500" : "bg-linear-to-r from-purple-500 to-indigo-400"}`}
+              style={{ width: `${displayFillPct}%` }}
             />
           </div>
 

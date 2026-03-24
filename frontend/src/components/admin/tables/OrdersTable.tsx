@@ -12,6 +12,7 @@ interface OrdersTableProps {
   setOrderPage: React.Dispatch<React.SetStateAction<number>>;
   users?: { id: string; name: string; email?: string }[];
   updatingOrderId?: string | null;
+  hideEmail?: boolean;
 }
 
 const OrdersTable = ({
@@ -23,6 +24,7 @@ const OrdersTable = ({
   setOrderPage,
   users = [],
   updatingOrderId,
+  hideEmail = false,
 }: OrdersTableProps) => {
   const [selectedUserId, setSelectedUserId] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -39,13 +41,37 @@ const OrdersTable = ({
     return freqs;
   }, [users]);
 
+  const derivedUsers = useMemo(() => {
+    if (users && users.length > 0) return users;
+
+    const uniqueCustomers: Record<
+      string,
+      { id: string; name: string; email?: string }
+    > = {};
+    allOrders.forEach((order) => {
+      if (order.userId && order.customer?.name) {
+        if (!uniqueCustomers[order.userId]) {
+          uniqueCustomers[order.userId] = {
+            id: order.userId,
+            name: order.customer.name,
+            email: order.customer.email,
+          };
+        }
+      }
+    });
+    return Object.values(uniqueCustomers).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+  }, [allOrders, users]);
+
   const hasDeletedAccounts = useMemo(() => {
+    if (!users || users.length === 0) return false;
     const userIds = new Set(users.map((u) => u.id));
     return allOrders.some((o) => !userIds.has(o.userId));
   }, [allOrders, users]);
 
   const filteredOrders = useMemo(() => {
-    const userIds = new Set(users.map((u) => u.id));
+    const userIds = new Set(derivedUsers.map((u) => u.id));
     return allOrders.filter((order) => {
       let userMatch = false;
       if (selectedUserId === "all") {
@@ -144,31 +170,33 @@ const OrdersTable = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 pt-2">
-          <div className="relative flex-1 min-w-[200px]">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-              <User size={16} />
+          {derivedUsers.length > 0 && (
+            <div className="relative flex-1 min-w-[200px]">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <User size={16} />
+              </div>
+              <select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
+              >
+                <option value="all">All Customers</option>
+                {derivedUsers.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                    {u.name && nameFrequencies[u.name] > 1 && u.email
+                      ? ` (${u.email})`
+                      : ""}
+                  </option>
+                ))}
+                {hasDeletedAccounts && (
+                  <option value="deleted" className="text-red-500 font-bold">
+                    Deleted Accounts
+                  </option>
+                )}
+              </select>
             </div>
-            <select
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 dark:focus:border-purple-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
-            >
-              <option value="all">All Customers</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name}
-                  {u.name && nameFrequencies[u.name] > 1 && u.email
-                    ? ` (${u.email})`
-                    : ""}
-                </option>
-              ))}
-              {hasDeletedAccounts && (
-                <option value="deleted" className="text-red-500 font-bold">
-                  Deleted Accounts
-                </option>
-              )}
-            </select>
-          </div>
+          )}
 
           <div className="relative flex-1 min-w-[200px]">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -291,9 +319,11 @@ const OrdersTable = ({
                     <div className="text-sm text-slate-700 dark:text-slate-200 font-semibold truncate max-w-[200px]">
                       {o.customer.name}
                     </div>
-                    <div className="text-xs text-slate-500 truncate max-w-[200px]">
-                      {o.customer.email}
-                    </div>
+                    {!hideEmail && (
+                      <div className="text-xs text-slate-500 truncate max-w-[200px]">
+                        {o.customer.email}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <span className="text-xs text-red-600 font-medium italic">
@@ -412,9 +442,11 @@ const OrdersTable = ({
                         <div className="text-sm text-slate-700 dark:text-slate-200 font-medium truncate max-w-[150px]">
                           {o.customer.name}
                         </div>
-                        <div className="text-xs text-slate-500 truncate max-w-[150px]">
-                          {o.customer.email}
-                        </div>
+                        {!hideEmail && (
+                          <div className="text-xs text-slate-500 truncate max-w-[150px]">
+                            {o.customer.email}
+                          </div>
+                        )}
                       </>
                     ) : (
                       <span className="text-xs text-red-600 font-medium italic">

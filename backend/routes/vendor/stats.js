@@ -27,10 +27,21 @@ router.get("/", requireVendor, async (req, res) => {
     const vendorOrders = allOrders.map(order => {
       const vendorItems = order.items.filter(item => item.vendorId === vendorId);
       const vendorTotal = vendorItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+      
+      // Ensure customer object exists and has a name field for the frontend tables
+      const customer = order.customer ? {
+        ...order.customer,
+        name: `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || order.customer.name || "Guest Customer"
+      } : {
+        name: "Guest Customer"
+      };
+
       return {
         ...order,
         items: vendorItems,
-        vendorTotal
+        vendorTotal,
+        total: vendorTotal, // Override total for the frontend table component
+        customer
       };
     });
 

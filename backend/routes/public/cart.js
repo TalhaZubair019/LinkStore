@@ -21,7 +21,7 @@ router.post("/validate-cart", async (req, res) => {
 
     await connectDB();
     const products = await ProductModel.find({
-      id: { $in: productIds },
+      id: { $in: productIds.map((id) => Number(id)) },
     }).lean();
     return res.json(products);
   } catch (error) {

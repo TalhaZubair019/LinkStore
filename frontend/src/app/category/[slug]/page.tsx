@@ -232,7 +232,7 @@ export default function CategoryPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
           <aside className={`fixed inset-y-0 left-0 z-50 w-80 lg:relative lg:block transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-300 ease-in-out`}>
-            <FilterSidebar categories={allCategories} vendors={vendors} onClose={() => setIsSidebarOpen(false)} />
+            <FilterSidebar categories={allCategories} vendors={vendors} onClose={() => setIsSidebarOpen(false)} activeCategoryName={category.title} />
           </aside>
 
           {/* Background Overlay for Mobile Sidebar */}

@@ -17,6 +17,57 @@ const TRACKING_STEPS = [
   "Delivered",
 ];
 
+// Get all orders for the current vendor
+router.get("/", requireVendor, async (req, res) => {
+  try {
+    await connectDB();
+    const vendorId = req.user.id;
+
+    // Fetch orders that contain at least one item from this vendor
+    const orders = await OrderModel.find({ "items.vendorId": vendorId })
+      .sort({ date: -1 })
+      .lean();
+
+    // Map through orders to filter items and calculate vendor-specific subtotal
+    const filteredOrders = orders.map(order => {
+      // Only include items belonging to this vendor
+      const vendorItems = (order.items || []).filter(item => item.vendorId === vendorId);
+      
+      // Calculate revenue (subtotal) for this vendor only
+      const vendorSubtotal = vendorItems.reduce((sum, item) => {
+        const price = Number(item.price) || 0;
+        const qty = Number(item.quantity) || 1;
+        return sum + (price * qty);
+      }, 0);
+
+      // Ensure customer object exists and has a name field for shared dashboard tables
+      const customer = order.customer ? {
+        ...order.customer,
+        name: `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || order.customer.name || "Guest Customer"
+      } : {
+        name: "Guest Customer"
+      };
+
+      // Get vendor-specific status for this order
+      const vendorStatus = (order.vendorStatuses || []).find(vs => vs.vendorId === vendorId)?.status || order.status;
+
+      return {
+        ...order,
+        items: vendorItems,
+        vendorSubtotal,
+        total: vendorSubtotal, // Override total for the frontend table component
+        customer,
+        status: vendorStatus // Override main status with vendor-specific status for the list view
+      };
+    });
+
+    return res.json({ orders: filteredOrders });
+  } catch (error) {
+    console.error("Fetch vendor orders error:", error);
+    return res.status(500).json({ message: "Internal Error" });
+  }
+});
+
 function getStatusContent(status, order) {
   let country = order.customer?.country || "your country";
   if (country === "PK") country = "Pakistan";

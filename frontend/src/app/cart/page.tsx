@@ -37,6 +37,7 @@ export default function CartPage() {
     0,
   );
   const [isClient, setIsClient] = useState(false);
+  const [productsCache, setProductsCache] = useState<any[]>([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [toast, setToast] = useState<{
     show: boolean;
@@ -66,6 +67,7 @@ export default function CartPage() {
 
         if (response.ok) {
           const validProducts = await response.json();
+          setProductsCache(validProducts);
           let stockAdjusted = false;
           const outOfStockItems: string[] = [];
           const limitedStockItems: string[] = [];
@@ -133,6 +135,16 @@ export default function CartPage() {
     );
   }
 
+  const groupedCartItems = cartItems.reduce((acc: any, item: CartItemType) => {
+    const product = productsCache.find((p) => String(p.id) === String(item.id));
+    const storeName = product?.vendorStoreName || "Verified Store";
+    if (!acc[storeName]) {
+      acc[storeName] = [];
+    }
+    acc[storeName].push(item);
+    return acc;
+  }, {});
+
   return (
     <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
       {showAuthModal && (
@@ -161,9 +173,26 @@ export default function CartPage() {
                     {cartData.columns.total}
                   </span>
                 </div>
-                <div className="space-y-12">
-                  {cartItems.map((item: CartItemType) => (
-                    <CartItem key={item.id} item={item} />
+                <div>
+                  {Object.entries(groupedCartItems).map(([storeName, items]: [string, any]) => (
+                    <div key={storeName} className="mb-12 last:mb-0">
+                      <div className="flex items-center gap-3 mb-6 pb-2 border-b border-slate-100 dark:border-slate-800">
+                        <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                          <span className="text-purple-600 dark:text-purple-400 font-black text-xs">
+                            {storeName.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+                          Sold by <span className="text-purple-600 dark:text-purple-400">{storeName}</span>
+                        </h3>
+                      </div>
+                      <div className="space-y-12">
+                        {items.map((item: CartItemType) => {
+                          const product = productsCache.find((p) => String(p.id) === String(item.id));
+                          return <CartItem key={item.id} item={item} product={product} />;
+                        })}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -203,7 +232,7 @@ function EmptyCart() {
   );
 }
 
-function CartItem({ item }: { item: CartItemType }) {
+function CartItem({ item, product }: { item: CartItemType, product?: any }) {
   const dispatch = useDispatch();
   const subTotal = (item.price * item.quantity).toFixed(2);
 
@@ -228,7 +257,7 @@ function CartItem({ item }: { item: CartItemType }) {
           <div className="flex justify-between items-start mb-2">
             <div>
               <h3 className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">
-                {cartData.placeholders.category}
+                {product?.category}
               </h3>
               <p className="font-bold text-slate-900 dark:text-white text-lg mb-1 transition-colors">
                 {item.name}
@@ -242,8 +271,8 @@ function CartItem({ item }: { item: CartItemType }) {
             </span>
           </div>
 
-          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 max-w-lg hidden sm:block transition-colors">
-            {cartData.placeholders.description}
+          <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 max-w-lg hidden sm:block transition-colors line-clamp-2">
+            {product?.description}
           </p>
           <div className="flex flex-wrap items-center gap-6 mt-auto">
             <div className="flex items-center border border-slate-300 dark:border-slate-700 rounded overflow-hidden w-28 bg-white dark:bg-slate-900 transition-colors">

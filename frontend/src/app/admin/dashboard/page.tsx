@@ -11,6 +11,7 @@ import UsersTabContent from "@/components/admin/tabs/UsersTabContent";
 import AdminsTabContent from "@/components/admin/tabs/AdminsTabContent";
 import ActivityLogsTabContent from "@/components/admin/tabs/ActivityLogsTabContent";
 import VendorsTabContent from "@/components/admin/tabs/VendorsTabContent";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
 
@@ -40,7 +41,7 @@ export default function AdminDashboard() {
   }
 
   const filteredUsers = d.stats.users
-    .filter((u) => !u.isAdmin)
+    .filter((u) => !u.isAdmin && !u.isVendor)
     .filter(
       (u) =>
         u.name?.toLowerCase().includes(d.searchTerm.toLowerCase()) ||
@@ -81,13 +82,18 @@ export default function AdminDashboard() {
 
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         <main className="flex-1 p-6 lg:p-8 pt-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              {d.activeTab.charAt(0).toUpperCase() + d.activeTab.slice(1)}
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
-              Welcome back, {d.user?.name || "Admin"}!
-            </p>
+          <div className="mb-8 flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                {d.activeTab.charAt(0).toUpperCase() + d.activeTab.slice(1)}
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-1">
+                Welcome back, {d.user?.name || "Admin"}!
+              </p>
+            </div>
+            <div className="hidden lg:block shrink-0">
+              <ThemeToggle />
+            </div>
           </div>
 
           <DashboardHeader

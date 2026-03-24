@@ -1,16 +1,23 @@
 import React from "react";
-import { Users, ShieldCheck, User } from "lucide-react";
+import { Users, ShieldCheck, User, Store } from "lucide-react";
 
 interface UsersStatCardProps {
   totalUsers: number;
   totalAdmins: number;
+  totalVendors: number;
 }
 
-const UsersStatCard = ({ totalUsers, totalAdmins = 0 }: UsersStatCardProps) => {
-  const regularUsers = (totalUsers ?? 0) - (totalAdmins ?? 0);
+const UsersStatCard = ({
+  totalUsers,
+  totalAdmins = 0,
+  totalVendors = 0,
+}: UsersStatCardProps) => {
+  const regularUsers = (totalUsers ?? 0) - (totalAdmins ?? 0) - (totalVendors ?? 0);
   const adminRate =
     totalUsers > 0 ? Math.round((totalAdmins / totalUsers) * 100) : 0;
-  const regularRate = 100 - adminRate;
+  const vendorRate =
+    totalUsers > 0 ? Math.round((totalVendors / totalUsers) * 100) : 0;
+  const regularRate = 100 - adminRate - vendorRate;
 
   return (
     <div className="relative group cursor-pointer w-full">
@@ -62,9 +69,23 @@ const UsersStatCard = ({ totalUsers, totalAdmins = 0 }: UsersStatCardProps) => {
               </p>
             </div>
           </div>
+          <div className="w-px h-10 bg-slate-100 dark:bg-slate-800 shrink-0" />
+          <div className="flex items-center gap-2.5 flex-1 text-nowrap">
+            <div className="shrink-0 p-1.5 rounded-lg bg-orange-50 dark:bg-orange-500/10">
+              <Store size={15} className="text-orange-500" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">
+                Vendors
+              </p>
+              <p className="text-lg font-black text-slate-700 dark:text-slate-200 leading-none transition-colors">
+                {totalVendors}
+              </p>
+            </div>
+          </div>
           <div className="shrink-0 text-right">
             <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-              {adminRate}% admin
+              {adminRate + vendorRate}% staff/vendor
             </span>
           </div>
         </div>
@@ -72,6 +93,10 @@ const UsersStatCard = ({ totalUsers, totalAdmins = 0 }: UsersStatCardProps) => {
           <div
             className="h-full bg-linear-to-r from-emerald-500 to-teal-600 rounded-full transition-all duration-1000 ease-out group-hover:brightness-110"
             style={{ width: `${regularRate}%` }}
+          />
+          <div
+            className="absolute top-0 right-0 h-full bg-linear-to-r from-orange-400 to-orange-500 rounded-full transition-all duration-1000 ease-out"
+            style={{ width: `${vendorRate}%`, right: `${adminRate}%` }}
           />
           <div
             className="absolute top-0 right-0 h-full bg-linear-to-r from-sky-400 to-sky-500 rounded-full transition-all duration-1000 ease-out"

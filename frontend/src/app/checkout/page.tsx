@@ -47,6 +47,7 @@ export default function CheckoutPage() {
     (state: any) => state.auth,
   );
   const [hasMounted, setHasMounted] = useState(false);
+  const [productsCache, setProductsCache] = useState<any[]>([]);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUsingSavedAddress, setIsUsingSavedAddress] = useState(false);
@@ -127,6 +128,7 @@ export default function CheckoutPage() {
         if (response.ok) {
           const data = await response.json();
           if (data && data.products) {
+            setProductsCache(data.products);
             hasSynced.current = true;
             const activeProductIds = data.products.map((p: any) =>
               String(p.id),
@@ -358,7 +360,7 @@ export default function CheckoutPage() {
             >
               <div className="lg:col-span-5">
                 {hasMounted ? (
-                  <OrderSummary cartItems={cartItems} subtotal={subtotal} />
+                  <OrderSummary cartItems={cartItems} subtotal={subtotal} products={productsCache} />
                 ) : (
                   <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 lg:p-8 animate-pulse transition-colors">
                     <div className="h-6 w-32 bg-slate-100 dark:bg-slate-800/50 rounded mb-6" />

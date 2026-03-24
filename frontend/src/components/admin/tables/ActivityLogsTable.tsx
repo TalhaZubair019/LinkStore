@@ -125,9 +125,13 @@ export default function ActivityLogsTable() {
   const [availableAdmins, setAvailableAdmins] = useState<
     { id: string; name: string; email: string }[]
   >([]);
+  const [availableVendors, setAvailableVendors] = useState<
+    { id: string; name: string; email: string }[]
+  >([]);
   const [filterEntity, setFilterEntity] = useState("all");
   const [filterAction, setFilterAction] = useState("all");
   const [filterAdmin, setFilterAdmin] = useState("all");
+  const [filterVendor, setFilterVendor] = useState("all");
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
   const LIMIT = 15;
 
@@ -141,6 +145,7 @@ export default function ActivityLogsTable() {
       if (filterEntity !== "all") params.set("entity", filterEntity);
       if (filterAction !== "all") params.set("action", filterAction);
       if (filterAdmin !== "all") params.set("adminId", filterAdmin);
+      if (filterVendor !== "all") params.set("adminId", filterVendor);
 
       const res = await fetch(`/api/admin/logs?${params}`);
       if (res.ok) {
@@ -150,6 +155,9 @@ export default function ActivityLogsTable() {
         setTotalPages(data.totalPages);
         if (data.admins) {
           setAvailableAdmins(data.admins);
+        }
+        if (data.vendors) {
+          setAvailableVendors(data.vendors);
         }
       }
     } catch (err) {
@@ -161,18 +169,18 @@ export default function ActivityLogsTable() {
 
   useEffect(() => {
     fetchLogs();
-  }, [page, filterEntity, filterAction, filterAdmin]);
+  }, [page, filterEntity, filterAction, filterAdmin, filterVendor]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       fetchLogs(true);
     }, 10000);
     return () => clearInterval(interval);
-  }, [page, filterEntity, filterAction, filterAdmin]);
+  }, [page, filterEntity, filterAction, filterAdmin, filterVendor]);
 
   useEffect(() => {
     setPage(1);
-  }, [filterEntity, filterAction, filterAdmin]);
+  }, [filterEntity, filterAction, filterAdmin, filterVendor]);
 
   const toggleExpand = (logId: string) => {
     setExpandedLogs((prev) => ({
@@ -187,6 +195,7 @@ export default function ActivityLogsTable() {
       if (filterEntity !== "all") params.set("entity", filterEntity);
       if (filterAction !== "all") params.set("action", filterAction);
       if (filterAdmin !== "all") params.set("adminId", filterAdmin);
+      if (filterVendor !== "all") params.set("adminId", filterVendor);
 
       const downloadUrl = `/api/admin/logs/export?${params.toString()}`;
       window.open(downloadUrl, "_blank");
@@ -196,7 +205,10 @@ export default function ActivityLogsTable() {
   };
 
   const hasFilters =
-    filterEntity !== "all" || filterAction !== "all" || filterAdmin !== "all";
+    filterEntity !== "all" ||
+    filterAction !== "all" ||
+    filterAdmin !== "all" ||
+    filterVendor !== "all";
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in duration-300 transition-colors">
@@ -259,17 +271,41 @@ export default function ActivityLogsTable() {
             </select>
           </div>
 
-          <div className="relative flex-1 min-w-[160px]">
+          <div className="relative flex-1 min-w-[200px]">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+              <User size={14} />
+            </div>
+            <select
+              value={filterVendor}
+              onChange={(e) => {
+                setFilterVendor(e.target.value);
+                if (e.target.value !== "all") setFilterAdmin("all");
+              }}
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
+            >
+              <option value="all">All Vendors</option>
+              {availableVendors.map((v: { id: string; name: string; email: string }) => (
+                <option key={v.id} value={v.id}>
+                  {v.name} ({v.email})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="relative flex-1 min-w-[200px]">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
               <User size={14} />
             </div>
             <select
               value={filterAdmin}
-              onChange={(e) => setFilterAdmin(e.target.value)}
+              onChange={(e) => {
+                setFilterAdmin(e.target.value);
+                if (e.target.value !== "all") setFilterVendor("all");
+              }}
               className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
             >
               <option value="all">All Admins</option>
-              {availableAdmins.map((a) => (
+              {availableAdmins.map((a: { id: string; name: string; email: string }) => (
                 <option key={a.id} value={a.id}>
                   {a.name} ({a.email})
                 </option>
@@ -282,6 +318,7 @@ export default function ActivityLogsTable() {
                 setFilterEntity("all");
                 setFilterAction("all");
                 setFilterAdmin("all");
+                setFilterVendor("all");
               }}
               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors shrink-0"
             >

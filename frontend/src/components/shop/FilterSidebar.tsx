@@ -8,17 +8,22 @@ interface FilterSidebarProps {
   categories: any[];
   vendors: any[];
   onClose?: () => void;
+  activeCategoryName?: string;
 }
 
-export default function FilterSidebar({ categories, vendors, onClose }: FilterSidebarProps) {
+export default function FilterSidebar({ categories, vendors, onClose, activeCategoryName }: FilterSidebarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "All Categories");
+  const [selectedCategory, setSelectedCategory] = useState(activeCategoryName || searchParams.get("category") || "All Categories");
   const [selectedVendor, setSelectedVendor] = useState(searchParams.get("vendorId") || "");
+
+  useEffect(() => {
+    if (activeCategoryName) setSelectedCategory(activeCategoryName);
+  }, [activeCategoryName]);
 
   const updateFilters = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams.toString());

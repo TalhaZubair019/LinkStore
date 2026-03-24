@@ -43,6 +43,7 @@ router.get("/", requireVendor, async (req, res) => {
         id: w.id,
         warehouseName: w.name,
         location: w.location,
+        capacity: w.capacity || 0,
         items: agg.items,
         totalItemsInWarehouse: agg.totalItemsInWarehouse
       };
@@ -57,7 +58,7 @@ router.get("/", requireVendor, async (req, res) => {
 
 router.post("/", requireVendor, async (req, res) => {
   try {
-    const { name, location } = req.body;
+    const { name, location, capacity } = req.body;
     if (!name?.trim() || !location?.trim()) {
       return res.status(400).json({ message: "Name and location are required" });
     }
@@ -73,6 +74,7 @@ router.post("/", requireVendor, async (req, res) => {
       name: name.trim(),
       location: location.trim(),
       vendorId: req.user.id,
+      capacity: Number(capacity) || 0,
     });
 
     await logActivity(req, {
@@ -90,7 +92,7 @@ router.post("/", requireVendor, async (req, res) => {
 
 router.patch("/:id", requireVendor, async (req, res) => {
   try {
-    const { name, location } = req.body;
+    const { name, location, capacity } = req.body;
     await connectDB();
 
     const warehouse = await WarehouseModel.findOne({ id: req.params.id, vendorId: req.user.id });
@@ -99,6 +101,7 @@ router.patch("/:id", requireVendor, async (req, res) => {
     const updateData = {};
     if (name?.trim()) updateData.name = name.trim();
     if (location?.trim()) updateData.location = location.trim();
+    if (capacity !== undefined) updateData.capacity = Number(capacity) || 0;
 
     const updated = await WarehouseModel.findOneAndUpdate(
       { id: req.params.id, vendorId: req.user.id },
