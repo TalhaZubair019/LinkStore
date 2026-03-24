@@ -1,50 +1,5 @@
 {
-  "blog": {
-    "sectionInfo": {
-      "label": "// Latest News //",
-      "headingMain": "Latest from the",
-      "headingHighlight": "Print Desk",
-      "description": "Stay informed with expert tips, trends, and print industry updates.",
-      "buttonText": "More Blog"
-    },
-    "posts": [
-      {
-        "id": 1,
-        "title": "How to Choose the Right Material for Your Prints",
-        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/b1-img-1.webp",
-        "author": {
-          "name": "LinkStore",
-          "avatar": "https://secure.gravatar.com/avatar/71a77267f30008ab3eef4b020e1b29155945405731d0f1e44dbc349e0ac7723e?s=50&d=mm&r=g"
-        },
-        "date": "May 17, 2025",
-        "readTime": "2 min read"
-      },
-      {
-        "id": 2,
-        "title": "The Power of Personalization in Modern Printing",
-        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/b1-img-2.webp",
-        "author": {
-          "name": "LinkStore",
-          "avatar": "https://secure.gravatar.com/avatar/71a77267f30008ab3eef4b020e1b29155945405731d0f1e44dbc349e0ac7723e?s=50&d=mm&r=g"
-        },
-        "date": "May 17, 2025",
-        "readTime": "2 min read"
-      },
-      {
-        "id": 3,
-        "title": "Why Custom Merchandise Can Elevate Your Brand",
-        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/b1-img-3.webp",
-        "author": {
-          "name": "LinkStore",
-          "avatar": "https://secure.gravatar.com/avatar/71a77267f30008ab3eef4b020e1b29155945405731d0f1e44dbc349e0ac7723e?s=50&d=mm&r=g"
-        },
-        "date": "January 10, 2024",
-        "readTime": "2 min read"
-      }
-    ]
-  },
   "cart": {
-    "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/breadcrumb-bg.webp",
     "breadcrumbs": {
       "home": "Home",
       "current": "Cart"
@@ -83,46 +38,12 @@
     }
   },
   "categories": {
-    "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/breadcrumb-bg.webp",
     "breadcrumbs": {
       "home": "Home",
       "current": "Products"
-    },
-    "sectionLabel": "// TOP CATEGORIES //",
-    "headingMain": "Personalize High-Quality",
-    "headingHighlight": "Print Categories",
-    "description": "Choose from top-quality products & customize them to match your brand perfectly.",
-    "btnText": "View More",
-    "btnLink": "/shop",
-    "categories": [
-      {
-        "id": 1,
-        "title": "T-shirts",
-        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/c1-img-1.webp",
-        "link": "/product-category/t-shirts/"
-      },
-      {
-        "id": 2,
-        "title": "Business Card",
-        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/c1-img-2.webp",
-        "link": "/product-category/business-card/"
-      },
-      {
-        "id": 3,
-        "title": "Hoodies",
-        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/c1-img-3.webp",
-        "link": "/product-category/hoodies/"
-      },
-      {
-        "id": 4,
-        "title": "Packaging",
-        "image": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/c1-img-4.webp",
-        "link": "/product-category/packaging/"
-      }
-    ]
+    }
   },
   "checkout": {
-    "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/breadcrumb-bg.webp",
     "breadcrumbs": {
       "home": "Home",
       "current": "Checkout"
@@ -226,9 +147,7 @@
     ],
     "contact": {
       "title": "Keep In touch",
-      "address": [
-        "2118 Thornridge Cir. Syracuse,"
-      ],
+      "address": ["2118 Thornridge Cir. Syracuse,"],
       "email": "tranthuy.nute@gmail.com",
       "phone": "(252) 555-0126",
       "phoneLink": "2525550126"
@@ -295,17 +214,7 @@
       }
     ]
   },
-  "products": {
-    "sectionLabel": "// FEATURED PRODUCTS //",
-    "headingMain": "Exceptional Print Items",
-    "headingHighlight": "Tailored to You",
-    "description": "High-quality custom prints tailored to match your style and needs",
-    "headerBtnText": "See Our Products",
-    "headerBtnLink": "/shop",
-    "featuredImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2025/12/p1-man-1.webp"
-  },
   "shop": {
-    "backgroundImage": "https://themexriver.com/wp/printnest/wp-content/uploads/2026/01/breadcrumb-bg.webp",
     "breadcrumbs": {
       "home": "Home",
       "current": "Shop"

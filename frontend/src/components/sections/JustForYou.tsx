@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Star, ShoppingCart, Heart } from "lucide-react";
+import { Star, ShoppingCart, Heart, ChevronRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/redux/CartSlice";
 import { toggleWishlist } from "@/redux/WishListSlice";
@@ -94,7 +94,7 @@ export default function JustForYou() {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="aspect-3/4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl" />
+            <div key={i} className="aspect-3/4 bg-slate-100 dark:bg-slate-800 animate-pulse rounded-2xl" />
           ))}
         </div>
       </div>
@@ -102,16 +102,21 @@ export default function JustForYou() {
   }
 
   return (
-    <section className="bg-slate-50 dark:bg-slate-950 py-12 transition-colors duration-300">
+    <section className="bg-slate-50 dark:bg-slate-950 py-16 transition-colors duration-300">
       <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-1 h-8 bg-blue-600 rounded-full" />
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
-            Just For You
-          </h2>
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full" />
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+              Just For You
+            </h2>
+          </div>
+          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+            {products.length} Items Found
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {products.slice(0, visibleCount).map((product, idx) => (
             <motion.div
               key={`${product.id}-${idx}`}
@@ -119,48 +124,49 @@ export default function JustForYou() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: (idx % 6) * 0.05 }}
               viewport={{ once: true }}
-              className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all group border border-slate-100 dark:border-slate-800 flex flex-col h-full"
+              className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 group border border-slate-100 dark:border-slate-800 flex flex-col h-full hover:-translate-y-2 hover:border-blue-500/30"
             >
               <div className="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-800">
                 <Image
                   src={product.image}
                   alt={product.title}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <button 
                   onClick={() => handleToggleWishlist(product)}
-                  className="absolute top-2 right-2 p-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm text-slate-400 hover:text-rose-500 transition-colors z-10"
+                  className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-slate-950/90 backdrop-blur-md text-slate-400 hover:text-rose-500 transition-all z-10 shadow-lg"
                 >
-                  <Heart size={18} fill={wishlistItems.some(i => i.id === product.id) ? "currentColor" : "none"} className={wishlistItems.some(i => i.id === product.id) ? "text-rose-500" : ""} />
+                  <Heart size={18} fill={wishlistItems.some(i => i.id === product.id) ? "currentColor" : "none"} className={wishlistItems.some(i => i.id === product.id) ? "text-rose-500 scale-110" : ""} />
                 </button>
                 {product.discount && (
-                  <div className="absolute top-2 left-2 px-2 py-0.5 bg-rose-500 text-white text-[10px] font-bold rounded-md">
-                    -{product.discount}%
+                  <div className="absolute top-3 left-3 px-3 py-1 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg">
+                    {product.discount}% OFF
                   </div>
                 )}
+                <div className="absolute inset-0 bg-linear-to-t from-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
 
-              <div className="p-3 flex flex-col flex-1">
-                <h3 className="text-sm font-medium text-slate-800 dark:text-slate-200 line-clamp-2 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              <div className="p-5 flex flex-col flex-1">
+                <div className="flex items-center gap-1 mb-2">
+                  <Star size={12} className="fill-yellow-400 text-yellow-400" />
+                  <span className="text-[10px] text-slate-500 font-bold tracking-tight">4.8 (120)</span>
+                </div>
+
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 line-clamp-2 mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-relaxed">
                   <Link href={`/product/${product.id}`}>{product.title}</Link>
                 </h3>
                 
-                <div className="mt-auto">
-                  <div className="flex items-center gap-1 mb-1">
-                    <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                    <span className="text-[10px] text-slate-500 font-medium">4.8 (120)</span>
-                  </div>
-                  
+                <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-800/50">
                   <div className="flex items-center justify-between">
-                    <span className="text-base font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                    <span className="text-lg font-black text-blue-600 dark:text-blue-400 whitespace-nowrap tracking-tighter">
                       Rs. {typeof product.price === 'number' ? product.price.toLocaleString() : product.price}
                     </span>
                     <button 
                       onClick={() => handleAddToCart(product)}
-                      className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                      className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all shadow-inner group/btn"
                     >
-                      <ShoppingCart size={16} />
+                      <ShoppingCart size={18} className="group-hover/btn:scale-110 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -170,12 +176,12 @@ export default function JustForYou() {
         </div>
 
         {visibleCount < products.length && (
-          <div className="mt-12 flex justify-center">
+          <div className="mt-16 flex justify-center">
             <button 
               onClick={() => setVisibleCount(prev => prev + 12)}
-              className="px-8 py-3 rounded-full border-2 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-bold hover:bg-slate-100 dark:hover:bg-slate-900 transition-all hover:border-blue-500 hover:text-blue-600"
+              className="group flex items-center gap-3 px-10 py-4 rounded-full border-2 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-black text-xs uppercase tracking-[0.2em] hover:bg-slate-950 hover:text-white dark:hover:bg-white dark:hover:text-slate-950 transition-all duration-500 hover:border-slate-950 dark:hover:border-white shadow-xl"
             >
-              Load More
+              Load More Collections <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         )}

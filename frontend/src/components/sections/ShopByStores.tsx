@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Store, ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface Vendor {
   id: string;
@@ -12,10 +13,10 @@ interface Vendor {
 }
 
 const ShopByStores = () => {
-  const [vendors, setVendors] = React.useState<Vendor[]>([]);
-  const [loading, setLoading] = React.useState(true);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchVendors = async () => {
       try {
         const res = await fetch("/api/public/vendors");
@@ -32,72 +33,78 @@ const ShopByStores = () => {
     fetchVendors();
   }, []);
 
-  if (loading && vendors.length === 0) return null;
+  if (loading && vendors.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="aspect-square bg-slate-100 dark:bg-slate-800 animate-pulse rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (vendors.length === 0) return null;
 
   return (
-    <section className="py-32 bg-[#0B0F1A] transition-all overflow-hidden relative">
-      <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-blue-900/50 to-transparent" />
-      
-      <div className="container mx-auto px-6 lg:px-12 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 mb-20">
-          <div className="space-y-6">
-            <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-blue-500 animate-in fade-in slide-in-from-left-4 duration-700">
-              Curated Alliances
+    <section className="bg-white dark:bg-slate-950 py-16 transition-colors duration-300">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-10 bg-blue-600 rounded-full" />
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">
+              Shop by Stores
             </h2>
-            <h3 className="text-5xl lg:text-7xl font-black text-white tracking-tighter uppercase leading-[0.85] animate-in fade-in slide-in-from-left-6 duration-1000">
-              Shop by <br /> <span className="text-blue-600">Stores</span>
-            </h3>
-            <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs max-w-md animate-in fade-in slide-in-from-left-8 duration-1000">
-              Explore the pinnacle of commerce through our exclusive network of authorized merchants.
-            </p>
           </div>
           <Link
             href="/shop"
-            className="group inline-flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 hover:text-white transition-all duration-700 animate-in fade-in slide-in-from-right-4"
+            className="group flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors"
           >
-            All Collections <ChevronRight size={16} className="group-hover:translate-x-2 transition-transform duration-500" />
+            Explore All <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 lg:gap-10">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {vendors.map((vendor, index) => (
-            <Link
+            <motion.div
               key={vendor.id}
-              href={`/shop?vendor=${vendor.id}`}
-              className="group relative p-10 bg-slate-900/40 backdrop-blur-3xl rounded-[3rem] border border-white/5 hover:border-blue-500/30 transition-all duration-700 flex flex-col items-center text-center overflow-hidden hover:translate-y-[-10px] hover:shadow-2xl hover:shadow-blue-500/10 animate-in fade-in zoom-in-95"
-              style={{ animationDelay: `${index * 100}ms` }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              viewport={{ once: true }}
             >
-              <div className="absolute inset-0 bg-linear-to-b from-blue-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              
-              <div className="relative mb-8">
-                <div className="w-24 h-24 rounded-4xl bg-slate-950 flex items-center justify-center group-hover:scale-110 transition-transform duration-700 ease-out border border-white/5 shadow-inner">
-                  {vendor.logo ? (
-                    <img
-                      src={vendor.logo}
-                      alt={vendor.name}
-                      className="w-14 h-14 object-contain opacity-80 group-hover:opacity-100 transition-all duration-500 translate-z-10"
-                    />
-                  ) : (
-                    <Store className="text-blue-600 w-12 h-12" />
-                  )}
+              <Link
+                href={`/shop?vendor=${vendor.id}`}
+                className="group flex flex-col items-center p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-slate-100 dark:border-slate-800 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 h-full text-center"
+              >
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-700 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                    {vendor.logo ? (
+                      <img
+                        src={vendor.logo}
+                        alt={vendor.name}
+                        className="w-12 h-12 object-contain"
+                      />
+                    ) : (
+                      <Store className="text-blue-600 w-10 h-10" />
+                    )}
+                  </div>
                 </div>
-                <div className="absolute -inset-2 bg-blue-500/20 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-              </div>
 
-              <div className="relative space-y-3">
-                <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] group-hover:text-blue-400 transition-colors">
-                  Merchant Identity
-                </p>
-                <h3 className="text-xl lg:text-2xl font-black text-white uppercase tracking-tighter leading-none group-hover:scale-105 transition-transform duration-500">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {vendor.name}
                 </h3>
-                <div className="pt-4">
-                  <span className="px-5 py-2.5 bg-slate-950 rounded-full text-[9px] text-slate-400 dark:text-slate-500 font-black uppercase tracking-[0.2em] border border-white/5 group-hover:border-blue-500/30 group-hover:text-blue-400 transition-all duration-500 shadow-inner">
-                    {vendor.productCount || 0} Assets listed
-                  </span>
+                
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 group-hover:text-blue-500 transition-colors">
+                  {vendor.productCount || 0} Products
+                </span>
+                
+                <div className="mt-6 flex items-center gap-2 text-[10px] font-bold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Visit Store <ChevronRight size={12} />
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </div>

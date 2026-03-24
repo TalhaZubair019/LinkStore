@@ -1,5 +1,6 @@
 import MarketplaceHero from "@/components/sections/MarketplaceHero";
 import CategoriesSection from "@/components/sections/CategoriesSection";
+import ShopByStores from "@/components/sections/ShopByStores";
 import JustForYou from "@/components/sections/JustForYou";
 
 export default function Home() {
@@ -10,6 +11,9 @@ export default function Home() {
 
       {/* Database-driven Categories Grid */}
       <CategoriesSection />
+
+      {/* Shop by Stores Section */}
+      <ShopByStores />
 
       {/* High-density "Just For You" Product Feed */}
       <JustForYou />

@@ -3,44 +3,48 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 
 const BANNERS = [
   {
     id: 1,
     image:
       "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?q=80&w=2070&auto=format&fit=crop",
-    title: "Mega Sale Event",
-    subtitle: "Up to 70% Off on Electronics & Gadgets",
-    buttonText: "Shop Now",
-    color: "from-blue-600 to-indigo-900",
+    title: "The Future of Electronics",
+    subtitle:
+      "Precision engineering meets unparalleled performance in our latest collection.",
+    buttonText: "Experience Now",
+    color: "from-blue-600 to-indigo-950",
   },
   {
     id: 2,
     image:
       "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop",
-    title: "Fashion Forward",
-    subtitle: "New Arrivals: Spring Collection 2026",
+    title: "Vanguard Fashion",
+    subtitle:
+      "Defining the next generation of aesthetic excellence for Spring 2026.",
     buttonText: "Explore Trends",
-    color: "from-rose-500 to-purple-800",
+    color: "from-purple-600 to-black",
   },
   {
     id: 3,
     image:
       "https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?q=80&w=2070&auto=format&fit=crop",
-    title: "Home Essentials",
-    subtitle: "Modern Furniture for Modern Living",
+    title: "Living Spaces Redefined",
+    subtitle:
+      "Curated furniture that transforms your home into a masterpiece of design.",
     buttonText: "View Collection",
-    color: "from-emerald-500 to-teal-900",
+    color: "from-emerald-600 to-slate-950",
   },
   {
     id: 4,
     image:
-      "https://assets.aboutamazon.com/dims4/default/9282b84/2147483647/strip/false/crop/2000x1125+0+0/resize/1486x836!/quality/90/?url=https%3A%2F%2Famazon-blogs-brightspot.s3.amazonaws.com%2F5b%2F41%2Fcf9810ca4445aa14d4c71c672fd5%2Fprime-day-2023-deals-you-can-only-get-in-stores-hero-v2.jpg",
-    title: "Prime Day Deals",
-    subtitle: "In-Store & Online: Exclusive Member Offers",
-    buttonText: "Check Deals",
-    color: "from-amber-500 to-orange-700",
+      "https://amazon-blogs-brightspot.s3.amazonaws.com/5b/41/cf9810ca4445aa14d4c71c672fd5/prime-day-2023-deals-you-can-only-get-in-stores-hero-v2.jpg",
+    title: "The Zenith Selection",
+    subtitle:
+      "Exclusive invitations to the pinnacle of our most coveted alliances.",
+    buttonText: "Join Nexus",
+    color: "from-rose-600 to-amber-900",
   },
 ];
 
@@ -50,7 +54,7 @@ export default function MarketplaceHero() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % BANNERS.length);
-    }, 5000);
+    }, 6000);
     return () => clearInterval(timer);
   }, []);
 
@@ -66,10 +70,10 @@ export default function MarketplaceHero() {
           <AnimatePresence mode="wait">
             <motion.div
               key={currentSlide}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.7, ease: "easeInOut" }}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0"
             >
               <Image
@@ -80,24 +84,37 @@ export default function MarketplaceHero() {
                 className="object-cover"
               />
               <div
-                className={`absolute inset-0 bg-linear-to-r ${BANNERS[currentSlide].color} opacity-40 mix-blend-multiply`}
+                className={`absolute inset-0 bg-linear-to-r ${BANNERS[currentSlide].color} opacity-60 mix-blend-multiply`}
               />
+              <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/40" />
 
-              <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 lg:px-24 text-white">
+              <div className="absolute inset-0 flex flex-col justify-center px-10 md:px-20 lg:px-32 text-white">
                 <motion.div
-                  initial={{ y: 30, opacity: 0 }}
+                  initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
                 >
-                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-black mb-4 drop-shadow-lg">
+                  <span className="inline-block text-[10px] font-black uppercase tracking-[0.5em] text-blue-400 mb-6 drop-shadow-lg">
+                    Introducing the Zenith Collection
+                  </span>
+                  <h2 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 drop-shadow-2xl leading-[0.9] tracking-tighter uppercase">
                     {BANNERS[currentSlide].title}
                   </h2>
-                  <p className="text-lg md:text-xl lg:text-2xl font-medium mb-8 max-w-xl drop-shadow-md">
+                  <p className="text-lg md:text-xl font-medium mb-12 max-w-xl drop-shadow-xl text-slate-200 leading-relaxed">
                     {BANNERS[currentSlide].subtitle}
                   </p>
-                  <button className="bg-white text-slate-900 hover:bg-slate-100 px-8 py-3 rounded-full text-lg font-bold transition-all transform hover:scale-105 active:scale-95 shadow-xl">
-                    {BANNERS[currentSlide].buttonText}
-                  </button>
+                  <div className="flex gap-6">
+                    <button className="group bg-blue-600 text-white hover:bg-blue-500 px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-all transform hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-3">
+                      {BANNERS[currentSlide].buttonText}{" "}
+                      <ArrowRight
+                        size={16}
+                        className="group-hover:translate-x-1 transition-transform"
+                      />
+                    </button>
+                    <button className="hidden md:flex items-center gap-3 px-10 py-4 rounded-full border-2 border-white/30 backdrop-blur-md text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-white hover:text-slate-900 transition-all">
+                      View Catalog
+                    </button>
+                  </div>
                 </motion.div>
               </div>
             </motion.div>
@@ -106,25 +123,27 @@ export default function MarketplaceHero() {
           {/* Navigation Arrows */}
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition-all opacity-0 group-hover:opacity-100 z-30"
+            className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-xl p-3 rounded-full text-white transition-all opacity-0 group-hover:opacity-100 z-30 border border-white/20"
           >
-            <ChevronLeft size={32} />
+            <ChevronLeft size={24} />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition-all opacity-0 group-hover:opacity-100 z-30"
+            className="absolute right-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-xl p-3 rounded-full text-white transition-all opacity-0 group-hover:opacity-100 z-30 border border-white/20"
           >
-            <ChevronRight size={32} />
+            <ChevronRight size={24} />
           </button>
 
           {/* Dots */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30">
+          <div className="absolute bottom-10 left-10 flex gap-3 z-30">
             {BANNERS.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentSlide(idx)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  currentSlide === idx ? "bg-white w-8" : "bg-white/50"
+                className={`h-1.5 rounded-full transition-all duration-700 ${
+                  currentSlide === idx
+                    ? "bg-blue-500 w-12"
+                    : "bg-white/30 w-4 hover:bg-white/50"
                 }`}
               />
             ))}
