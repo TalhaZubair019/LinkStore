@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
-import { CheckCircle, X } from "lucide-react";
+import { CheckCircle, X, Store, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import VendorSidebar from "@/components/(vendor)/vendor/VendorSidebar";
 import DashboardHeader from "@/components/(admin)/admin/layout/DashboardHeader";
 import DashboardModals from "@/components/(admin)/admin/layout/DashboardModals";
@@ -13,6 +14,7 @@ import OrdersTabContent from "@/components/(admin)/admin/tabs/OrdersTabContent";
 import CategoriesTabContent from "@/components/(admin)/admin/tabs/CategoriesTabContent";
 import WarehousesTabContent from "@/components/(admin)/admin/tabs/WarehousesTabContent";
 import InventoryTabContent from "@/components/(admin)/admin/tabs/InventoryTabContent";
+import SettingsTabContent from "@/components/(vendor)/vendor/tabs/SettingsTabContent";
 
 import { useVendorDashboard } from "@/hooks/vendor/useVendorDashboard";
 
@@ -80,7 +82,17 @@ export default function VendorDashboard() {
                 {d.user?.vendorProfile?.storeName || d.user?.name || "Vendor"}!
               </p>
             </div>
-            <div className="hidden lg:block shrink-0">
+            <div className="hidden lg:flex items-center gap-4 shrink-0">
+              {d.user?.vendorProfile?.storeSlug && (
+                <Link
+                  href={`/vendor/view/${d.user.vendorProfile.storeSlug}`}
+                  className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm"
+                >
+                  <Store size={18} />
+                  <span>Visit Store</span>
+                  <ExternalLink size={14} className="opacity-50" />
+                </Link>
+              )}
               <ThemeToggle />
             </div>
           </div>
@@ -191,6 +203,9 @@ export default function VendorDashboard() {
                 products={d.stats.products || []}
                 onAdjustStock={d.setSelectedProductForInventory}
               />
+            )}
+            {d.activeTab === "settings" && (
+              <SettingsTabContent user={d.user} />
             )}
         </main>
       </div>

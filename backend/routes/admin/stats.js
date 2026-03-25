@@ -94,12 +94,30 @@ router.get("/", requireAdmin, async (req, res) => {
       .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 5);
 
+    const vendorLookup = vendors.reduce((acc, v) => {
+      acc[v.id] = v.vendorProfile?.storeName || v.name || "Unknown Store";
+      return acc;
+    }, {});
+
     const recentOrders = [...orders]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .map((order) => {
         const liveCustomer = allUsers.find((u) => u.id === order.userId);
+        
+        // Find unique vendor names from items
+        const itemVendors = Array.from(new Set(order.items?.map(item => vendorLookup[item.vendorId] || "Unknown Store").filter(Boolean)));
+        const vendorStoreName = itemVendors.length > 1 ? "Multiple Vendors" : itemVendors[0] || "Unknown Store";
+
+        // Map vendorStoreName to each item
+        const itemsWithVendorNames = order.items?.map(item => ({
+          ...item,
+          vendorStoreName: vendorLookup[item.vendorId] || "Unknown Store"
+        }));
+
         return {
           ...order,
+          items: itemsWithVendorNames,
+          vendorStoreName,
           customer: {
             name: order.customer?.firstName
               ? `${order.customer.firstName} ${order.customer.lastName}`

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
-import { LayoutDashboard, Package, MessageSquare, ClipboardList, Tag, Building2, Boxes, Shield, UserIcon, ChevronLeft, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, MessageSquare, ClipboardList, Tag, Building2, Boxes, Shield, UserIcon, ChevronLeft, LogOut, Settings } from "lucide-react";
 
 interface VendorSidebarProps {
   user?: any;
@@ -107,6 +107,12 @@ export default function VendorSidebar({
           onClick={() => setActiveTab && setActiveTab("inventory")}
           icon={<Boxes />}
           label="Inventory"
+        />
+        <NavButton
+          active={activeTab === "settings"}
+          onClick={() => setActiveTab && setActiveTab("settings")}
+          icon={<Settings />}
+          label="Settings"
         />
       </nav>
 

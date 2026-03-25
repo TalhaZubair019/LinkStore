@@ -11,6 +11,8 @@ import UsersTabContent from "@/components/(admin)/admin/tabs/UsersTabContent";
 import AdminsTabContent from "@/components/(admin)/admin/tabs/AdminsTabContent";
 import ActivityLogsTabContent from "@/components/(admin)/admin/tabs/ActivityLogsTabContent";
 import VendorsTabContent from "@/components/(admin)/admin/tabs/VendorsTabContent";
+import ProductsTabContent from "@/components/(admin)/admin/tabs/ProductsTabContent";
+import OrdersTabContent from "@/components/(admin)/admin/tabs/OrdersTabContent";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
@@ -68,6 +70,31 @@ export default function AdminDashboard() {
   const totalAdminPages =
     Math.ceil(filteredAdmins.length / d.ITEMS_PER_PAGE) || 1;
 
+  const filteredProducts = (d.stats.products || []).filter(
+    (p: any) =>
+      p.title?.toLowerCase().includes(d.searchTerm.toLowerCase()) ||
+      p.vendorStoreName?.toLowerCase().includes(d.searchTerm.toLowerCase()),
+  );
+  const paginatedProducts = filteredProducts.slice(
+    (d.productPage - 1) * d.ITEMS_PER_PAGE,
+    d.productPage * d.ITEMS_PER_PAGE,
+  );
+  const totalProductPages =
+    Math.ceil(filteredProducts.length / d.ITEMS_PER_PAGE) || 1;
+
+  const filteredOrders = (d.stats.recentOrders || []).filter(
+    (o: any) =>
+      String(o.id).toLowerCase().includes(d.searchTerm.toLowerCase()) ||
+      o.customer?.name?.toLowerCase().includes(d.searchTerm.toLowerCase()) ||
+      o.vendorStoreName?.toLowerCase().includes(d.searchTerm.toLowerCase()),
+  );
+  const paginatedOrders = filteredOrders.slice(
+    (d.orderPage - 1) * d.ITEMS_PER_PAGE,
+    d.orderPage * d.ITEMS_PER_PAGE,
+  );
+  const totalOrderPages =
+    Math.ceil(filteredOrders.length / d.ITEMS_PER_PAGE) || 1;
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 flex">
       <AdminSidebar
@@ -102,7 +129,7 @@ export default function AdminDashboard() {
             setActiveTab={d.setActiveTab}
             searchTerm={d.searchTerm}
             setSearchTerm={d.setSearchTerm}
-            showSearch={["users", "admins"].includes(d.activeTab)}
+            showSearch={["users", "admins", "products", "orders"].includes(d.activeTab)}
             isAdminView={true}
           />
           {d.activeTab === "overview" && (
@@ -146,6 +173,33 @@ export default function AdminDashboard() {
           )}
           {d.activeTab === "logs" && d.user?.adminRole === "super_admin" && (
             <ActivityLogsTabContent />
+          )}
+          {d.activeTab === "products" && (
+            <ProductsTabContent
+              allProducts={filteredProducts || []}
+              categories={d.stats.categories || []}
+              setProductDeleteConfirm={() => {}} // Read-only
+              productPage={d.productPage}
+              setProductPage={d.setProductPage}
+              totalProductPages={totalProductPages}
+              itemsPerPage={d.ITEMS_PER_PAGE}
+              isAdminView={true}
+            />
+          )}
+          {d.activeTab === "orders" && (
+            <OrdersTabContent
+              allOrders={filteredOrders || []}
+              handleStatusChange={() => {}} // Read-only
+              requestCancelOrder={() => {}} // Read-only
+              setSelectedOrder={d.setSelectedOrder}
+              orderPage={d.orderPage}
+              setOrderPage={d.setOrderPage}
+              users={d.stats.users || []}
+              updatingOrderId={null}
+              isAdminView={true}
+              totalOrderPages={totalOrderPages}
+              itemsPerPage={d.ITEMS_PER_PAGE}
+            />
           )}
         </main>
       </div>

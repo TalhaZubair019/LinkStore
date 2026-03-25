@@ -20,9 +20,9 @@ import {
 
 interface AdminSidebarProps {
   user: { name: string; email?: string; adminRole?: string } | null | any;
-  activeTab: "overview" | "users" | "admins" | "vendors" | "logs";
+  activeTab: "overview" | "users" | "admins" | "vendors" | "logs" | "products" | "orders";
   setActiveTab: React.Dispatch<
-    React.SetStateAction<"overview" | "users" | "admins" | "vendors" | "logs">
+    React.SetStateAction<"overview" | "users" | "admins" | "vendors" | "logs" | "products" | "orders">
   >;
   stats: any;
 }
@@ -98,7 +98,19 @@ const AdminSidebar = ({
           active={activeTab === "vendors"}
           onClick={() => setActiveTab("vendors")}
           icon={<Store />}
-          label={`Vendors (${stats?.users?.filter((u: any) => u.isVendor || u.vendorProfile?.status === "pending").length ?? 0})`}
+          label={`Vendors (${stats?.totalVendors ?? 0})`}
+        />
+        <NavButton
+          active={activeTab === "products"}
+          onClick={() => setActiveTab("products")}
+          icon={<Package />}
+          label={`Products (${stats?.products?.length ?? 0})`}
+        />
+        <NavButton
+          active={activeTab === "orders"}
+          onClick={() => setActiveTab("orders")}
+          icon={<ClipboardList />}
+          label={`Orders (${stats?.totalOrders ?? 0})`}
         />
         {user?.adminRole === "super_admin" && (
           <NavButton

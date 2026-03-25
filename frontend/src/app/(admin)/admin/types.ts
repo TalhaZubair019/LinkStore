@@ -4,6 +4,7 @@ export interface OrderItem {
   quantity: number;
   totalPrice: number;
   image?: string;
+  vendorStoreName?: string;
 }
 
 export interface Order {
@@ -13,6 +14,7 @@ export interface Order {
   status: string;
   userId: string;
   items: OrderItem[];
+  vendorStoreName?: string;
   customer?: {
     name?: string;
     firstName?: string;

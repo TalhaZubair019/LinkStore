@@ -24,6 +24,7 @@ export function useVendorDashboard() {
     | "categories"
     | "warehouses"
     | "inventory"
+    | "settings"
   >("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -95,7 +96,7 @@ export function useVendorDashboard() {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");
       const page = params.get("page");
-      const validTabs = ["overview", "orders", "products", "reviews", "categories", "warehouses", "inventory"];
+      const validTabs = ["overview", "orders", "products", "reviews", "categories", "warehouses", "inventory", "settings"];
 
       if (tab && validTabs.includes(tab)) {
         setActiveTab(tab as any);

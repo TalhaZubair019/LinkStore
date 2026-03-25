@@ -14,6 +14,9 @@ interface OrdersTabContentProps {
   users: UserData[];
   updatingOrderId: string | null;
   hideEmail?: boolean;
+  isAdminView?: boolean;
+  totalOrderPages?: number;
+  itemsPerPage?: number;
 }
 
 const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
@@ -26,6 +29,9 @@ const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
   users,
   updatingOrderId,
   hideEmail = false,
+  isAdminView = false,
+  totalOrderPages,
+  itemsPerPage,
 }) => {
   return (
     <OrdersTable
@@ -38,6 +44,9 @@ const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
       users={users}
       updatingOrderId={updatingOrderId}
       hideEmail={hideEmail}
+      isAdminView={isAdminView}
+      totalOrderPages={totalOrderPages}
+      itemsPerPage={itemsPerPage}
     />
   );
 };

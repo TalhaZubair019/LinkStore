@@ -13,6 +13,9 @@ interface OrdersTableProps {
   users?: { id: string; name: string; email?: string }[];
   updatingOrderId?: string | null;
   hideEmail?: boolean;
+  isAdminView?: boolean;
+  totalOrderPages?: number;
+  itemsPerPage?: number;
 }
 
 const OrdersTable = ({
@@ -25,13 +28,16 @@ const OrdersTable = ({
   users = [],
   updatingOrderId,
   hideEmail = false,
+  isAdminView = false,
+  totalOrderPages,
+  itemsPerPage = 10,
 }: OrdersTableProps) => {
   const [selectedUserId, setSelectedUserId] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedDateRange, setSelectedDateRange] = useState<string>("all");
   const [customStart, setCustomStart] = useState<string>("");
   const [customEnd, setCustomEnd] = useState<string>("");
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = itemsPerPage;
 
   const nameFrequencies = useMemo(() => {
     const freqs: Record<string, number> = {};
@@ -127,7 +133,8 @@ const OrdersTable = ({
     users,
   ]);
 
-  const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE) || 1;
+  const totalPages =
+    (totalOrderPages ?? Math.ceil(filteredOrders.length / ITEMS_PER_PAGE)) || 1;
   const paginatedOrders = filteredOrders.slice(
     (orderPage - 1) * ITEMS_PER_PAGE,
     orderPage * ITEMS_PER_PAGE,
@@ -301,6 +308,11 @@ const OrdersTable = ({
                   <span className="font-mono text-sm font-bold text-slate-700 dark:text-slate-200">
                     #{String(o.id).slice(-8).toUpperCase()}
                   </span>
+                  {isAdminView && (
+                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded mt-1">
+                      {o.vendorStoreName || "Internal"}
+                    </span>
+                  )}
                   <span className="text-[10px] text-slate-500">
                     {new Date(o.date).toLocaleDateString()}
                   </span>
@@ -333,133 +345,30 @@ const OrdersTable = ({
               </div>
 
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                <div className="relative flex-1 min-w-[140px]">
-                  <select
-                    value={o.status}
-                    disabled={
-                      updatingOrderId === o.id ||
-                      o.status === "Delivered" ||
-                      o.status === "Cancelled"
-                    }
-                    onChange={(e) => {
-                      if (e.target.value === "Cancelled") {
-                        requestCancelOrder(o);
-                      } else {
-                        handleStatusChange(o.id, e.target.value);
-                      }
-                    }}
-                    className={`w-full text-xs font-bold py-2 border rounded-xl px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+                {isAdminView ? (
+                  <div
+                    className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold border ${
                       o.status === "Pending"
-                        ? "bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800 focus:ring-amber-500/20"
+                        ? "bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800"
                         : o.status === "Accepted"
-                          ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 focus:ring-blue-500/20"
+                          ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
                           : o.status === "Shipped"
-                            ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 focus:ring-indigo-500/20"
+                            ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800"
                             : o.status === "Arrived in Country"
-                              ? "bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800 focus:ring-violet-500/20"
+                              ? "bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800"
                               : o.status === "Arrived in City"
-                                ? "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800 focus:ring-pink-500/20"
+                                ? "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800"
                                 : o.status === "Out for Delivery"
-                                  ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
+                                  ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800"
                                   : o.status === "Delivered"
-                                    ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
-                                    : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
-                    } ${updatingOrderId === o.id ? "animate-pulse" : ""}`}
+                                    ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                                    : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
+                    }`}
                   >
-                    <option value={o.status}>{o.status}</option>
-                    {o.status === "Pending" && (
-                      <option value="Accepted">Accepted</option>
-                    )}
-                    {o.status === "Accepted" && (
-                      <option value="Shipped">Shipped</option>
-                    )}
-                    {o.status === "Shipped" && (
-                      <option value="Arrived in Country">
-                        Arrived in Country
-                      </option>
-                    )}
-                    {o.status === "Arrived in Country" && (
-                      <option value="Arrived in City">Arrived in City</option>
-                    )}
-                    {o.status === "Arrived in City" && (
-                      <option value="Out for Delivery">Out for Delivery</option>
-                    )}
-                    {o.status === "Out for Delivery" && (
-                      <option value="Delivered">Delivered</option>
-                    )}
-                    {o.status !== "Delivered" && o.status !== "Cancelled" && (
-                      <option value="Cancelled">Cancelled</option>
-                    )}
-                  </select>
-                  {updatingOrderId === o.id && (
-                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
-                      <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={() => setSelectedOrder(o)}
-                  className="flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-slate-900 dark:bg-slate-800 px-4 py-2 rounded-xl hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors border border-transparent dark:border-slate-700"
-                >
-                  <Eye size={14} /> View Order
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-      <div className="hidden lg:block overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">
-            <tr>
-              <th className="px-8 py-4">Order Info</th>
-              <th className="px-8 py-4">Customer</th>
-              <th className="px-8 py-4">Total</th>
-              <th className="px-8 py-4">Status</th>
-              <th className="px-8 py-4 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {paginatedOrders?.map((o) => (
-              <tr
-                key={o.id}
-                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-              >
-                <td className="px-8 py-5">
-                  <div className="flex flex-col whitespace-nowrap">
-                    <span className="font-mono text-sm font-bold text-slate-700 dark:text-slate-200">
-                      #{o.id.slice(-8).toUpperCase()}
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      {new Date(o.date).toLocaleDateString()}
-                    </span>
+                    {o.status}
                   </div>
-                </td>
-                <td className="px-8 py-5">
-                  <div className="min-w-[120px]">
-                    {o.customer?.name ? (
-                      <>
-                        <div className="text-sm text-slate-700 dark:text-slate-200 font-medium truncate max-w-[150px]">
-                          {o.customer.name}
-                        </div>
-                        {!hideEmail && (
-                          <div className="text-xs text-slate-500 truncate max-w-[150px]">
-                            {o.customer.email}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-xs text-red-600 font-medium italic">
-                        Deleted Account
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td className="px-8 py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">
-                  {o.total}
-                </td>
-                <td className="px-8 py-5">
-                  <div className="relative group min-w-[140px]">
+                ) : (
+                  <div className="relative flex-1 min-w-[140px]">
                     <select
                       value={o.status}
                       disabled={
@@ -474,19 +383,19 @@ const OrdersTable = ({
                           handleStatusChange(o.id, e.target.value);
                         }
                       }}
-                      className={`w-full text-xs font-bold py-1.5 border rounded-lg px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+                      className={`w-full text-xs font-bold py-2 border rounded-xl px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
                         o.status === "Pending"
-                          ? "bg-amber-50 text-amber-600 border-amber-200 focus:ring-amber-500/20"
+                          ? "bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800 focus:ring-amber-500/20"
                           : o.status === "Accepted"
-                            ? "bg-blue-50 text-blue-600 border-blue-200 focus:ring-blue-500/20"
+                            ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 focus:ring-blue-500/20"
                             : o.status === "Shipped"
-                              ? "bg-indigo-50 text-indigo-600 border-indigo-200 focus:ring-indigo-500/20"
+                              ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 focus:ring-indigo-500/20"
                               : o.status === "Arrived in Country"
-                                ? "bg-violet-50 text-violet-600 border-violet-200 focus:ring-violet-500/20"
+                                ? "bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800 focus:ring-violet-500/20"
                                 : o.status === "Arrived in City"
-                                  ? "bg-pink-50 text-pink-600 border-pink-200 focus:ring-pink-500/20"
+                                  ? "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800 focus:ring-pink-500/20"
                                   : o.status === "Out for Delivery"
-                                    ? "bg-orange-50 text-orange-600 border-orange-200 focus:ring-orange-500/20"
+                                    ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
                                     : o.status === "Delivered"
                                       ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
                                       : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
@@ -520,6 +429,170 @@ const OrdersTable = ({
                       )}
                     </select>
                     {updatingOrderId === o.id && (
+                      <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                        <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                )}
+                <button
+                  onClick={() => setSelectedOrder(o)}
+                  className="flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-slate-900 dark:bg-slate-800 px-4 py-2 rounded-xl hover:bg-purple-600 dark:hover:bg-purple-500 transition-colors border border-transparent dark:border-slate-700"
+                >
+                  <Eye size={14} /> View Order
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+      <div className="hidden lg:block overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+        <table className="w-full text-left">
+          <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">
+            <tr>
+              <th className="px-8 py-4">Order Info</th>
+              {isAdminView && <th className="px-8 py-4">Vendor</th>}
+              <th className="px-8 py-4">Customer</th>
+              <th className="px-8 py-4">Total</th>
+              <th className="px-8 py-4">Status</th>
+              <th className="px-8 py-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            {paginatedOrders?.map((o) => (
+              <tr
+                key={o.id}
+                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+              >
+                <td className="px-8 py-5">
+                  <div className="flex flex-col whitespace-nowrap">
+                    <span className="font-mono text-sm font-bold text-slate-700 dark:text-slate-200">
+                      #{o.id.slice(-8).toUpperCase()}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {new Date(o.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                </td>
+                {isAdminView && (
+                  <td className="px-8 py-5">
+                    <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                      {o.vendorStoreName || "Internal"}
+                    </span>
+                  </td>
+                )}
+                <td className="px-8 py-5">
+                  <div className="min-w-[120px]">
+                    {o.customer?.name ? (
+                      <>
+                        <div className="text-sm text-slate-700 dark:text-slate-200 font-medium truncate max-w-[150px]">
+                          {o.customer.name}
+                        </div>
+                        {!hideEmail && (
+                          <div className="text-xs text-slate-500 truncate max-w-[150px]">
+                            {o.customer.email}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-xs text-red-600 font-medium italic">
+                        Deleted Account
+                      </span>
+                    )}
+                  </div>
+                </td>
+                <td className="px-8 py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                  {o.total}
+                </td>
+                <td className="px-8 py-5">
+                  <div className="relative group min-w-[140px]">
+                    {isAdminView ? (
+                      <div
+                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-bold border ${
+                          o.status === "Pending"
+                            ? "bg-amber-50 text-amber-600 border-amber-200"
+                            : o.status === "Accepted"
+                              ? "bg-blue-50 text-blue-600 border-blue-200"
+                              : o.status === "Shipped"
+                                ? "bg-indigo-50 text-indigo-600 border-indigo-200"
+                                : o.status === "Arrived in Country"
+                                  ? "bg-violet-50 text-violet-600 border-violet-200"
+                                  : o.status === "Arrived in City"
+                                    ? "bg-pink-50 text-pink-600 border-pink-200"
+                                    : o.status === "Out for Delivery"
+                                      ? "bg-orange-50 text-orange-600 border-orange-200"
+                                      : o.status === "Delivered"
+                                        ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                                        : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
+                        }`}
+                      >
+                        {o.status}
+                      </div>
+                    ) : (
+                      <select
+                        value={o.status}
+                        disabled={
+                          updatingOrderId === o.id ||
+                          o.status === "Delivered" ||
+                          o.status === "Cancelled"
+                        }
+                        onChange={(e) => {
+                          if (e.target.value === "Cancelled") {
+                            requestCancelOrder(o);
+                          } else {
+                            handleStatusChange(o.id, e.target.value);
+                          }
+                        }}
+                        className={`w-full text-xs font-bold py-1.5 border rounded-lg px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+                          o.status === "Pending"
+                            ? "bg-amber-50 text-amber-600 border-amber-200 focus:ring-amber-500/20"
+                            : o.status === "Accepted"
+                              ? "bg-blue-50 text-blue-600 border-blue-200 focus:ring-blue-500/20"
+                              : o.status === "Shipped"
+                                ? "bg-indigo-50 text-indigo-600 border-indigo-200 focus:ring-indigo-500/20"
+                                : o.status === "Arrived in Country"
+                                  ? "bg-violet-50 text-violet-600 border-violet-200 focus:ring-violet-500/20"
+                                  : o.status === "Arrived in City"
+                                    ? "bg-pink-50 text-pink-600 border-pink-200 focus:ring-pink-500/20"
+                                    : o.status === "Out for Delivery"
+                                      ? "bg-orange-50 text-orange-600 border-orange-200 focus:ring-orange-500/20"
+                                      : o.status === "Delivered"
+                                        ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
+                                        : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
+                        } ${updatingOrderId === o.id ? "animate-pulse" : ""}`}
+                      >
+                        <option value={o.status}>{o.status}</option>
+                        {o.status === "Pending" && (
+                          <option value="Accepted">Accepted</option>
+                        )}
+                        {o.status === "Accepted" && (
+                          <option value="Shipped">Shipped</option>
+                        )}
+                        {o.status === "Shipped" && (
+                          <option value="Arrived in Country">
+                            Arrived in Country
+                          </option>
+                        )}
+                        {o.status === "Arrived in Country" && (
+                          <option value="Arrived in City">
+                            Arrived in City
+                          </option>
+                        )}
+                        {o.status === "Arrived in City" && (
+                          <option value="Out for Delivery">
+                            Out for Delivery
+                          </option>
+                        )}
+                        {o.status === "Out for Delivery" && (
+                          <option value="Delivered">Delivered</option>
+                        )}
+                        {o.status !== "Delivered" &&
+                          o.status !== "Cancelled" && (
+                            <option value="Cancelled">Cancelled</option>
+                          )}
+                      </select>
+                    )}
+                    {!isAdminView && updatingOrderId === o.id && (
                       <div className="absolute right-2 top-1/2 -translate-y-1/2">
                         <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       </div>

@@ -18,7 +18,7 @@ export function useAdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "admins" | "vendors" | "logs"
+    "overview" | "users" | "admins" | "vendors" | "logs" | "products" | "orders"
   >("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -28,6 +28,8 @@ export function useAdminDashboard() {
   const ITEMS_PER_PAGE = 5;
   const [userPage, setUserPage] = useState(1);
   const [adminPage, setAdminPage] = useState(1);
+  const [productPage, setProductPage] = useState(1);
+  const [orderPage, setOrderPage] = useState(1);
 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState(false);
@@ -64,13 +66,15 @@ export function useAdminDashboard() {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");
       const page = params.get("page");
-      const validTabs = ["overview", "users", "admins", "vendors", "logs"];
+      const validTabs = ["overview", "users", "admins", "vendors", "logs", "products", "orders"];
 
       if (tab && validTabs.includes(tab)) {
         setActiveTab(tab as any);
         const pageNum = Number(page) || 1;
         if (tab === "users") setUserPage(pageNum);
         if (tab === "admins") setAdminPage(pageNum);
+        if (tab === "products") setProductPage(pageNum);
+        if (tab === "orders") setOrderPage(pageNum);
       }
     }
   }, []);
@@ -114,6 +118,8 @@ export function useAdminDashboard() {
         let currentPage = 1;
         if (activeTab === "users") currentPage = userPage;
         else if (activeTab === "admins") currentPage = adminPage;
+        else if (activeTab === "products") currentPage = productPage;
+        else if (activeTab === "orders") currentPage = orderPage;
 
         if (currentPage > 1) {
           url.searchParams.set("page", currentPage.toString());
@@ -130,7 +136,7 @@ export function useAdminDashboard() {
     } else {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [activeTab, userPage, adminPage]);
+  }, [activeTab, userPage, adminPage, productPage, orderPage]);
 
   const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -290,6 +296,10 @@ export function useAdminDashboard() {
     setUserPage,
     adminPage,
     setAdminPage,
+    productPage,
+    setProductPage,
+    orderPage,
+    setOrderPage,
     deleteConfirm,
     setDeleteConfirm,
     isAddAdminModalOpen,

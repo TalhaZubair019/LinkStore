@@ -18,6 +18,8 @@ interface ProductsTableProps {
   setProductDeleteConfirm: (product: any) => void;
   productPage: number;
   setProductPage: React.Dispatch<React.SetStateAction<number>>;
+  totalProductPages?: number;
+  itemsPerPage?: number;
   isAdminView?: boolean;
 }
 
@@ -27,11 +29,13 @@ const ProductsTable = ({
   setProductDeleteConfirm,
   productPage,
   setProductPage,
+  totalProductPages,
+  itemsPerPage = 10,
   isAdminView = true,
 }: ProductsTableProps) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedBadge, setSelectedBadge] = useState<string>("all");
-  const ITEMS_PER_PAGE = 10;
+  const ITEMS_PER_PAGE = itemsPerPage;
 
   const filteredProducts = useMemo(() => {
     return allProducts.filter((product) => {
@@ -83,8 +87,10 @@ const ProductsTable = ({
     return Array.from(badgesSet);
   }, [allProducts]);
 
-  const totalProductPages =
-    Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+  const totalPages =
+    (totalProductPages ??
+      Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)) ||
+    1;
   const paginatedProducts = filteredProducts.slice(
     (productPage - 1) * ITEMS_PER_PAGE,
     productPage * ITEMS_PER_PAGE,
@@ -106,12 +112,14 @@ const ProductsTable = ({
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              href={`${isAdminView ? "/admin" : "/vendor"}/products/new`}
-              className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-purple-600 dark:hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm whitespace-nowrap border border-transparent dark:border-slate-700"
-            >
-              <Plus size={16} /> Add Product
-            </Link>
+            {!isAdminView && (
+              <Link
+                href={`${isAdminView ? "/admin" : "/vendor"}/products/new`}
+                className="flex items-center gap-2 bg-slate-900 dark:bg-slate-800 hover:bg-purple-600 dark:hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm whitespace-nowrap border border-transparent dark:border-slate-700"
+              >
+                <Plus size={16} /> Add Product
+              </Link>
+            )}
           </div>
         </div>
 
@@ -237,18 +245,22 @@ const ProductsTable = ({
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`${isAdminView ? "/admin" : "/vendor"}/products/edit/${p.id}?fromPage=${productPage}`}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
-                      >
-                        <Edit size={16} />
-                      </Link>
-                      <button
-                        onClick={() => setProductDeleteConfirm(p)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      {!isAdminView && (
+                        <>
+                          <Link
+                            href={`${isAdminView ? "/admin" : "/vendor"}/products/edit/${p.id}?fromPage=${productPage}`}
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
+                          >
+                            <Edit size={16} />
+                          </Link>
+                          <button
+                            onClick={() => setProductDeleteConfirm(p)}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -286,9 +298,12 @@ const ProductsTable = ({
           <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">
             <tr>
               <th className="px-8 py-4">Product Info</th>
+              {isAdminView && <th className="px-4 py-4">Vendor</th>}
               <th className="px-4 py-4">Inventory</th>
               <th className="px-8 py-4">Price</th>
-              <th className="px-8 py-4 text-right">Actions</th>
+              {!isAdminView && (
+                <th className="px-8 py-4 text-right">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -334,6 +349,13 @@ const ProductsTable = ({
                       </div>
                     </div>
                   </td>
+                  {isAdminView && (
+                    <td className="px-4 py-4">
+                      <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                        {p.vendorStoreName || "Internal"}
+                      </span>
+                    </td>
+                  )}
                   <td className="px-4 py-4">
                     <div className="flex flex-col gap-1.5 items-start">
                       <span className="font-bold text-sm text-slate-800 dark:text-slate-200">
@@ -362,22 +384,24 @@ const ProductsTable = ({
                       )}
                     </div>
                   </td>
-                  <td className="px-8 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2 text-right">
-                      <Link
-                        href={`${isAdminView ? "/admin" : "/vendor"}/products/edit/${p.id}?fromPage=${productPage}`}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg inline-flex"
-                      >
-                        <Edit size={16} />
-                      </Link>
-                      <button
-                        onClick={() => setProductDeleteConfirm(p)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
+                  {!isAdminView && (
+                    <td className="px-8 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2 text-right">
+                        <Link
+                          href={`${isAdminView ? "/admin" : "/vendor"}/products/edit/${p.id}?fromPage=${productPage}`}
+                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg inline-flex"
+                        >
+                          <Edit size={16} />
+                        </Link>
+                        <button
+                          onClick={() => setProductDeleteConfirm(p)}
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))
             )}
@@ -393,12 +417,10 @@ const ProductsTable = ({
           Previous
         </button>
         <span className="text-xs lg:text-sm text-slate-500 font-medium">
-          Page {productPage} of {totalProductPages}
+          Page {productPage} of {totalPages}
         </span>
         <button
-          disabled={
-            productPage === totalProductPages || totalProductPages === 0
-          }
+          disabled={productPage === totalPages || totalPages === 0}
           onClick={() => setProductPage((p) => p + 1)}
           className="px-3 lg:px-4 py-2 text-xs lg:text-sm font-bold bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50"
         >

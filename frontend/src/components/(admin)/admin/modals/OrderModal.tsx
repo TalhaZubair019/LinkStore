@@ -54,7 +54,9 @@ const OrderModal = ({ selectedOrder, onClose }: OrderModalProps) => {
               <p className="text-xs text-slate-500 dark:text-gray-400 font-bold uppercase mb-1">
                 Total Amount
               </p>
-              <p className="text-2xl font-bold dark:text-white">{selectedOrder.total}</p>
+              <p className="text-2xl font-bold dark:text-white">
+                {selectedOrder.total}
+              </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -64,7 +66,9 @@ const OrderModal = ({ selectedOrder, onClose }: OrderModalProps) => {
               </h4>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between border-b dark:border-gray-700 pb-2">
-                  <span className="text-slate-500 dark:text-gray-400">Name</span>
+                  <span className="text-slate-500 dark:text-gray-400">
+                    Name
+                  </span>
                   {selectedOrder.customer?.name ? (
                     <span className="font-medium dark:text-gray-200">
                       {selectedOrder.customer.name}
@@ -74,7 +78,9 @@ const OrderModal = ({ selectedOrder, onClose }: OrderModalProps) => {
                   )}
                 </div>
                 <div className="flex justify-between border-b dark:border-gray-700 pb-2">
-                  <span className="text-slate-500 dark:text-gray-400">Email</span>
+                  <span className="text-slate-500 dark:text-gray-400">
+                    Email
+                  </span>
                   <span className="font-medium dark:text-gray-200">
                     {selectedOrder.customer?.email || "—"}
                   </span>
@@ -106,48 +112,72 @@ const OrderModal = ({ selectedOrder, onClose }: OrderModalProps) => {
               <Package size={16} className="text-purple-500" /> Order Items (
               {selectedOrder.items.length})
             </h4>
-            <div className="border dark:border-gray-700 rounded-xl overflow-hidden">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 font-bold">
-                  <tr>
-                    <th className="px-4 py-3">Product</th>
-                    <th className="px-4 py-3 text-center">Qty</th>
-                    <th className="px-4 py-3 text-right">Price</th>
-                    <th className="px-4 py-3 text-right">Total</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y dark:divide-gray-700">
-                  {selectedOrder.items.map((item, idx) => (
-                    <tr key={idx} className="dark:bg-gray-900">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-slate-100 dark:bg-gray-700 rounded-md relative overflow-hidden">
-                            {item.image && (
-                              <Image
-                                src={item.image}
-                                alt=""
-                                fill
-                                className="object-cover"
-                                unoptimized
-                              />
-                            )}
-                          </div>
-                          <span className="font-medium dark:text-gray-200">{item.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-center text-slate-600 dark:text-gray-400">
-                        {item.quantity}
-                      </td>
-                      <td className="px-4 py-3 text-right text-slate-600 dark:text-gray-400">
-                        {item.price}
-                      </td>
-                      <td className="px-4 py-3 text-right font-bold dark:text-gray-200">
-                        {item.totalPrice}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-6">
+              {Object.entries(
+                selectedOrder.items.reduce(
+                  (acc, item) => {
+                    const vendor = item.vendorStoreName || "Internal";
+                    if (!acc[vendor]) acc[vendor] = [];
+                    acc[vendor].push(item);
+                    return acc;
+                  },
+                  {} as Record<string, typeof selectedOrder.items>,
+                ),
+              ).map(([vendor, items], vIdx) => (
+                <div key={vIdx} className="space-y-3">
+                  <div className="flex items-center gap-2 px-1">
+                    <div className="h-1.5 w-1.5 rounded-full bg-purple-500" />
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                      Vendor: {vendor}
+                    </span>
+                  </div>
+                  <div className="border dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-50 dark:bg-gray-800 text-slate-500 dark:text-gray-400 font-bold">
+                        <tr>
+                          <th className="px-4 py-3">Product</th>
+                          <th className="px-4 py-3 text-center">Qty</th>
+                          <th className="px-4 py-3 text-right">Price</th>
+                          <th className="px-4 py-3 text-right">Total</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y dark:divide-gray-700">
+                        {items.map((item, idx) => (
+                          <tr key={idx} className="dark:bg-gray-900">
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-slate-100 dark:bg-gray-700 rounded-md relative overflow-hidden shrink-0">
+                                  {item.image && (
+                                    <Image
+                                      src={item.image}
+                                      alt=""
+                                      fill
+                                      className="object-cover"
+                                      unoptimized
+                                    />
+                                  )}
+                                </div>
+                                <span className="font-medium dark:text-gray-200">
+                                  {item.name}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-center text-slate-600 dark:text-gray-400">
+                              {item.quantity}
+                            </td>
+                            <td className="px-4 py-3 text-right text-slate-600 dark:text-gray-400">
+                              {item.price}
+                            </td>
+                            <td className="px-4 py-3 text-right font-bold dark:text-gray-200">
+                              {item.totalPrice}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
