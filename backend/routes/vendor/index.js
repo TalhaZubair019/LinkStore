@@ -9,6 +9,6 @@ router.use("/apply", require("./apply"));
 router.use("/warehouses", require("./warehouses"));
 router.use("/reviews", require("./reviews"));
 router.use("/categories", require("./categories"));
-router.use("/ai-description", require("./ai"));
+router.use("/ai-description", require("./ai-description"));
 
 module.exports = router;

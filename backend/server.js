@@ -33,14 +33,7 @@ app.use((req, _res, next) => {
   next();
 });
 
-app.use("/api/auth", require("./routes/user/auth"));
-app.use("/api/public", require("./routes/public"));
-app.use("/api/public/stores", require("./routes/public/stores"));
-app.use("/api/admin", require("./routes/admin"));
-app.use("/api/upload", require("./routes/common/upload"));
-app.use("/api/stripe", require("./routes/user/stripe"));
-app.use("/api/paypal", require("./routes/user/paypal"));
-app.use("/api/vendor", require("./routes/vendor"));
+app.use("/api", require("./routes"));
 
 app.get("/", (req, res) => {
   res.json({ status: "LinkStore backend running" });

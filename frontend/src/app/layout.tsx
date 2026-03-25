@@ -5,7 +5,7 @@ import { Providers as ReduxProvider } from "@/redux/Provider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import AuthInitializer from "@/components/auth/AuthInitializer";
+import AuthInitializer from "@/components/(auth)/auth/AuthInitializer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 
 const inter = Inter({ subsets: ["latin"] });

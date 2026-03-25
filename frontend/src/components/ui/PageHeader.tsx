@@ -66,7 +66,13 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           </h1>
 
           <button
-            onClick={() => router.back()}
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                router.back();
+              } else {
+                router.push("/shop");
+              }
+            }}
             className="group flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 text-sm font-bold transition-all duration-300 hover:-translate-x-1 w-fit"
           >
             <ArrowLeft

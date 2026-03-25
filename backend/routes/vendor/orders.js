@@ -29,27 +29,36 @@ router.get("/", requireVendor, async (req, res) => {
       .lean();
 
     // Map through orders to filter items and calculate vendor-specific subtotal
-    const filteredOrders = orders.map(order => {
+    const filteredOrders = orders.map((order) => {
       // Only include items belonging to this vendor
-      const vendorItems = (order.items || []).filter(item => item.vendorId === vendorId);
-      
+      const vendorItems = (order.items || []).filter(
+        (item) => item.vendorId === vendorId,
+      );
+
       // Calculate revenue (subtotal) for this vendor only
       const vendorSubtotal = vendorItems.reduce((sum, item) => {
         const price = Number(item.price) || 0;
         const qty = Number(item.quantity) || 1;
-        return sum + (price * qty);
+        return sum + price * qty;
       }, 0);
 
       // Ensure customer object exists and has a name field for shared dashboard tables
-      const customer = order.customer ? {
-        ...order.customer,
-        name: `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || order.customer.name || "Guest Customer"
-      } : {
-        name: "Guest Customer"
-      };
+      const customer = order.customer
+        ? {
+            ...order.customer,
+            name:
+              `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() ||
+              order.customer.name ||
+              "Guest Customer",
+          }
+        : {
+            name: "Guest Customer",
+          };
 
       // Get vendor-specific status for this order
-      const vendorStatus = (order.vendorStatuses || []).find(vs => vs.vendorId === vendorId)?.status || order.status;
+      const vendorStatus =
+        (order.vendorStatuses || []).find((vs) => vs.vendorId === vendorId)
+          ?.status || order.status;
 
       return {
         ...order,
@@ -57,7 +66,7 @@ router.get("/", requireVendor, async (req, res) => {
         vendorSubtotal,
         total: vendorSubtotal, // Override total for the frontend table component
         customer,
-        status: vendorStatus // Override main status with vendor-specific status for the list view
+        status: vendorStatus, // Override main status with vendor-specific status for the list view
       };
     });
 
@@ -233,27 +242,69 @@ router.patch("/:id", requireVendor, async (req, res) => {
 
     const existingOrder = await OrderModel.findOne({
       id: req.params.id,
-      "items.vendorId": req.user.id
+      "items.vendorId": req.user.id,
     }).lean();
     if (!existingOrder)
       return res.status(404).json({ message: "Order not found" });
 
     const historyEntry = {
       status,
-      message: getStatusContent(status, existingOrder).headline || status,
+      message: `${req.user.name || "Vendor"} changed status to ${status}`,
       timestamp: new Date(),
     };
 
-    const order = await OrderModel.findOneAndUpdate(
-      { id: req.params.id },
-      {
-        status,
-        $push: { trackingHistory: historyEntry },
-      },
+    // Update individual vendor status first
+    const updatedOrder = await OrderModel.findOneAndUpdate(
+      { id: req.params.id, "vendorStatuses.vendorId": req.user.id },
+      { $set: { "vendorStatuses.$.status": status } },
       { returnDocument: "after" },
     ).lean();
 
+    if (!updatedOrder)
+      return res.status(404).json({ message: "Order not found" });
+
+    // Determine if we should trigger a global milestone email
+    const allMovedFromPending = updatedOrder.vendorStatuses.every(
+      (vs) => vs.status !== "Pending",
+    );
+    const allDelivered = updatedOrder.vendorStatuses.every(
+      (vs) => vs.status === "Delivered" || vs.status === "Cancelled",
+    );
+
+    let shouldTriggerGlobalEmail = false;
+    let globalMilestoneStatus = "";
+
+    if (allDelivered && updatedOrder.status !== "Delivered") {
+      globalMilestoneStatus = "Delivered";
+      shouldTriggerGlobalEmail = true;
+    } else if (allMovedFromPending && updatedOrder.status === "Pending") {
+      globalMilestoneStatus = "Accepted";
+      shouldTriggerGlobalEmail = true;
+    }
+
+    // Capture the final order state for email/history
+    let order = updatedOrder;
+    if (shouldTriggerGlobalEmail) {
+      order = await OrderModel.findOneAndUpdate(
+        { id: req.params.id },
+        {
+          status: globalMilestoneStatus,
+          $push: { trackingHistory: historyEntry },
+        },
+        { returnDocument: "after" },
+      ).lean();
+    } else {
+      // Just record the vendor-specific update in history without changing global status/sending email
+      await OrderModel.findOneAndUpdate(
+        { id: req.params.id },
+        { $push: { trackingHistory: historyEntry } },
+      );
+    }
+
     if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Cancellation stock logic... (omitted for brevity in replace check, but I'll keep it in the real file)
+    // Wait, I should not omit it. I will provide the full block.
     if (status === "Cancelled" && existingOrder.status !== "Cancelled") {
       try {
         for (const item of order.items || []) {
@@ -309,31 +360,33 @@ router.patch("/:id", requireVendor, async (req, res) => {
       }
     }
 
-    try {
-      const emailHtml = buildEmailHtml(
-        order,
-        status,
-        req.headers.origin,
-      );
-      const content = getStatusContent(status, order);
+    if (shouldTriggerGlobalEmail) {
+      try {
+        const emailHtml = buildEmailHtml(
+          order,
+          globalMilestoneStatus,
+          req.headers.origin,
+        );
+        const content = getStatusContent(globalMilestoneStatus, order);
 
-      transporter
-        .sendMail({
-          from: `"LinkStore" <${process.env.EMAIL_USER}>`,
-          to: order.customer?.email,
-          subject: content.subject,
-          html: emailHtml,
-        })
-        .catch((e) => console.error("Tracking email error:", e));
-    } catch (emailErr) {
-      console.error("Email preparation error:", emailErr);
+        transporter
+          .sendMail({
+            from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+            to: order.customer?.email,
+            subject: content.subject,
+            html: emailHtml,
+          })
+          .catch((e) => console.error("Tracking email error:", e));
+      } catch (emailErr) {
+        console.error("Email preparation error:", emailErr);
+      }
     }
 
     await logActivity(req, {
       action: "update",
       entity: "order",
       entityId: req.params.id,
-      details: `Changed order #${req.params.id.slice(-8).toUpperCase()} status from "${existingOrder.status}" to "${status}"`,
+      details: `Changed individual status for #${req.params.id.slice(-8).toUpperCase()} to "${status}"`,
     });
 
     return res.json({ message: "Order status updated", order });

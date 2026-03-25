@@ -1,9 +1,9 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import createWebStorage from "redux-persist/lib/storage/createWebStorage";
-import cartReducer from "@/redux/CartSlice";
-import wishlistReducer from "@/redux/WishListSlice";
-import authReducer from "@/redux/AuthSlice";
+import cartReducer from "@/redux/slices/cartSlice";
+import wishlistReducer from "@/redux/slices/wishlistSlice";
+import authReducer from "@/redux/slices/authSlice";
 
 const createNoopStorage = () => {
   return {

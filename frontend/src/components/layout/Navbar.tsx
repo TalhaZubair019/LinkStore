@@ -18,9 +18,9 @@ import { ThemeToggle } from "./ThemeToggle";
 import db from "@data/db.json";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/Store";
-import { removeFromCart, clearCart } from "@/redux/CartSlice";
-import { toggleWishlist, clearWishlist } from "@/redux/WishListSlice";
-import { logout } from "@/redux/AuthSlice";
+import { removeFromCart, clearCart } from "@/redux/slices/cartSlice";
+import { toggleWishlist, clearWishlist } from "@/redux/slices/wishlistSlice";
+import { logout } from "@/redux/slices/authSlice";
 
 function Navbar() {
   const navbarData = db.navbar;

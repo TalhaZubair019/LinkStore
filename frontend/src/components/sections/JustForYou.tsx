@@ -6,10 +6,10 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Star, ShoppingCart, Heart, ChevronRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "@/redux/CartSlice";
-import { toggleWishlist } from "@/redux/WishListSlice";
+import { addToCart } from "@/redux/slices/cartSlice";
+import { toggleWishlist } from "@/redux/slices/wishlistSlice";
 import { RootState } from "@/redux/Store";
-import Toast from "@/components/products/Toast";
+import Toast from "@/components/(store)/products/Toast";
 
 interface Product {
   id: number;

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
-import { DashboardStats, UserData, Order } from "@/app/admin/types";
+import { DashboardStats, UserData, Order } from "@/app/(admin)/admin/types";
 
 export function useAdminDashboard() {
   const {
