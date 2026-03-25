@@ -63,6 +63,12 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
     return selectedOrder.vendorStatuses.find(vs => vs.vendorId === vendorId)?.status;
   };
 
+  const activeTotal = (selectedOrder.items || []).reduce((sum, item) => {
+    const itemStatus = getItemStatus(item.vendorId);
+    if (itemStatus === "Cancelled") return sum;
+    return sum + (item.price * item.quantity);
+  }, 0);
+
   return (
     <div className="max-w-5xl mx-auto px-4 lg:px-8 py-16">
       <button
@@ -85,7 +91,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
           <div className="text-left md:text-right">
             <p className="text-sm text-slate-500 dark:text-slate-400">Order Total</p>
             <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-              ${selectedOrder.total.toFixed(2)}
+              ${activeTotal.toFixed(2)}
             </p>
           </div>
         </div>
@@ -129,8 +135,10 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-bold text-slate-800 dark:text-slate-200 transition-colors leading-tight">
-                        {item.name}
+                      <h4 className={`font-bold transition-colors leading-tight ${
+                        itemStatus === "Cancelled" ? "text-rose-500 line-through" : "text-slate-800 dark:text-slate-200"
+                      }`}>
+                        {item.name} {itemStatus === "Cancelled" && "(Cancelled)"}
                       </h4>
                       <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 transition-colors">
                         Qty: {item.quantity} · ${item.price} each
@@ -142,7 +150,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                             itemStatus === "Shipped" ? "bg-blue-500" :
                             itemStatus === "Processing" ? "bg-amber-500" : "bg-slate-300"
                           }`} />
-                          <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          <span className={`${
+                            itemStatus === "Cancelled" ? "text-rose-500 font-bold" : "text-slate-500 dark:text-slate-400"
+                          } text-[10px] uppercase tracking-wider`}>
                             {itemStatus} by {item.vendorStoreName || "Seller"}
                           </span>
                         </div>
@@ -168,8 +178,10 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-slate-900 dark:text-white transition-colors">
-                        ${(item.price * item.quantity).toFixed(2)}
+                      <p className={`font-bold transition-colors ${
+                        itemStatus === "Cancelled" ? "text-rose-500 line-through" : "text-slate-900 dark:text-white"
+                      }`}>
+                        ${(itemStatus === "Cancelled" ? 0 : item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -181,7 +193,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                 Grand Total
               </span>
               <span className="text-xl font-bold text-purple-600 dark:text-purple-400 transition-colors">
-                ${selectedOrder.total.toFixed(2)}
+                ${activeTotal.toFixed(2)}
               </span>
             </div>
           </div>

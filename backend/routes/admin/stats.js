@@ -254,6 +254,13 @@ router.get("/", requireAdmin, async (req, res) => {
 
     const grossRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
     const cancelledRevenue = grossRevenue - totalRevenue;
+    
+    const totalPlatformCommission = orders
+      .filter((o) => o.status !== "Cancelled")
+      .reduce((acc, o) => acc + (o.platformFee || (o.total * 0.1 || 0)), 0);
+    
+    const netRevenue = totalRevenue - totalPlatformCommission;
+
     const nonCancelledOrders = orders.filter((o) => o.status !== "Cancelled");
     const averageOrderValue = nonCancelledOrders.length > 0 ? totalRevenue / nonCancelledOrders.length : 0;
 
@@ -271,6 +278,8 @@ router.get("/", requireAdmin, async (req, res) => {
       totalRevenue,
       grossRevenue,
       cancelledRevenue,
+      totalPlatformCommission: Math.round(totalPlatformCommission * 100) / 100,
+      netRevenue: Math.round(netRevenue * 100) / 100,
       averageOrderValue,
       recentOrders,
       users: usersWithDetails,

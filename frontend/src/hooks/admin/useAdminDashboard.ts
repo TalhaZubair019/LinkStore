@@ -25,7 +25,7 @@ export function useAdminDashboard() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [viewType, setViewType] = useState<"cart" | "wishlist" | "both">("both");
 
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 50;
   const [userPage, setUserPage] = useState(1);
   const [adminPage, setAdminPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
@@ -275,6 +275,25 @@ export function useAdminDashboard() {
     }
   };
 
+  const handleClearCommissionDebt = async (vendorId: string) => {
+    try {
+      const res = await fetch("/api/admin/clear-commission-debt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vendorId }),
+      });
+      if (res.ok) {
+        fetchStats();
+        showToast("Commission debt cleared successfully.", "success");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.message || "Failed to clear commission debt.", "error");
+      }
+    } catch {
+      showToast("Error clearing commission debt.", "error");
+    }
+  };
+
   return {
     user,
     isAuthenticated,
@@ -322,6 +341,7 @@ export function useAdminDashboard() {
     handleRejectVendor,
     handleSuspendVendor,
     handleUnsuspendVendor,
+    handleClearCommissionDebt,
     ITEMS_PER_PAGE,
   };
 }

@@ -153,6 +153,15 @@ function buildEmailHtml(order, status, baseUrl) {
   ).replace(/\/$/, "");
   const trackUrl = `${appUrl}/account?tab=orders&orderId=${order.id}`;
 
+  // Recalculate Grand Total based on active (non-cancelled) items
+  const activeTotal = (order.items || []).reduce((sum, item) => {
+    const vendorStatus = (order.vendorStatuses || []).find(vs => vs.vendorId === item.vendorId)?.status;
+    if (vendorStatus === "Cancelled") return sum;
+    const price = Number(item.price) || 0;
+    const qty = Number(item.quantity) || 1;
+    return sum + (price * qty);
+  }, 0);
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -205,17 +214,27 @@ function buildEmailHtml(order, status, baseUrl) {
             <tbody>
               ${(order.items || [])
                 .map((i) => {
+                  const vendorStatus = (order.vendorStatuses || []).find(vs => vs.vendorId === i.vendorId)?.status;
+                  const isCancelled = vendorStatus === "Cancelled";
                   const price = Number(i.price) || 0;
                   const qty = Number(i.quantity) || 1;
+                  const itemTotal = isCancelled ? 0 : price * qty;
+                  
+                  const textStyle = isCancelled ? 'color:#ef4444;text-decoration:line-through;' : 'color:#374151;';
+                  const nameLabel = isCancelled ? `${i.name || "Custom Product"} <span style="font-size:10px;font-weight:800;text-decoration:none;display:inline-block;">(Cancelled)</span>` : (i.name || "Custom Product");
+
                   return `<tr>
-                  <td style="padding:12px 0;border-bottom:1px solid #f8fafc;font-size:14px;color:#374151;font-weight:600;">${i.name || "Custom Product"}<br><span style="font-size:12px;font-weight:400;color:#94a3b8;">Qty: ${qty} × $${price.toFixed(2)}</span></td>
-                  <td style="padding:12px 0;border-bottom:1px solid #f8fafc;text-align:right;font-size:14px;font-weight:700;color:#1e293b;">$${(price * qty).toFixed(2)}</td>
+                  <td style="padding:12px 0;border-bottom:1px solid #f8fafc;font-size:14px;font-weight:600;${textStyle}">
+                    ${nameLabel}<br>
+                    <span style="font-size:12px;font-weight:400;color:#94a3b8;text-decoration:none;display:inline-block;">Qty: ${qty} × $${price.toFixed(2)}</span>
+                  </td>
+                  <td style="padding:12px 0;border-bottom:1px solid #f8fafc;text-align:right;font-size:14px;font-weight:700;${textStyle}">$${itemTotal.toFixed(2)}</td>
                 </tr>`;
                 })
                 .join("")}
               <tr>
                 <td style="padding-top:16px;font-size:16px;font-weight:800;color:#6366f1;">Grand Total</td>
-                <td style="padding-top:16px;text-align:right;font-size:16px;font-weight:800;color:#6366f1;">$${Number(order.total || 0).toFixed(2)}</td>
+                <td style="padding-top:16px;text-align:right;font-size:16px;font-weight:800;color:#6366f1;">$${activeTotal.toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
@@ -240,6 +259,7 @@ router.patch("/:id", requireVendor, async (req, res) => {
     const { status } = req.body;
     await connectDB();
 
+    // 1. Fetch order and verify vendor ownership
     const existingOrder = await OrderModel.findOne({
       id: req.params.id,
       "items.vendorId": req.user.id,
@@ -247,13 +267,9 @@ router.patch("/:id", requireVendor, async (req, res) => {
     if (!existingOrder)
       return res.status(404).json({ message: "Order not found" });
 
-    const historyEntry = {
-      status,
-      message: `${req.user.name || "Vendor"} changed status to ${status}`,
-      timestamp: new Date(),
-    };
+    const oldGlobalStatus = existingOrder.status;
 
-    // Update individual vendor status first
+    // 2. Update individual vendor status first
     const updatedOrder = await OrderModel.findOneAndUpdate(
       { id: req.params.id, "vendorStatuses.vendorId": req.user.id },
       { $set: { "vendorStatuses.$.status": status } },
@@ -263,58 +279,56 @@ router.patch("/:id", requireVendor, async (req, res) => {
     if (!updatedOrder)
       return res.status(404).json({ message: "Order not found" });
 
-    // Determine if we should trigger a global milestone email
-    const allMovedFromPending = updatedOrder.vendorStatuses.every(
-      (vs) => vs.status !== "Pending",
-    );
-    const allDelivered = updatedOrder.vendorStatuses.every(
-      (vs) => vs.status === "Delivered" || vs.status === "Cancelled",
-    );
+    // 3. Calculate "Lowest Common Denominator" Global Status
+    const activeVendorStatuses = updatedOrder.vendorStatuses.filter(vs => vs.status !== "Cancelled");
+    let newGlobalStatus = oldGlobalStatus;
 
-    let shouldTriggerGlobalEmail = false;
-    let globalMilestoneStatus = "";
-
-    if (allDelivered && updatedOrder.status !== "Delivered") {
-      globalMilestoneStatus = "Delivered";
-      shouldTriggerGlobalEmail = true;
-    } else if (allMovedFromPending && updatedOrder.status === "Pending") {
-      globalMilestoneStatus = "Accepted";
-      shouldTriggerGlobalEmail = true;
-    }
-
-    // Capture the final order state for email/history
-    let order = updatedOrder;
-    if (shouldTriggerGlobalEmail) {
-      order = await OrderModel.findOneAndUpdate(
-        { id: req.params.id },
-        {
-          status: globalMilestoneStatus,
-          $push: { trackingHistory: historyEntry },
-        },
-        { returnDocument: "after" },
-      ).lean();
+    if (activeVendorStatuses.length === 0) {
+      newGlobalStatus = "Cancelled";
     } else {
-      // Just record the vendor-specific update in history without changing global status/sending email
-      await OrderModel.findOneAndUpdate(
-        { id: req.params.id },
-        { $push: { trackingHistory: historyEntry } },
-      );
+      // Find the minimum index in TRACKING_STEPS among active vendors
+      let minIndex = TRACKING_STEPS.length - 1;
+      activeVendorStatuses.forEach(vs => {
+        const index = TRACKING_STEPS.indexOf(vs.status);
+        // If a vendor is still "Pending", that's naturally the lowest
+        if (index !== -1 && index < minIndex) {
+          minIndex = index;
+        }
+      });
+      newGlobalStatus = TRACKING_STEPS[minIndex];
     }
 
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    const globalStatusChanged = newGlobalStatus !== oldGlobalStatus;
 
-    // Cancellation stock logic... (omitted for brevity in replace check, but I'll keep it in the real file)
-    // Wait, I should not omit it. I will provide the full block.
-    if (status === "Cancelled" && existingOrder.status !== "Cancelled") {
+    // 4. Tracking History Updates
+    const historyEntry = {
+      status: newGlobalStatus,
+      message: globalStatusChanged 
+        ? `Order status is now ${newGlobalStatus}` 
+        : `A vendor updated their portion of your order to ${status}`,
+      timestamp: new Date(),
+    };
+
+    // 5. Update Global Status and History
+    const finalOrder = await OrderModel.findOneAndUpdate(
+      { id: req.params.id },
+      { 
+        $set: { status: newGlobalStatus },
+        $push: { trackingHistory: historyEntry }
+      },
+      { returnDocument: "after" }
+    ).lean();
+
+    if (!finalOrder) return res.status(404).json({ message: "Order not found" });
+
+    // 6. Fix restocking bug: Filter by vendorId before restocking
+    if (status === "Cancelled") {
       try {
-        for (const item of order.items || []) {
-          if (
-            item.fulfilledFromWarehouse &&
-            Array.isArray(item.fulfilledFromWarehouse)
-          ) {
-            const product = await ProductModel.findOne({
-              id: item.productId || item.id,
-            });
+        const vendorItems = (finalOrder.items || []).filter(item => item.vendorId === req.user.id);
+        
+        for (const item of vendorItems) {
+          if (item.fulfilledFromWarehouse && Array.isArray(item.fulfilledFromWarehouse)) {
+            const product = await ProductModel.findOne({ id: item.productId || item.id });
             if (!product) continue;
 
             let updatedInventory = [...(product.warehouseInventory || [])];
@@ -322,9 +336,7 @@ router.patch("/:id", requireVendor, async (req, res) => {
 
             for (const fulfillment of item.fulfilledFromWarehouse) {
               const whIndex = updatedInventory.findIndex(
-                (wh) =>
-                  wh.warehouseName === fulfillment.warehouseName &&
-                  wh.location === fulfillment.location,
+                (wh) => wh.warehouseName === fulfillment.warehouseName && wh.location === fulfillment.location
               );
               if (whIndex !== -1) {
                 updatedInventory[whIndex].quantity += fulfillment.qty;
@@ -353,30 +365,23 @@ router.patch("/:id", requireVendor, async (req, res) => {
           }
         }
       } catch (restockErr) {
-        console.error(
-          "Failed to restore stock for cancelled order:",
-          restockErr,
-        );
+        console.error("Failed to restore stock for cancelled vendor items:", restockErr);
       }
     }
 
-    if (shouldTriggerGlobalEmail) {
+    // 7. Milestone Email Notifications
+    const milestones = ["Accepted", "Delivered", "Cancelled"];
+    if (globalStatusChanged && milestones.includes(newGlobalStatus)) {
       try {
-        const emailHtml = buildEmailHtml(
-          order,
-          globalMilestoneStatus,
-          req.headers.origin,
-        );
-        const content = getStatusContent(globalMilestoneStatus, order);
+        const emailHtml = buildEmailHtml(finalOrder, newGlobalStatus, req.headers.origin);
+        const content = getStatusContent(newGlobalStatus, finalOrder);
 
-        transporter
-          .sendMail({
-            from: `"LinkStore" <${process.env.EMAIL_USER}>`,
-            to: order.customer?.email,
-            subject: content.subject,
-            html: emailHtml,
-          })
-          .catch((e) => console.error("Tracking email error:", e));
+        transporter.sendMail({
+          from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+          to: finalOrder.customer?.email,
+          subject: content.subject,
+          html: emailHtml,
+        }).catch((e) => console.error("Tracking email error:", e));
       } catch (emailErr) {
         console.error("Email preparation error:", emailErr);
       }
@@ -386,12 +391,12 @@ router.patch("/:id", requireVendor, async (req, res) => {
       action: "update",
       entity: "order",
       entityId: req.params.id,
-      details: `Changed individual status for #${req.params.id.slice(-8).toUpperCase()} to "${status}"`,
+      details: `Vendor ${req.user.name} updated status to "${status}". Global status is now "${newGlobalStatus}".`,
     });
 
-    return res.json({ message: "Order status updated", order });
+    return res.json({ message: "Order status updated", order: finalOrder });
   } catch (error) {
-    console.error("Admin order patch error:", error);
+    console.error("Vendor order patch error:", error);
     return res.status(500).json({ message: "Internal Error" });
   }
 });

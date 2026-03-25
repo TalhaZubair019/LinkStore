@@ -5,12 +5,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://typescriptlang.org)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-green?logo=mongodb)](https://mongoosejs.com)
 [![Express](https://img.shields.io/badge/Express-4.x-lightgrey?logo=express)](https://expressjs.com)
-[![Stripe](https://img.shields.io/badge/Stripe-Payment-blue?logo=stripe)](https://stripe.com)
-[![PayPal](https://img.shields.io/badge/PayPal-Payment-blue?logo=paypal)](https://paypal.com)
+[![Stripe](https://img.shields.io/badge/Stripe-Payment-blueviolet?logo=stripe)](https://stripe.com)
 [![Redux Toolkit](https://img.shields.io/badge/Redux_Toolkit-2.11-purple?logo=redux)](https://redux-toolkit.js.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.x-cyan?logo=tailwindcss)](https://tailwindcss.com)
 
-A professional, full-stack monorepo e-commerce platform for custom print-on-demand products. Featuring a hybrid architecture with a **Next.js 16** frontend and a dedicated **Express.js** backend, integrated with Stripe/PayPal, advanced AI (Llama 4 Scout), and comprehensive admin tools.
+A professional, full-stack monorepo e-commerce platform for custom print-on-demand products. Featuring a hybrid architecture with a **Next.js 16** frontend and a dedicated **Express.js** backend, integrated with Stripe, advanced AI (Llama 4 Scout), and comprehensive admin tools.
 
 ---
 
@@ -18,7 +17,7 @@ A professional, full-stack monorepo e-commerce platform for custom print-on-dema
 
 ### 🛒 E-Commerce & Payments
 
-- **Multi-Gateway Checkout**: Secure payments via **Stripe** (Cards) and **PayPal** (Express Checkout).
+- **Secure Checkout**: Integrated with **Stripe** for reliable card payments and **COD** support.
 - **Product Catalog**: Advanced quick view, comparison tools, and persistent wishlist.
 - **Smart Shopping Cart**: Real-time quantity management with **Redux Persist** (LocalStorage sync).
 - **Dynamic Categories**: Tailored experiences for T-shirts, Business Cards, Hoodies, and Packaging.
@@ -76,7 +75,7 @@ A professional, full-stack monorepo e-commerce platform for custom print-on-dema
 | **Backend**    | Express.js 4.x (Node.js)                          |
 | **Language**   | TypeScript 5.x                                    |
 | **Database**   | MongoDB via Mongoose 8.x                          |
-| **Payments**   | Stripe API, PayPal API                            |
+| **Payments**   | Stripe API                                        |
 | **Styling**    | Tailwind CSS 4.x, clsx, tailwind-merge            |
 | **Animations** | Framer Motion 12.x                                |
 | **State**      | Redux Toolkit, Redux Persist                      |
@@ -100,7 +99,7 @@ LinkStore has evolved from a unified Next.js app into a sophisticated **full-sta
 The platform integrates the world's leading financial gateways with a "Security-First" approach:
 
 - **Stripe**: Handles global card payments by generating encrypted **Checkout Sessions**. This ensures that sensitive PCI data never touches our servers, drastically reducing security overhead.
-- **PayPal**: Integrated via the **Express Checkout API**, offering users a familiar, one-click payment experience using their PayPal balance or linked accounts.
+
 - **Integrity**: Every transaction undergoes server-side validation to prevent price manipulation and ensure order consistency.
 
 ### 🤖 3. Next-Gen AI Integration (Llama 4 Scout)
@@ -145,8 +144,8 @@ Communication is a cornerstone of the LinkStore experience:
 
 Our data architecture is built on a high-availability MongoDB cluster using Mongoose:
 
-- **User Model**: Manages secure credentials, saved cards, and administrative privileges.
-- **Order Model**: Tracks the full lifecycle of an order, including multi-gateway payment metadata.
+- **User**: Profiles with `isAdmin` flags and `savedCards`.
+- **Order**: Tracks the full lifecycle of an order, including multi-gateway payment metadata.
 - **Product & Review Models**: Linked via relational-style object IDs to provide instant feedback loops between customer reviews and product ratings.
 
 ---
@@ -209,8 +208,7 @@ linkstore/
 │   │   ├── admin/                        # Stats, AI, and management
 │   │   ├── public/                       # Storefront data & reviews
 │   │   ├── auth.js                       # JWT session handling
-│   │   ├── stripe.js                     # Card payments
-│   │   ├── paypal.js                     # PayPal Express
+│   │   ├── stripe.js                     # Stripe Gateway
 │   │   └── upload.js                     # Media handling
 │   └── server.js                         # Entry point (Port 5000)
 │
@@ -278,9 +276,8 @@ MONGODB_URI=mongodb+srv://...
 JWT_SECRET=your_32_char_secret
 
 # Payments
-STRIPE_SECRET_KEY=sk_test_...
-PAYPAL_CLIENT_ID=...
-PAYPAL_SECRET=...
+STRIPE_SECRET_KEY=...
+STRIPE_WEBHOOK_SECRET=...
 
 # AI & Third-Party
 GROQ_API_KEY=gsk_...
@@ -302,8 +299,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 | `/auth`   | Authentication | Signup, Login, Password Hashing         |
 | `/public` | Storefront     | Categories, Reviews, Ordering           |
 | `/admin`  | Dashboard      | Charts, User Promotion, AI Descriptions |
-| `/stripe` | Payments       | Checkout Session Creation               |
-| `/paypal` | Payments       | Order Capture & Auth                    |
+| `/stripe` | Payments       | Order Session & Webhooks                |
 | `/upload` | Assets         | Product Image Processing                |
 
 ---

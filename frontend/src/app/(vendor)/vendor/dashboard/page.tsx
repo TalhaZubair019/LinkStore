@@ -109,6 +109,30 @@ export default function VendorDashboard() {
               "reviews",
             ].includes(d.activeTab)}
           />
+
+          {/* COD Commission Warning Card */}
+          {d.stats && d.stats.outstandingCommission && d.stats.outstandingCommission > 0 && (
+            <div className="mb-8 p-6 bg-linear-to-r from-rose-500/10 to-orange-500/10 border-2 border-rose-500/20 rounded-3xl backdrop-blur-sm animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 bg-rose-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-rose-500/30 shrink-0">
+                    <X size={28} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">Action Required: Settle Commission</h3>
+                    <p className="text-slate-600 dark:text-slate-400 mt-1 max-w-md">
+                      You have an outstanding COD commission of <span className="font-bold text-rose-500 font-mono">${d.stats.outstandingCommission.toLocaleString()}</span>. 
+                      Please settle this within 48 hours to avoid store suspension.
+                    </p>
+                  </div>
+                </div>
+                <button className="px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/10 shrink-0">
+                  Pay Now
+                </button>
+              </div>
+            </div>
+          )}
+
             {d.activeTab === "overview" && (
               <OverviewTab
                 stats={d.stats}

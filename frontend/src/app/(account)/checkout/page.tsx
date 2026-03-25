@@ -34,7 +34,7 @@ interface CheckoutData {
   country: string;
   countryCode: string;
   stateCode: string;
-  paymentMethod: "cod" | "stripe" | "paypal";
+  paymentMethod: "cod" | "stripe";
 }
 
 export default function CheckoutPage() {
@@ -294,27 +294,6 @@ export default function CheckoutPage() {
           return;
         }
         throw new Error(session.error || "Failed to initialize Stripe");
-      }
-
-      if (formData.paymentMethod === "paypal") {
-        localStorage.setItem("pendingCheckoutData", JSON.stringify(formData));
-        const orderId = Date.now().toString();
-
-        const response = await fetch("/api/paypal/checkout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            totalAmount: subtotal,
-            customer: formData,
-            orderId: orderId,
-          }),
-        });
-        const session = await response.json();
-        if (session.url) {
-          window.location.href = session.url;
-          return;
-        }
-        throw new Error(session.error || "Failed to initialize PayPal");
       }
 
       if (formData.paymentMethod === "cod") {

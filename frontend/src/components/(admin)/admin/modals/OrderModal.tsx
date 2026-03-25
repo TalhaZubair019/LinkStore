@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { X, ClipboardList, Users, MapPin, Package } from "lucide-react";
+import { X, ClipboardList, Users, MapPin, Package, CreditCard } from "lucide-react";
 import { Order } from "@/app/(admin)/admin/types";
 import StatusBadge from "../ui/StatusBadge";
 
@@ -83,6 +83,29 @@ const OrderModal = ({ selectedOrder, onClose }: OrderModalProps) => {
                   </span>
                   <span className="font-medium dark:text-gray-200">
                     {selectedOrder.customer?.email || "—"}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 className="flex items-center gap-2 font-bold mb-4 text-sm uppercase dark:text-gray-200">
+                <CreditCard size={16} className="text-purple-500" /> Financial Split
+              </h4>
+              <div className="space-y-3 text-sm bg-slate-50 dark:bg-gray-800/50 p-4 rounded-xl border dark:border-gray-700">
+                <div className="flex justify-between border-b dark:border-gray-700 pb-2">
+                  <span className="text-slate-500 dark:text-gray-400">Total Revenue</span>
+                  <span className="font-bold dark:text-gray-100">${selectedOrder.total}</span>
+                </div>
+                <div className="flex justify-between border-b dark:border-gray-700 pb-2">
+                  <span className="text-slate-500 dark:text-gray-400">Vendor Payout (90%)</span>
+                  <span className="font-bold text-blue-600 dark:text-blue-400">
+                    ${selectedOrder.vendorPayout ?? (selectedOrder.total * 0.9).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 dark:text-gray-400">Platform Fee (10%)</span>
+                  <span className="font-bold text-purple-600 dark:text-purple-400">
+                    ${selectedOrder.platformFee ?? (selectedOrder.total * 0.1).toFixed(2)}
                   </span>
                 </div>
               </div>

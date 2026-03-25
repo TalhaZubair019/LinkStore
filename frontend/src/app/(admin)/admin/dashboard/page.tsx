@@ -169,6 +169,7 @@ export default function AdminDashboard() {
               onReject={d.handleRejectVendor}
               onSuspend={d.handleSuspendVendor}
               onUnsuspend={d.handleUnsuspendVendor}
+              onClearDebt={d.handleClearCommissionDebt}
             />
           )}
           {d.activeTab === "logs" && d.user?.adminRole === "super_admin" && (

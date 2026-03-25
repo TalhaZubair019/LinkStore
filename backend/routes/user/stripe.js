@@ -44,7 +44,9 @@ router.post("/checkout", async (req, res) => {
         currency: "usd",
         product_data: {
           name: item.name,
-          images: item.image ? [ensureAbsoluteUrl(item.image)] : [],
+          images: item.image && item.image.length < 2000 
+            ? [ensureAbsoluteUrl(item.image)] 
+            : [],
         },
         unit_amount: Math.round(item.price * 100),
       },

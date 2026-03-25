@@ -8,6 +8,5 @@ router.use("/admin", require("./admin"));
 router.use("/vendor", require("./vendor"));
 router.use("/upload", require("./common/upload"));
 router.use("/stripe", require("./user/stripe"));
-router.use("/paypal", require("./user/paypal"));
 
 module.exports = router;

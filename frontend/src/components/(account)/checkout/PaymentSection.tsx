@@ -60,14 +60,6 @@ export default function PaymentSection({ data, update }: PaymentSectionProps) {
       <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 transition-colors">Payment options</h2>
       <div className="space-y-3">
         <PaymentOption
-          id="paypal"
-          label="PayPal"
-          icon={<Wallet className="text-slate-600 dark:text-slate-400" size={20} />}
-          description="Pay securely using your PayPal account."
-          isSelected={data.paymentMethod === "paypal"}
-          onSelect={() => update({ paymentMethod: "paypal" })}
-        />
-        <PaymentOption
           id="stripe"
           label="Credit / Debit Card (International)"
           icon={<Wallet className="text-slate-600 dark:text-slate-400" size={20} />}

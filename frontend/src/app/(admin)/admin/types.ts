@@ -31,6 +31,8 @@ export interface Order {
   trackingNumber?: string;
   trackingUrl?: string;
   trackingHistory?: { status: string; message: string; timestamp: string }[];
+  platformFee?: number;
+  vendorPayout?: number;
 }
 
 export interface UserData {
@@ -49,7 +51,8 @@ export interface UserData {
     storeName: string;
     storeSlug: string;
     storeDescription: string;
-    status: "pending" | "approved" | "suspended" | "";
+    outstandingCommission?: number;
+    status: "pending" | "approved" | "rejected" | "suspended" | "";
   };
 }
 
@@ -61,6 +64,10 @@ export interface DashboardStats {
   totalRevenue: number;
   grossRevenue: number;
   cancelledRevenue: number;
+  totalPlatformCommission?: number;
+  netRevenue?: number;
+  totalEarnings?: number;
+  outstandingCommission?: number;
   categoryPerformance?: {
     topSeller: { label: string; value: number };
     mostPopular: { label: string; value: number };

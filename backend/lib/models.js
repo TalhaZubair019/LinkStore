@@ -161,6 +161,8 @@ const orderSchema = new mongoose.Schema(
       ],
       default: [],
     },
+    platformFee: { type: Number, default: 0 },
+    vendorPayout: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

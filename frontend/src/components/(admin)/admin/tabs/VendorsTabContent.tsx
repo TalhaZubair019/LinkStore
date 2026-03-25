@@ -12,6 +12,7 @@ interface VendorsTabContentProps {
   onReject: (id: string) => void;
   onSuspend: (id: string) => void;
   onUnsuspend: (id: string) => void;
+  onClearDebt: (id: string) => void;
 }
 
 const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
@@ -19,7 +20,8 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
   onApprove,
   onReject,
   onSuspend,
-  onUnsuspend
+  onUnsuspend,
+  onClearDebt
 }) => {
   const [viewMode, setViewMode] = useState<"pending" | "active" | "suspended">("pending");
   const [search, setSearch] = useState("");
@@ -105,6 +107,7 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
             onReject={onReject}
             onSuspend={onSuspend}
             onUnsuspend={onUnsuspend}
+            onClearDebt={onClearDebt}
           />
         </motion.div>
       </AnimatePresence>

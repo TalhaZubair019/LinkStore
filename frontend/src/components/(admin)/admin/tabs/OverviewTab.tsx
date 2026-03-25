@@ -20,6 +20,7 @@ import WarehouseStockChart from "@/components/(admin)/admin/charts/WarehouseStoc
 import { DashboardStats } from "@/app/(admin)/admin/types";
 import VendorsStatCard from "@/components/(admin)/admin/ui/VendorsStatCard";
 import AdminsStatCard from "@/components/(admin)/admin/ui/AdminsStatCard";
+import FinancialStatCard from "@/components/(admin)/admin/ui/FinancialStatCard";
 
 interface OverviewTabProps {
   stats: DashboardStats;
@@ -80,7 +81,9 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
 }) => {
   return (
     <div key="overview" className="space-y-6 animate-in fade-in duration-300">
-      <div className={`grid grid-cols-1 ${isAdminView ? "md:grid-cols-3" : "md:grid-cols-3"} gap-6`}>
+      <div
+        className={`grid grid-cols-1 ${isAdminView ? "md:grid-cols-3" : "md:grid-cols-3"} gap-6`}
+      >
         {!isAdminView && (
           <RevenueStatCard
             totalRevenue={stats.totalRevenue}
@@ -88,10 +91,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             cancelledRevenue={stats.cancelledRevenue ?? 0}
           />
         )}
+        {isAdminView && (
+          <FinancialStatCard
+            title="Platform Commission"
+            amount={stats.totalPlatformCommission ?? 0}
+            subtitle="Net Revenue"
+            subAmount={stats.totalRevenue}
+            type="commission"
+          />
+        )}
         {!isAdminView && (
-          <OrdersStatCard
-            totalOrders={stats.totalOrders}
-            cancelledOrders={stats.cancelledOrders ?? 0}
+          <FinancialStatCard
+            title="Net Earnings"
+            amount={stats.totalEarnings ?? 0}
+            subtitle="Total Sales"
+            subAmount={stats.totalRevenue}
+            type="earnings"
           />
         )}
         <UsersStatCard
@@ -109,6 +124,12 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           <AdminsStatCard
             totalAdmins={stats.totalAdmins || 0}
             users={stats.users || []}
+          />
+        )}
+        {!isAdminView && (
+          <OrdersStatCard
+            totalOrders={stats.totalOrders}
+            cancelledOrders={stats.cancelledOrders ?? 0}
           />
         )}
       </div>

@@ -160,6 +160,9 @@ router.post("/place-order", async (req, res) => {
     const orderId = Date.now().toString();
     let trackingNumber = "Pending";
     let trackingUrl = "";
+    const platformFee = Math.round(totalAmount * 0.1 * 100) / 100;
+    const vendorPayout = Math.round(totalAmount * 0.9 * 100) / 100;
+
     const newOrder = {
       id: orderId,
       userId,
@@ -170,7 +173,9 @@ router.post("/place-order", async (req, res) => {
       customer,
       trackingNumber,
       trackingUrl,
-      vendorStatuses, // Added for multi-vendor fulfillment
+      vendorStatuses,
+      platformFee,
+      vendorPayout,
       trackingHistory: [
         {
           status: "Pending",

@@ -5,6 +5,7 @@ const {
   ProductModel,
   ReviewModel,
   CategoryModel,
+  VendorModel,
 } = require("../../lib/models");
 const { requireVendor } = require("../../middleware/vendor");
 
@@ -16,11 +17,12 @@ router.get("/", requireVendor, async (req, res) => {
     const vendorId = req.user.id;
 
     // Fetch only data relevant to this vendor
-    const [allOrders, products, reviews, categories] = await Promise.all([
+    const [allOrders, products, reviews, categories, vendorDoc] = await Promise.all([
       OrderModel.find({ "items.vendorId": vendorId }).lean(),
       ProductModel.find({ vendorId }).lean(),
       ReviewModel.find({ vendorId, targetType: "product" }).lean(),
       CategoryModel.find({}).sort({ name: 1 }).lean(),
+      VendorModel.findOne({ id: vendorId }).lean(),
     ]);
 
     // Filter orders to only include items belonging to this vendor for revenue calculation
@@ -48,6 +50,10 @@ router.get("/", requireVendor, async (req, res) => {
     const totalRevenue = vendorOrders
       .filter((o) => o.status !== "Cancelled")
       .reduce((acc, o) => acc + (o.vendorTotal || 0), 0);
+    
+    const totalEarnings = vendorOrders
+      .filter((o) => o.status !== "Cancelled")
+      .reduce((acc, o) => acc + (o.vendorPayout || (o.vendorTotal * 0.9 || 0)), 0);
 
     const { startDate: startDateParam, endDate: endDateParam } = req.query;
     let rangeStart, rangeEnd;
@@ -153,6 +159,7 @@ router.get("/", requireVendor, async (req, res) => {
       totalOrders: vendorOrders.length,
       cancelledOrders: vendorOrders.filter((o) => o.status === "Cancelled").length,
       totalRevenue,
+      totalEarnings: Math.round(totalEarnings * 100) / 100,
       grossRevenue,
       cancelledRevenue,
       averageOrderValue,
@@ -173,6 +180,7 @@ router.get("/", requireVendor, async (req, res) => {
         count: c,
       })),
       categories,
+      outstandingCommission: vendorDoc?.vendorProfile?.outstandingCommission || 0,
     });
   } catch (error) {
     console.error("Vendor stats error:", error);
