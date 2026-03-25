@@ -63,9 +63,6 @@ function ProductCard({
             <h4 className="font-bold text-xl text-slate-900 dark:text-white mb-1">
               {product.title}
             </h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
-              {product.printText}
-            </p>
             <div className="mt-1">
               <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">
                 Sold by:{" "}
@@ -92,12 +89,22 @@ function ProductCard({
       ) : (
         <Link href={`/product/${encodeURIComponent(slug)}`} className="block">
           <div className="mb-4">
+            {/* Badges */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {(product.badges || (product.badge ? [product.badge] : [])).map(
+                (badge: string, idx: number) => (
+                  <span
+                    key={idx}
+                    className="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-900 text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider rounded-full border border-slate-100 dark:border-slate-800"
+                  >
+                    {badge}
+                  </span>
+                ),
+              )}
+            </div>
             <h4 className="font-bold text-xl text-slate-900 dark:text-white mb-1">
               {product.title}
             </h4>
-            <p className="text-sm text-slate-500 dark:text-slate-400 font-light">
-              {product.printText}
-            </p>
             {product.vendorStoreName && (
               <div className="mt-1">
                 <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-bold">
@@ -128,18 +135,6 @@ function ProductCard({
             <span className="text-2xl font-bold text-slate-900 dark:text-white">
               {product.price}
             </span>
-            <div className="flex flex-wrap gap-2">
-              {(product.badges || (product.badge ? [product.badge] : [])).map(
-                (badge: string, idx: number) => (
-                  <span
-                    key={idx}
-                    className="px-4 py-1 rounded-full border border-red-300 dark:border-red-900 text-red-500 dark:text-red-400 text-sm font-semibold bg-white dark:bg-slate-900 shadow-sm"
-                  >
-                    {badge}
-                  </span>
-                ),
-              )}
-            </div>
           </div>
         </Link>
       )}
@@ -169,12 +164,6 @@ function ProductCard({
         </div>
       )}
 
-      {/* Out of Stock overlay if needed for preview */}
-      {isOutOfStock && !hideActions && (
-        <div className="absolute bottom-0 left-0 w-full h-20 bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 font-bold flex items-center justify-center z-20">
-          Out of Stock
-        </div>
-      )}
     </motion.div>
   );
 }

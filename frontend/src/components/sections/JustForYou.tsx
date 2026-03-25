@@ -20,6 +20,9 @@ interface Product {
   sales?: number;
   category?: string;
   discount?: number;
+  stockQuantity?: number;
+  badges?: string[];
+  badge?: string | null;
 }
 
 export default function JustForYou() {
@@ -127,29 +130,65 @@ export default function JustForYou() {
               className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 group border border-slate-100 dark:border-slate-800 flex flex-col h-full hover:-translate-y-2 hover:border-blue-500/30"
             >
               <div className="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-800">
-                <Link href={`/product/${product.title.toLowerCase().replace(/\s+/g, '-')}`}>
-                  <Image
-                    src={product.image}
-                    alt={product.title}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                </Link>
-                <button 
-                  onClick={() => handleToggleWishlist(product)}
-                  className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-slate-950/90 backdrop-blur-md text-slate-400 hover:text-rose-500 transition-all z-10 shadow-lg"
-                >
-                  <Heart size={18} fill={wishlistItems.some(i => i.id === product.id) ? "currentColor" : "none"} className={wishlistItems.some(i => i.id === product.id) ? "text-rose-500 scale-110" : ""} />
-                </button>
-                {product.discount && (
-                  <div className="absolute top-3 left-3 px-3 py-1 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg">
-                    {product.discount}% OFF
-                  </div>
-                )}
+                {(() => {
+                  const isOutOfStock = product.stockQuantity !== undefined && product.stockQuantity <= 0;
+                  return (
+                    <>
+                      <Link href={`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`}>
+                        <Image
+                          src={product.image}
+                          alt={product.title}
+                          fill
+                          className={`object-cover transition-transform duration-700 ${isOutOfStock ? "grayscale opacity-50" : "group-hover:scale-110"}`}
+                        />
+                      </Link>
+                      
+                      {isOutOfStock && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                          <span className="bg-red-500/90 text-white font-black px-4 py-2 rounded-xl rotate-12 backdrop-blur-sm shadow-2xl border border-white/20 whitespace-nowrap text-[10px] tracking-widest uppercase">
+                            Sold Out
+                          </span>
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => handleToggleWishlist(product)}
+                        className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-slate-950/90 backdrop-blur-md text-slate-400 hover:text-rose-500 transition-all z-10 shadow-lg"
+                      >
+                        <Heart
+                          size={18}
+                          fill={wishlistItems.some((i) => i.id === product.id) ? "currentColor" : "none"}
+                          className={wishlistItems.some((i) => i.id === product.id) ? "text-rose-500 scale-110" : ""}
+                        />
+                      </button>
+                    </>
+                  );
+                })()}
                 <div className="absolute inset-0 bg-linear-to-t from-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
 
               <div className="p-5 flex flex-col flex-1">
+                {/* Badges */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {[
+                    ...(product.badges || (product.badge ? [product.badge] : [])),
+                    ...(product.discount ? [`${product.discount}% OFF`] : [])
+                  ].map(
+                    (badge: any, idx: number) => (
+                      <span
+                        key={idx}
+                        className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full border ${
+                          badge.includes('% OFF') 
+                            ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800"
+                            : "bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border-slate-100 dark:border-slate-800"
+                        }`}
+                      >
+                        {badge}
+                      </span>
+                    ),
+                  )}
+                </div>
+                
                 <div className="flex items-center gap-1 mb-2">
                   <Star size={12} className="fill-yellow-400 text-yellow-400" />
                   <span className="text-[10px] text-slate-500 font-bold tracking-tight">4.8 (120)</span>
@@ -162,14 +201,24 @@ export default function JustForYou() {
                 <div className="mt-auto pt-4 border-t border-slate-50 dark:border-slate-800/50">
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-black text-blue-600 dark:text-blue-400 whitespace-nowrap tracking-tighter">
-                      Rs. {typeof product.price === 'number' ? product.price.toLocaleString() : product.price}
+                      Rs. {typeof product.price === "number" ? product.price.toLocaleString() : product.price}
                     </span>
-                    <button 
-                      onClick={() => handleAddToCart(product)}
-                      className="p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600 transition-all shadow-inner group/btn"
-                    >
-                      <ShoppingCart size={18} className="group-hover/btn:scale-110 transition-transform" />
-                    </button>
+                    {(() => {
+                      const isOutOfStock = product.stockQuantity !== undefined && product.stockQuantity <= 0;
+                      return (
+                        <button
+                          onClick={() => !isOutOfStock && handleAddToCart(product)}
+                          disabled={isOutOfStock}
+                          className={`p-2.5 rounded-2xl transition-all shadow-inner group/btn ${
+                            isOutOfStock
+                              ? "bg-slate-100 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 cursor-not-allowed"
+                              : "bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-blue-600 hover:text-white dark:hover:bg-blue-600"
+                          }`}
+                        >
+                          <ShoppingCart size={18} className={!isOutOfStock ? "group-hover/btn:scale-110 transition-transform" : ""} />
+                        </button>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

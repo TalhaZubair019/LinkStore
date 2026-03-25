@@ -12,6 +12,7 @@ import { RootState } from "@/redux/Store";
 import Toast from "@/components/(store)/products/Toast";
 import PageHeader from "@/components/ui/PageHeader";
 import FilterSidebar from "@/components/(store)/shop/FilterSidebar";
+import SimpleProductCard from "@/components/(store)/products/SimpleProductCard";
 
 interface Category {
   id: string | number;
@@ -21,16 +22,17 @@ interface Category {
 }
 
 interface Product {
-  id: number;
+  id: string | number;
   title: string;
-  price: string;
+  price: string | number;
   image: string;
   badges?: string[];
   badge?: string | null;
   printText?: string;
-  oldPrice?: string | null;
+  oldPrice?: string | number | null;
   category?: string;
   vendorId?: string;
+  stockQuantity?: number;
 }
 
 export default function CategoryPage() {
@@ -94,7 +96,10 @@ export default function CategoryPage() {
           return allProducts.filter((p) => {
             const pTitle = p.title.toLowerCase();
             const pCat = p.category?.toLowerCase() || "";
-            const pPrice = parseFloat(p.price.replace(/[^0-9.]/g, ""));
+            const pPrice =
+              typeof p.price === "string"
+                ? parseFloat(p.price.replace(/[^0-9.]/g, ""))
+                : p.price || 0;
             const singularPCat = pCat.replace(/s$/, "");
 
             // Initial Category Match
@@ -159,7 +164,10 @@ export default function CategoryPage() {
   };
 
   const handleAddToCart = (product: Product) => {
-    const priceVal = parseFloat(product.price.replace(/[^0-9.]/g, ""));
+    const priceVal =
+      typeof product.price === "string"
+        ? parseFloat(product.price.replace(/[^0-9.]/g, ""))
+        : product.price || 0;
 
     dispatch(
       addToCart({
@@ -175,7 +183,10 @@ export default function CategoryPage() {
 
   const handleToggleWishlist = (product: Product) => {
     const isWishlisted = wishlistItems.some((item) => item.id === product.id);
-    const priceVal = parseFloat(product.price.replace(/[^0-9.]/g, ""));
+    const priceVal =
+      typeof product.price === "string"
+        ? parseFloat(product.price.replace(/[^0-9.]/g, ""))
+        : product.price || 0;
 
     dispatch(
       toggleWishlist({
@@ -329,138 +340,6 @@ export default function CategoryPage() {
         type={toast.type}
         onClose={() => setToast({ ...toast, show: false })}
       />
-    </div>
-  );
-}
-function SimpleProductCard({
-  product,
-  onAddToCart,
-  isInCart,
-  isWishlisted,
-  onToggleWishlist,
-}: {
-  product: Product;
-  onAddToCart: () => void;
-  isInCart: boolean;
-  isWishlisted: boolean;
-  onToggleWishlist: () => void;
-}) {
-  const [addingToCart, setAddingToCart] = useState(false);
-  const isOutOfStock = (product as any).stockQuantity <= 0;
-
-  const handleCartClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (isOutOfStock) return;
-    setAddingToCart(true);
-    onAddToCart();
-    setTimeout(() => setAddingToCart(false), 700);
-  };
-
-  return (
-    <div className="group bg-white dark:bg-slate-950 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-black/40 transition-all duration-300 relative border border-slate-100 dark:border-slate-800/50">
-      <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-        {(product.badges || (product.badge ? [product.badge] : [])).map(
-          (badge: string, idx: number) => (
-            <span
-              key={idx}
-              className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white rounded-sm ${
-                badge === "New" ? "bg-blue-500" : "bg-red-500"
-              }`}
-            >
-              {badge}
-            </span>
-          ),
-        )}
-      </div>
-
-      <button
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onToggleWishlist();
-        }}
-        className={`absolute top-4 right-4 z-20 w-9 h-9 flex items-center justify-center rounded-full shadow-md transition-all duration-300 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 ${
-          isWishlisted
-            ? "bg-red-500 text-white"
-            : "bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:bg-red-500 hover:text-white"
-        }`}
-        title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-      >
-        <Heart size={16} fill={isWishlisted ? "currentColor" : "none"} />
-      </button>
-
-      <Link
-        href={`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`}
-        className="flex relative h-64 bg-slate-50 dark:bg-slate-900/50 items-center justify-center p-6 group-hover:bg-slate-100 dark:group-hover:bg-slate-900 transition-colors overflow-hidden"
-      >
-        {product.image ? (
-          <Image
-            src={product.image}
-            alt={product.title}
-            fill
-            className={`object-contain p-2 ${isOutOfStock ? "grayscale opacity-60" : "group-hover:scale-110"} transition-transform duration-500`}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-300">
-            No Image
-          </div>
-        )}
-
-        {isOutOfStock && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-            <span className="bg-red-500 text-white font-bold px-3 py-1 rounded text-[10px] uppercase tracking-tighter rotate-12">
-              Out of Stock
-            </span>
-          </div>
-        )}
-
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 bg-black/5 dark:bg-black/20">
-          <button
-            onClick={handleCartClick}
-            disabled={addingToCart || isOutOfStock}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all cursor-pointer font-bold text-sm ${
-              isOutOfStock
-                ? "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed grayscale"
-                : "bg-linear-to-r from-[#8B5CF6] to-[#2DD4BF] text-white"
-            }`}
-          >
-            {addingToCart ? (
-              <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <ShoppingBag
-                size={16}
-                fill={isOutOfStock ? "none" : "currentColor"}
-              />
-            )}
-            {isOutOfStock
-              ? "NOT AVAILABLE"
-              : addingToCart
-                ? "Adding..."
-                : "Add to cart"}
-          </button>
-        </div>
-      </Link>
-
-      <div className="p-5 text-center bg-white dark:bg-slate-950 transition-colors">
-        <Link
-          href={`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`}
-        >
-          <h3 className="font-bold text-slate-800 dark:text-white text-sm mb-2 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-            {product.title}
-          </h3>
-        </Link>
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-sm font-bold text-purple-600 dark:text-purple-400 transition-colors">
-            {product.price}
-          </span>
-          {product.oldPrice && (
-            <span className="text-[10px] text-slate-400 dark:text-slate-600 line-through transition-colors">
-              {product.oldPrice}
-            </span>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

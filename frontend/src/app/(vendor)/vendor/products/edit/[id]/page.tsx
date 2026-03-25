@@ -138,7 +138,7 @@ export default function EditProductPage() {
           : null,
         image: imageUrl,
         badges: productForm.badges,
-        printText: "We print with",
+        printText: "",
         category: productForm.category || null,
       };
 

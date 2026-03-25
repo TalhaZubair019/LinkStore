@@ -15,7 +15,13 @@ import {
   Filter,
   ArrowDownUp,
 } from "lucide-react";
-import ProductCard from "@/components/(store)/products/ProductCard";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "@/redux/slices/cartSlice";
+import { toggleWishlist } from "@/redux/slices/wishlistSlice";
+import { RootState } from "@/redux/Store";
+import SimpleProductCard from "@/components/(store)/products/SimpleProductCard";
+import Toast from "@/components/(store)/products/Toast";
+import QuickViewModal from "@/components/(store)/products/QuickViewModal";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface VendorStore {
@@ -35,6 +41,10 @@ export default function VendorStorePage() {
   const params = useParams();
   const storeSlug = params.storeSlug as string;
 
+  const dispatch = useDispatch();
+  const wishlistItems = useSelector((state: RootState) => state.wishlist.items);
+  const { cartItems } = useSelector((state: RootState) => state.cart);
+
   const [store, setStore] = useState<VendorStore | null>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +52,56 @@ export default function VendorStorePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
+  const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: "add" | "remove";
+  }>({ show: false, message: "", type: "add" });
+
+  const handleAddToCart = (product: any, quantity = 1) => {
+    const priceVal =
+      typeof product.price === "string"
+        ? parseFloat(product.price.replace(/[^0-9.]/g, ""))
+        : product.price || 0;
+    dispatch(
+      addToCart({
+        id: product.id,
+        name: product.title,
+        price: priceVal,
+        image: product.image,
+        quantity,
+      }),
+    );
+    showToast(`Added ${quantity} x "${product.title}" to cart!`, "add");
+  };
+
+  const handleToggleWishlist = (product: any) => {
+    const isWishlisted = wishlistItems.some((item) => item.id === product.id);
+    const priceVal =
+      typeof product.price === "string"
+        ? parseFloat(product.price.replace(/[^0-9.]/g, ""))
+        : product.price || 0;
+    dispatch(
+      toggleWishlist({
+        id: product.id,
+        title: product.title,
+        price: priceVal,
+        image: product.image,
+      }),
+    );
+    showToast(
+      isWishlisted
+        ? `Removed "${product.title}" from wishlist`
+        : `Added "${product.title}" to wishlist`,
+      isWishlisted ? "remove" : "add",
+    );
+  };
+
+  const showToast = (message: string, type: "add" | "remove") => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
+  };
 
   const categories = [
     "All",
@@ -379,14 +439,19 @@ export default function VendorStorePage() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="flex justify-center"
+                    className="flex justify-center w-full"
                   >
-                    <ProductCard
+                    <SimpleProductCard
                       product={product}
-                      onAddToCart={() => {}}
-                      onToggleWishlist={() => {}}
-                      onQuickView={() => {}}
-                      onCompare={() => {}}
+                      isWishlisted={wishlistItems.some(
+                        (item) => item.id === product.id,
+                      )}
+                      isInCart={cartItems.some(
+                        (item: any) => item.id === product.id,
+                      )}
+                      onAddToCart={(p: any) => handleAddToCart(p)}
+                      onToggleWishlist={() => handleToggleWishlist(product)}
+                      onQuickView={() => setQuickViewProduct(product)}
                     />
                   </motion.div>
                 ))}
@@ -411,6 +476,19 @@ export default function VendorStorePage() {
           </AnimatePresence>
         </div>
       </div>
+
+      <QuickViewModal
+        product={quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+        onAddToCart={handleAddToCart}
+      />
+
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ ...toast, show: false })}
+      />
     </div>
   );
 }
