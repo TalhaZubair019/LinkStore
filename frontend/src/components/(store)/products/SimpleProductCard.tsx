@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -34,12 +35,19 @@ export default function SimpleProductCard({
   onToggleWishlist,
   onQuickView,
 }: SimpleProductCardProps) {
+  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const slug = product.title.toLowerCase().replace(/\s+/g, "-");
+
+  const handleCardClick = () => {
+    router.push(`/product/${slug}`);
+  };
 
   const handleCartClick = (e?: React.MouseEvent) => {
     if (e) {
@@ -58,7 +66,10 @@ export default function SimpleProductCard({
     product.stockQuantity !== undefined && product.stockQuantity <= 0;
 
   return (
-    <div className="group w-full bg-white dark:bg-slate-900 rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-500 relative border border-transparent hover:border-purple-200 dark:hover:border-purple-900/40 flex flex-col h-full">
+    <div
+      onClick={handleCardClick}
+      className="group w-full bg-white dark:bg-slate-900 transition-all duration-500 relative flex flex-col h-full cursor-pointer"
+    >
       {/* Wishlist Button */}
       <button
         onClick={(e) => {
@@ -91,12 +102,8 @@ export default function SimpleProductCard({
         </button>
       )}
 
-      {/* Image Section */}
       <div className="relative h-80 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center p-8 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors duration-500">
-        <Link
-          href={`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`}
-          className="relative w-full h-full block"
-        >
+        <div className="relative w-full h-full block">
           <Image
             src={product.image}
             alt={product.title}
@@ -105,15 +112,15 @@ export default function SimpleProductCard({
               isOutOfStock ? "grayscale opacity-40" : "group-hover:scale-110"
             }`}
           />
-
+ 
           {isOutOfStock && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
-              <span className="bg-red-500/90 text-white font-black px-5 py-2.5 rounded-xl rotate-12 backdrop-blur-sm shadow-2xl border border-white/20 whitespace-nowrap text-[10px] tracking-widest uppercase">
+              <span className="bg-red-500 text-white font-black px-5 py-2.5 rounded-xl rotate-12 shadow-2xl border-none whitespace-nowrap text-[10px] tracking-widest uppercase">
                 Sold Out
               </span>
             </div>
           )}
-        </Link>
+        </div>
 
         {/* Hover Overlay */}
         <div
@@ -143,6 +150,7 @@ export default function SimpleProductCard({
               </button>
               <Link
                 href="/cart"
+                onClick={(e) => e.stopPropagation()}
                 className="flex items-center gap-2 px-5 py-3 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-black rounded-full shadow-2xl hover:shadow-white/10 hover:scale-105 transition-all active:scale-95 uppercase tracking-wider border border-slate-200 dark:border-slate-700"
               >
                 Cart
@@ -166,7 +174,7 @@ export default function SimpleProductCard({
       </div>
 
       {/* Info Section */}
-      <div className="p-6 text-center bg-white dark:bg-slate-900 border-t border-slate-50 dark:border-slate-800 transition-colors flex-1 flex flex-col justify-center">
+      <div className="p-6 text-center bg-white dark:bg-slate-900 transition-colors flex-1 flex flex-col justify-center">
         {/* Badges */}
         <div className="flex flex-wrap justify-center gap-2 mb-3">
           {(product.badges || (product.badge ? [product.badge] : [])).map(
@@ -180,13 +188,9 @@ export default function SimpleProductCard({
             ),
           )}
         </div>
-        <Link
-          href={`/product/${product.title.toLowerCase().replace(/\s+/g, "-")}`}
-        >
-          <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors tracking-tight">
-            {product.title}
-          </h3>
-        </Link>
+        <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors tracking-tight">
+          {product.title}
+        </h3>
         <div className="flex items-center justify-center gap-3">
           <span className="text-sm font-black text-purple-600 dark:text-purple-400">
             {product.price}
