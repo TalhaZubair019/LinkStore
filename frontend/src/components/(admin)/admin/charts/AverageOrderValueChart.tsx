@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { DashboardStats } from "@/app/(admin)/admin/types";
 
 interface AverageOrderValueChartProps {
@@ -208,6 +208,9 @@ const AverageOrderValueChart = ({
                 {(() => {
                   if (!filteredAovData) return null;
                   const aovData = filteredAovData.map((d: any) => {
+                    if (d.aov !== undefined) {
+                      return { value: d.aov, date: d.date };
+                    }
                     const ordersOnDay =
                       stats.recentOrders.filter(
                         (o: any) =>
@@ -342,13 +345,16 @@ const AverageOrderValueChart = ({
           </div>
           <div className="mt-4 flex items-center justify-between px-2">
             <div className="text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Min AOV</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Min AOV
+              </p>
               <p className="text-sm font-bold text-amber-600">
                 $
                 {!filteredAovData || filteredAovData.length === 0
                   ? "0.00"
                   : Math.min(
                       ...filteredAovData.map((d: any) => {
+                        if (d.aov !== undefined) return d.aov;
                         const orders =
                           stats.recentOrders.filter(
                             (o: any) =>
@@ -361,32 +367,30 @@ const AverageOrderValueChart = ({
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Avg AOV</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Avg AOV
+              </p>
               <p className="text-sm font-bold text-amber-600">
                 $
                 {!filteredAovData || filteredAovData.length === 0
                   ? "0.00"
                   : (
-                      filteredAovData.reduce((acc, d) => acc + d.revenue, 0) /
-                      (filteredAovData.reduce((acc, d) => {
-                        const ordersForDay = stats.recentOrders.filter(
-                          (o: any) =>
-                            new Date(o.date).toDateString() ===
-                            new Date(d.date).toDateString(),
-                        ).length;
-                        return acc + (ordersForDay > 0 ? ordersForDay : 1);
-                      }, 0) || 1)
+                      filteredAovData.reduce((acc, d) => acc + (d.aov !== undefined ? d.aov : (d.revenue / (stats.recentOrders.filter((o: any) => new Date(o.date).toDateString() === new Date(d.date).toDateString()).length || 1))), 0) /
+                      (filteredAovData.length || 1)
                     ).toFixed(2)}
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Max AOV</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                Max AOV
+              </p>
               <p className="text-sm font-bold text-amber-600">
                 $
                 {!filteredAovData || filteredAovData.length === 0
                   ? "0.00"
                   : Math.max(
                       ...filteredAovData.map((d: any) => {
+                        if (d.aov !== undefined) return d.aov;
                         const orders =
                           stats.recentOrders.filter(
                             (o: any) =>

@@ -13,14 +13,12 @@ router.get("/", async (req, res) => {
       await connectDB();
       const { OrderModel } = require("../../lib/models");
       const { search, category, minPrice, maxPrice, vendorId } = req.query;
-
-      // Build dynamic query
       const query = { isApproved: true };
 
       if (search) {
         query.$or = [
           { title: { $regex: search, $options: "i" } },
-          { description: { $regex: search, $options: "i" } }
+          { description: { $regex: search, $options: "i" } },
         ];
       }
 
@@ -31,14 +29,10 @@ router.get("/", async (req, res) => {
       if (vendorId) {
         query.vendorId = vendorId;
       }
-
-      // Fetch products matching core filters first
       const [shopProducts, orders] = await Promise.all([
         ProductModel.find(query).sort({ id: -1 }).lean(),
         OrderModel.find({}).lean(),
       ]);
-
-      // Apply price range filter in-memory for accurate numeric comparison (since price is String in DB)
       let filteredProducts = shopProducts;
       if (minPrice || maxPrice) {
         const min = minPrice ? parseFloat(minPrice) : -Infinity;
@@ -46,8 +40,9 @@ router.get("/", async (req, res) => {
 
         filteredProducts = shopProducts.filter((p) => {
           if (!p.price) return false;
-          // Extract numeric value from string (e.g. "$99.00" -> 99.0)
-          const priceValue = parseFloat(String(p.price).replace(/[^0-9.]/g, ""));
+          const priceValue = parseFloat(
+            String(p.price).replace(/[^0-9.]/g, ""),
+          );
           return !isNaN(priceValue) && priceValue >= min && priceValue <= max;
         });
       }
@@ -56,7 +51,8 @@ router.get("/", async (req, res) => {
       orders.forEach((order) => {
         if (order.status === "Cancelled") return;
         order.items?.forEach((item) => {
-          salesData[item.name] = (salesData[item.name] || 0) + (item.quantity || 1);
+          salesData[item.name] =
+            (salesData[item.name] || 0) + (item.quantity || 1);
         });
       });
 
@@ -71,7 +67,9 @@ router.get("/", async (req, res) => {
     if (section === "categories") {
       await connectDB();
       const { CategoryModel } = require("../../lib/models");
-      const dbCategories = await CategoryModel.find({}).sort({ name: 1 }).lean();
+      const dbCategories = await CategoryModel.find({})
+        .sort({ name: 1 })
+        .lean();
 
       const formattedCategories = dbCategories.map((cat) => ({
         id: cat._id.toString(),
@@ -81,12 +79,12 @@ router.get("/", async (req, res) => {
         link: `/category/${cat.slug}`,
       }));
 
-      // Merge metadata from db.json with dynamic categories
       return res.json({
         ...db.categories,
-        categories: formattedCategories.length > 0 
-          ? formattedCategories 
-          : db.categories.categories,
+        categories:
+          formattedCategories.length > 0
+            ? formattedCategories
+            : db.categories.categories,
       });
     }
 

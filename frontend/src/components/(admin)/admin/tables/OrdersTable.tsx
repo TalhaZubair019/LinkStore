@@ -1,7 +1,11 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import { Eye, User, Filter, FilterX, Calendar } from "lucide-react";
-import { Order } from "@/app/(admin)/admin/types";
+import { Order as BaseOrder } from "@/app/(admin)/admin/types";
+
+interface Order extends BaseOrder {
+  vendorStatuses?: { vendorId: string; status: string }[];
+}
 
 interface OrdersTableProps {
   allOrders: Order[];
@@ -16,6 +20,7 @@ interface OrdersTableProps {
   isAdminView?: boolean;
   totalOrderPages?: number;
   itemsPerPage?: number;
+  currentVendorId?: string;
 }
 
 const OrdersTable = ({
@@ -31,6 +36,7 @@ const OrdersTable = ({
   isAdminView = false,
   totalOrderPages,
   itemsPerPage = 10,
+  currentVendorId,
 }: OrdersTableProps) => {
   const [selectedUserId, setSelectedUserId] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
@@ -216,6 +222,7 @@ const OrdersTable = ({
             >
               <option value="all">All Statuses</option>
               <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
               <option value="Accepted">Accepted</option>
               <option value="Shipped">Shipped</option>
               <option value="Arrived in Country">Arrived in Country</option>
@@ -317,8 +324,16 @@ const OrdersTable = ({
                     {new Date(o.date).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="text-sm font-bold text-slate-900 dark:text-white">
-                  {o.total}
+                <div className="flex flex-col items-end">
+                  <div className="text-sm font-bold text-slate-900 dark:text-white">
+                    $
+                    {typeof o.total === "number" ? o.total.toFixed(2) : o.total}
+                  </div>
+                  {isAdminView && (
+                    <div className="text-[10px] font-bold text-rose-500 mt-1">
+                      Com: ${(o.platformFee || 0).toFixed(2)}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -350,84 +365,102 @@ const OrdersTable = ({
                     className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-bold border ${
                       o.status === "Pending"
                         ? "bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800"
-                        : o.status === "Accepted"
-                          ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
-                          : o.status === "Shipped"
-                            ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800"
-                            : o.status === "Arrived in Country"
-                              ? "bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800"
-                              : o.status === "Arrived in City"
-                                ? "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800"
-                                : o.status === "Out for Delivery"
-                                  ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800"
-                                  : o.status === "Delivered"
-                                    ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-                                    : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
+                        : o.status === "Processing"
+                          ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800"
+                          : o.status === "Accepted"
+                            ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                            : o.status === "Shipped"
+                              ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800"
+                              : o.status === "Arrived in Country"
+                                ? "bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800"
+                                : o.status === "Arrived in City"
+                                  ? "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800"
+                                  : o.status === "Out for Delivery"
+                                    ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800"
+                                    : o.status === "Delivered"
+                                      ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                                      : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
                     }`}
                   >
                     {o.status}
                   </div>
                 ) : (
                   <div className="relative flex-1 min-w-[140px]">
-                    <select
-                      value={o.status}
-                      disabled={
-                        updatingOrderId === o.id ||
-                        o.status === "Delivered" ||
-                        o.status === "Cancelled"
-                      }
-                      onChange={(e) => {
-                        if (e.target.value === "Cancelled") {
-                          requestCancelOrder(o);
-                        } else {
-                          handleStatusChange(o.id, e.target.value);
-                        }
-                      }}
-                      className={`w-full text-xs font-bold py-2 border rounded-xl px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
-                        o.status === "Pending"
-                          ? "bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800 focus:ring-amber-500/20"
-                          : o.status === "Accepted"
-                            ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 focus:ring-blue-500/20"
-                            : o.status === "Shipped"
-                              ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 focus:ring-indigo-500/20"
-                              : o.status === "Arrived in Country"
-                                ? "bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800 focus:ring-violet-500/20"
-                                : o.status === "Arrived in City"
-                                  ? "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800 focus:ring-pink-500/20"
-                                  : o.status === "Out for Delivery"
-                                    ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
-                                    : o.status === "Delivered"
-                                      ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
-                                      : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
-                      } ${updatingOrderId === o.id ? "animate-pulse" : ""}`}
-                    >
-                      <option value={o.status}>{o.status}</option>
-                      {o.status === "Pending" && (
-                        <option value="Accepted">Accepted</option>
-                      )}
-                      {o.status === "Accepted" && (
-                        <option value="Shipped">Shipped</option>
-                      )}
-                      {o.status === "Shipped" && (
-                        <option value="Arrived in Country">
-                          Arrived in Country
-                        </option>
-                      )}
-                      {o.status === "Arrived in Country" && (
-                        <option value="Arrived in City">Arrived in City</option>
-                      )}
-                      {o.status === "Arrived in City" && (
-                        <option value="Out for Delivery">
-                          Out for Delivery
-                        </option>
-                      )}
-                      {o.status === "Out for Delivery" && (
-                        <option value="Delivered">Delivered</option>
-                      )}
-                      {o.status !== "Delivered" && o.status !== "Cancelled" && (
-                        <option value="Cancelled">Cancelled</option>
-                      )}
-                    </select>
+                    {(() => {
+                      const displayStatus =
+                        currentVendorId && o.vendorStatuses
+                          ? o.vendorStatuses.find(
+                              (vs: any) => vs.vendorId === currentVendorId,
+                            )?.status || o.status
+                          : o.status;
+
+                      return (
+                        <select
+                          value={displayStatus}
+                          disabled={
+                            updatingOrderId === o.id ||
+                            displayStatus === "Delivered" ||
+                            displayStatus === "Cancelled"
+                          }
+                          onChange={(e) => {
+                            if (e.target.value === "Cancelled") {
+                              requestCancelOrder(o);
+                            } else {
+                              handleStatusChange(o.id, e.target.value);
+                            }
+                          }}
+                          className={`w-full text-xs font-bold py-2 border rounded-xl px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+                            displayStatus === "Pending"
+                              ? "bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800 focus:ring-amber-500/20"
+                              : displayStatus === "Processing"
+                                ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
+                                : displayStatus === "Accepted"
+                                  ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 focus:ring-blue-500/20"
+                                  : displayStatus === "Shipped"
+                                    ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 focus:ring-indigo-500/20"
+                                    : displayStatus === "Arrived in Country"
+                                      ? "bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800 focus:ring-violet-500/20"
+                                      : displayStatus === "Arrived in City"
+                                        ? "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800 focus:ring-pink-500/20"
+                                        : displayStatus === "Out for Delivery"
+                                          ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
+                                          : displayStatus === "Delivered"
+                                            ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
+                                            : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
+                          } ${updatingOrderId === o.id ? "animate-pulse" : ""}`}
+                        >
+                          <option value={displayStatus}>{displayStatus}</option>
+                          {displayStatus === "Pending" && (
+                            <option value="Accepted">Accepted</option>
+                          )}
+                          {displayStatus === "Accepted" && (
+                            <option value="Shipped">Shipped</option>
+                          )}
+                          {displayStatus === "Shipped" && (
+                            <option value="Arrived in Country">
+                              Arrived in Country
+                            </option>
+                          )}
+                          {displayStatus === "Arrived in Country" && (
+                            <option value="Arrived in City">
+                              Arrived in City
+                            </option>
+                          )}
+                          {displayStatus === "Arrived in City" && (
+                            <option value="Out for Delivery">
+                              Out for Delivery
+                            </option>
+                          )}
+                          {displayStatus === "Out for Delivery" && (
+                            <option value="Delivered">Delivered</option>
+                          )}
+                          {displayStatus !== "Delivered" &&
+                            displayStatus !== "Cancelled" && (
+                              <option value="Cancelled">Cancelled</option>
+                            )}
+                        </select>
+                      );
+                    })()}
                     {updatingOrderId === o.id && (
                       <div className="absolute right-2 top-1/2 -translate-y-1/2">
                         <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
@@ -454,6 +487,7 @@ const OrdersTable = ({
               {isAdminView && <th className="px-8 py-4">Vendor</th>}
               <th className="px-8 py-4">Customer</th>
               <th className="px-8 py-4">Total</th>
+              {isAdminView && <th className="px-8 py-4">Commission</th>}
               <th className="px-8 py-4">Status</th>
               <th className="px-8 py-4 text-right">Action</th>
             </tr>
@@ -502,95 +536,127 @@ const OrdersTable = ({
                   </div>
                 </td>
                 <td className="px-8 py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">
-                  {o.total}
+                  ${typeof o.total === "number" ? o.total.toFixed(2) : o.total}
                 </td>
+                {isAdminView && (
+                  <td className="px-8 py-5 font-bold text-sm text-rose-600 dark:text-rose-400 whitespace-nowrap">
+                    ${(o.platformFee || 0).toFixed(2)}
+                  </td>
+                )}
                 <td className="px-8 py-5">
                   <div className="relative group min-w-[140px]">
                     {isAdminView ? (
-                      <div
-                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-bold border ${
-                          o.status === "Pending"
-                            ? "bg-amber-50 text-amber-600 border-amber-200"
-                            : o.status === "Accepted"
-                              ? "bg-blue-50 text-blue-600 border-blue-200"
-                              : o.status === "Shipped"
-                                ? "bg-indigo-50 text-indigo-600 border-indigo-200"
-                                : o.status === "Arrived in Country"
-                                  ? "bg-violet-50 text-violet-600 border-violet-200"
-                                  : o.status === "Arrived in City"
-                                    ? "bg-pink-50 text-pink-600 border-pink-200"
-                                    : o.status === "Out for Delivery"
-                                      ? "bg-orange-50 text-orange-600 border-orange-200"
-                                      : o.status === "Delivered"
-                                        ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
-                                        : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
-                        }`}
-                      >
-                        {o.status}
+                      <div className="flex flex-col gap-1">
+                        <div
+                          className={`inline-flex items-center px-3 py-1.5 rounded-lg text-[10px] font-bold border ${
+                            o.status === "Pending"
+                              ? "bg-amber-50 text-amber-600 border-amber-200"
+                              : o.status === "Processing"
+                                ? "bg-orange-50 text-orange-600 border-orange-200"
+                                : o.status === "Accepted"
+                                  ? "bg-blue-50 text-blue-600 border-blue-200"
+                                  : o.status === "Shipped"
+                                    ? "bg-indigo-50 text-indigo-600 border-indigo-200"
+                                    : o.status === "Arrived in Country"
+                                      ? "bg-violet-50 text-violet-600 border-violet-200"
+                                      : o.status === "Arrived in City"
+                                        ? "bg-pink-50 text-pink-600 border-pink-200"
+                                        : o.status === "Out for Delivery"
+                                          ? "bg-orange-50 text-orange-600 border-orange-200"
+                                          : o.status === "Delivered"
+                                            ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                                            : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800"
+                          }`}
+                        >
+                          {o.status}
+                        </div>
+                        {o.vendorStatuses &&
+                          o.vendorStatuses.length > 1 &&
+                          new Set(o.vendorStatuses.map((vs: any) => vs.status))
+                            .size > 1 && (
+                            <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-1.5 py-0.5 rounded border border-amber-200 dark:border-amber-800/50 uppercase tracking-tighter text-center">
+                              Mixed Status
+                            </span>
+                          )}
                       </div>
                     ) : (
-                      <select
-                        value={o.status}
-                        disabled={
-                          updatingOrderId === o.id ||
-                          o.status === "Delivered" ||
-                          o.status === "Cancelled"
-                        }
-                        onChange={(e) => {
-                          if (e.target.value === "Cancelled") {
-                            requestCancelOrder(o);
-                          } else {
-                            handleStatusChange(o.id, e.target.value);
-                          }
-                        }}
-                        className={`w-full text-xs font-bold py-1.5 border rounded-lg px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
-                          o.status === "Pending"
-                            ? "bg-amber-50 text-amber-600 border-amber-200 focus:ring-amber-500/20"
-                            : o.status === "Accepted"
-                              ? "bg-blue-50 text-blue-600 border-blue-200 focus:ring-blue-500/20"
-                              : o.status === "Shipped"
-                                ? "bg-indigo-50 text-indigo-600 border-indigo-200 focus:ring-indigo-500/20"
-                                : o.status === "Arrived in Country"
-                                  ? "bg-violet-50 text-violet-600 border-violet-200 focus:ring-violet-500/20"
-                                  : o.status === "Arrived in City"
-                                    ? "bg-pink-50 text-pink-600 border-pink-200 focus:ring-pink-500/20"
-                                    : o.status === "Out for Delivery"
-                                      ? "bg-orange-50 text-orange-600 border-orange-200 focus:ring-orange-500/20"
-                                      : o.status === "Delivered"
-                                        ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
-                                        : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
-                        } ${updatingOrderId === o.id ? "animate-pulse" : ""}`}
-                      >
-                        <option value={o.status}>{o.status}</option>
-                        {o.status === "Pending" && (
-                          <option value="Accepted">Accepted</option>
-                        )}
-                        {o.status === "Accepted" && (
-                          <option value="Shipped">Shipped</option>
-                        )}
-                        {o.status === "Shipped" && (
-                          <option value="Arrived in Country">
-                            Arrived in Country
-                          </option>
-                        )}
-                        {o.status === "Arrived in Country" && (
-                          <option value="Arrived in City">
-                            Arrived in City
-                          </option>
-                        )}
-                        {o.status === "Arrived in City" && (
-                          <option value="Out for Delivery">
-                            Out for Delivery
-                          </option>
-                        )}
-                        {o.status === "Out for Delivery" && (
-                          <option value="Delivered">Delivered</option>
-                        )}
-                        {o.status !== "Delivered" &&
-                          o.status !== "Cancelled" && (
-                            <option value="Cancelled">Cancelled</option>
-                          )}
-                      </select>
+                      (() => {
+                        const displayStatus =
+                          currentVendorId && o.vendorStatuses
+                            ? o.vendorStatuses.find(
+                                (vs: any) => vs.vendorId === currentVendorId,
+                              )?.status || o.status
+                            : o.status;
+
+                        return (
+                          <select
+                            value={displayStatus}
+                            disabled={
+                              updatingOrderId === o.id ||
+                              displayStatus === "Delivered" ||
+                              displayStatus === "Cancelled"
+                            }
+                            onChange={(e) => {
+                              if (e.target.value === "Cancelled") {
+                                requestCancelOrder(o);
+                              } else {
+                                handleStatusChange(o.id, e.target.value);
+                              }
+                            }}
+                            className={`w-full text-xs font-bold py-1.5 border rounded-lg px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+                              displayStatus === "Pending"
+                                ? "bg-amber-50 text-amber-600 border-amber-200 focus:ring-amber-500/20"
+                                : displayStatus === "Processing"
+                                  ? "bg-orange-50 text-orange-600 border-orange-200 focus:ring-orange-500/20"
+                                  : displayStatus === "Accepted"
+                                    ? "bg-blue-50 text-blue-600 border-blue-200 focus:ring-blue-500/20"
+                                    : displayStatus === "Shipped"
+                                      ? "bg-indigo-50 text-indigo-600 border-indigo-200 focus:ring-indigo-500/20"
+                                      : displayStatus === "Arrived in Country"
+                                        ? "bg-violet-50 text-violet-600 border-violet-200 focus:ring-violet-500/20"
+                                        : displayStatus === "Arrived in City"
+                                          ? "bg-pink-50 text-pink-600 border-pink-200 focus:ring-pink-500/20"
+                                          : displayStatus === "Out for Delivery"
+                                            ? "bg-orange-50 text-orange-600 border-orange-200 focus:ring-orange-500/20"
+                                            : displayStatus === "Delivered"
+                                              ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
+                                              : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
+                            } ${updatingOrderId === o.id ? "animate-pulse" : ""}`}
+                          >
+                            <option value={displayStatus}>
+                              {displayStatus}
+                            </option>
+                            {displayStatus === "Pending" && (
+                              <option value="Accepted">Accepted</option>
+                            )}
+                            {displayStatus === "Accepted" && (
+                              <option value="Shipped">Shipped</option>
+                            )}
+                            {displayStatus === "Shipped" && (
+                              <option value="Arrived in Country">
+                                Arrived in Country
+                              </option>
+                            )}
+                            {displayStatus === "Arrived in Country" && (
+                              <option value="Arrived in City">
+                                Arrived in City
+                              </option>
+                            )}
+                            {displayStatus === "Arrived in City" && (
+                              <option value="Out for Delivery">
+                                Out for Delivery
+                              </option>
+                            )}
+                            {displayStatus === "Out for Delivery" && (
+                              <option value="Delivered">Delivered</option>
+                            )}
+                            {displayStatus !== "Delivered" &&
+                              displayStatus !== "Cancelled" && (
+                                <option value="Cancelled">Cancelled</option>
+                              )}
+                          </select>
+                        );
+                      })()
                     )}
                     {!isAdminView && updatingOrderId === o.id && (
                       <div className="absolute right-2 top-1/2 -translate-y-1/2">

@@ -78,15 +78,18 @@ export default function WishlistPage() {
     );
   }
 
-  const groupedWishlistItems = wishlistItems.reduce((acc: any, item: WishlistItem) => {
-    const product = products.find((p) => String(p.id) === String(item.id));
-    const storeName = product?.vendorStoreName || "Verified Store";
-    if (!acc[storeName]) {
-      acc[storeName] = [];
-    }
-    acc[storeName].push(item);
-    return acc;
-  }, {});
+  const groupedWishlistItems = wishlistItems.reduce(
+    (acc: any, item: WishlistItem) => {
+      const product = products.find((p) => String(p.id) === String(item.id));
+      const storeName = product?.vendorStoreName || "Verified Store";
+      if (!acc[storeName]) {
+        acc[storeName] = [];
+      }
+      acc[storeName].push(item);
+      return acc;
+    },
+    {},
+  );
 
   return (
     <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-300">
@@ -117,34 +120,41 @@ export default function WishlistPage() {
                   </span>
                 </div>
                 <div>
-                  {Object.entries(groupedWishlistItems).map(([storeName, items]: [string, any]) => (
-                    <div key={storeName} className="mb-12 last:mb-0">
-                      <div className="flex items-center gap-3 mb-6 pb-2 border-b border-slate-100 dark:border-slate-800">
-                        <div className="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
-                          <span className="text-pink-600 dark:text-pink-400 font-black text-xs">
-                            {storeName.charAt(0).toUpperCase()}
-                          </span>
+                  {Object.entries(groupedWishlistItems).map(
+                    ([storeName, items]: [string, any]) => (
+                      <div key={storeName} className="mb-12 last:mb-0">
+                        <div className="flex items-center gap-3 mb-6 pb-2 border-b border-slate-100 dark:border-slate-800">
+                          <div className="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
+                            <span className="text-pink-600 dark:text-pink-400 font-black text-xs">
+                              {storeName.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+                            Favorited from{" "}
+                            <span className="text-pink-600 dark:text-pink-400">
+                              {storeName}
+                            </span>
+                          </h3>
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                          Favorited from <span className="text-pink-600 dark:text-pink-400">{storeName}</span>
-                        </h3>
+                        <div className="space-y-12">
+                          {items.map((item: WishlistItem) => {
+                            const productData = products.find(
+                              (p) => p.id === item.id,
+                            );
+                            return (
+                              <WishlistItemComponent
+                                key={item.id}
+                                item={item}
+                                productData={productData}
+                                stockQuantity={productData?.stockQuantity}
+                                onToast={showToast}
+                              />
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div className="space-y-12">
-                        {items.map((item: WishlistItem) => {
-                          const productData = products.find((p) => p.id === item.id);
-                          return (
-                            <WishlistItemComponent
-                              key={item.id}
-                              item={item}
-                              productData={productData}
-                              stockQuantity={productData?.stockQuantity}
-                              onToast={showToast}
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </div>
             </div>

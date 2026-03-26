@@ -3,7 +3,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { connectDB } = require("../../lib/db");
 const { UserModel, AdminModel, VendorModel } = require("../../lib/models");
-const { requireAuth, JWT_SECRET, ADMIN_EMAIL, findUserAcrossCollections } = require("../../middleware/auth");
+const {
+  requireAuth,
+  JWT_SECRET,
+  ADMIN_EMAIL,
+  findUserAcrossCollections,
+} = require("../../middleware/auth");
 
 const router = express.Router();
 
@@ -23,7 +28,6 @@ router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     await connectDB();
 
-    // Search across all three collections
     const [adminUser, regularUser, vendorUser] = await Promise.all([
       AdminModel.findOne({ email }).lean(),
       UserModel.findOne({ email }).lean(),
@@ -42,7 +46,8 @@ router.post("/login", async (req, res) => {
 
     if (!user.isVerified) {
       return res.status(401).json({
-        message: "Your email is not verified. Please verify your email to log in.",
+        message:
+          "Your email is not verified. Please verify your email to log in.",
         notVerified: true,
       });
     }
@@ -50,11 +55,20 @@ router.post("/login", async (req, res) => {
     const isAdmin = !!adminUser || user.email === ADMIN_EMAIL;
     const isVendor = !!vendorUser;
     const adminRole = adminUser
-      ? user.email === ADMIN_EMAIL ? "super_admin" : "admin"
+      ? user.email === ADMIN_EMAIL
+        ? "super_admin"
+        : "admin"
       : null;
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name, isAdmin, isVendor, adminRole },
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        isAdmin,
+        isVendor,
+        adminRole,
+      },
       JWT_SECRET,
       { expiresIn: "7d" },
     );
@@ -111,7 +125,7 @@ router.post("/signup", async (req, res) => {
       savedCards: [],
       isVerified: false,
       otp,
-      otpExpiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+      otpExpiresAt: new Date(Date.now() + 1 * 60 * 1000),
     });
 
     try {
@@ -128,7 +142,7 @@ router.post("/signup", async (req, res) => {
             <div style="text-align: center; margin: 30px 0;">
               <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #8B5CF6; background: #F3F4F6; padding: 10px 20px; border-radius: 8px;">${otp}</span>
             </div>
-            <p>This code will expire in 5 minutes.</p>
+            <p>This code will expire in 1 minute.</p>
             <p>If you didn't request this, you can safely ignore this email.</p>
             <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
             <p style="font-size: 12px; color: #666; text-align: center;">Best regards,<br />The LinkStore Team</p>
@@ -160,9 +174,13 @@ router.get("/me", requireAuth, async (req, res) => {
     const isAdmin = user.collection === "admins" || user.email === ADMIN_EMAIL;
     const isVendor = user.collection === "vendors";
     const adminRole = isAdmin
-      ? user.email === ADMIN_EMAIL ? "super_admin" : "admin"
+      ? user.email === ADMIN_EMAIL
+        ? "super_admin"
+        : "admin"
       : null;
-    return res.json({ user: { ...userWithoutPassword, isAdmin, isVendor, adminRole } });
+    return res.json({
+      user: { ...userWithoutPassword, isAdmin, isVendor, adminRole },
+    });
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" });
   }
@@ -171,10 +189,23 @@ router.get("/me", requireAuth, async (req, res) => {
 router.put("/me", requireAuth, async (req, res) => {
   try {
     const allowedFields = [
-      "name", "phone", "address", "city", "province", "postcode",
-      "country", "countryCode", "stateCode", "savedCards", "cart", "wishlist",
-      "promotionPending", "demotionPending", "vendorApprovalPending",
-      "suspensionPending", "unsuspensionPending"
+      "name",
+      "phone",
+      "address",
+      "city",
+      "province",
+      "postcode",
+      "country",
+      "countryCode",
+      "stateCode",
+      "savedCards",
+      "cart",
+      "wishlist",
+      "promotionPending",
+      "demotionPending",
+      "vendorApprovalPending",
+      "suspensionPending",
+      "unsuspensionPending",
     ];
     const updateData = {};
     for (const field of allowedFields) {
@@ -182,11 +213,16 @@ router.put("/me", requireAuth, async (req, res) => {
     }
 
     await connectDB();
-    // Update in whichever collection the user exists
     const [u, a, v] = await Promise.all([
-      UserModel.findOneAndUpdate({ id: req.user.id }, updateData, { returnDocument: "after" }).lean(),
-      AdminModel.findOneAndUpdate({ id: req.user.id }, updateData, { returnDocument: "after" }).lean(),
-      VendorModel.findOneAndUpdate({ id: req.user.id }, updateData, { returnDocument: "after" }).lean(),
+      UserModel.findOneAndUpdate({ id: req.user.id }, updateData, {
+        returnDocument: "after",
+      }).lean(),
+      AdminModel.findOneAndUpdate({ id: req.user.id }, updateData, {
+        returnDocument: "after",
+      }).lean(),
+      VendorModel.findOneAndUpdate({ id: req.user.id }, updateData, {
+        returnDocument: "after",
+      }).lean(),
     ]);
     const updated = u || a || v;
     if (updated) return res.json({ message: "User updated successfully" });
@@ -196,8 +232,12 @@ router.put("/me", requireAuth, async (req, res) => {
   }
 });
 
-router.post("/logout", (req, res) => {
+router.all("/logout", (req, res) => {
   res.clearCookie("token", { path: "/" });
+  if (req.method === "GET") {
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    return res.redirect(`${frontendUrl}/login`);
+  }
   return res.json({ message: "Logged out successfully" });
 });
 
@@ -207,7 +247,6 @@ router.post("/forgot-password", async (req, res) => {
     if (!email) return res.status(400).json({ message: "Email is required" });
 
     await connectDB();
-    // Search all collections
     const [adminUser, regularUser, vendorUser] = await Promise.all([
       AdminModel.findOne({ email }).lean(),
       UserModel.findOne({ email }).lean(),
@@ -216,10 +255,15 @@ router.post("/forgot-password", async (req, res) => {
     const user = adminUser || vendorUser || regularUser;
 
     if (!user) {
-      return res.status(404).json({ message: "No account found with this email address." });
+      return res
+        .status(404)
+        .json({ message: "No account found with this email address." });
     }
-    const resetToken = jwt.sign({ id: user.id, purpose: "reset" }, JWT_SECRET, { expiresIn: "15m" });
-    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || "http://localhost:3000";
+    const resetToken = jwt.sign({ id: user.id, purpose: "reset" }, JWT_SECRET, {
+      expiresIn: "15m",
+    });
+    const frontendUrl =
+      process.env.FRONTEND_URL || req.headers.origin || "http://localhost:3000";
     const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
 
     const { transporter } = require("../../lib/mailer");
@@ -241,7 +285,9 @@ router.post("/forgot-password", async (req, res) => {
         </div>
       `,
     });
-    return res.json({ message: "Reset link sent successfully. Please check your email." });
+    return res.json({
+      message: "Reset link sent successfully. Please check your email.",
+    });
   } catch (error) {
     console.error("Forgot password error:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -251,13 +297,15 @@ router.post("/forgot-password", async (req, res) => {
 router.post("/reset-password", async (req, res) => {
   try {
     const { token, password } = req.body;
-    if (!token || !password) return res.status(400).json({ message: "Token and password are required" });
+    if (!token || !password)
+      return res
+        .status(400)
+        .json({ message: "Token and password are required" });
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
       if (decoded.purpose !== "reset") throw new Error("Invalid token purpose");
 
       await connectDB();
-      // Find the user in any collection
       const [adminUser, regularUser, vendorUser] = await Promise.all([
         AdminModel.findOne({ id: decoded.id }),
         UserModel.findOne({ id: decoded.id }),
@@ -267,7 +315,10 @@ router.post("/reset-password", async (req, res) => {
       if (!user) return res.status(404).json({ message: "User not found" });
 
       if (!isPasswordStrong(password)) {
-        return res.status(400).json({ message: "Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character." });
+        return res.status(400).json({
+          message:
+            "Password must be at least 8 characters long and contain at least one uppercase letter, one number, and one special character.",
+        });
       }
 
       user.password = await bcrypt.hash(password, 10);
@@ -285,16 +336,20 @@ router.post("/reset-password", async (req, res) => {
 router.post("/verify-otp", async (req, res) => {
   try {
     const { email, otp } = req.body;
-    if (!email || !otp) return res.status(400).json({ message: "Email and OTP are required" });
+    if (!email || !otp)
+      return res.status(400).json({ message: "Email and OTP are required" });
 
     await connectDB();
-    // OTP verification only applies to newly signed-up users (users collection)
     const user = await UserModel.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
-    if (user.isVerified) return res.status(400).json({ message: "Account is already verified" });
-    if (user.otp !== otp) return res.status(400).json({ message: "Invalid verification code" });
+    if (user.isVerified)
+      return res.status(400).json({ message: "Account is already verified" });
+    if (user.otp !== otp)
+      return res.status(400).json({ message: "Invalid verification code" });
     if (user.otpExpiresAt && new Date() > user.otpExpiresAt) {
-      return res.status(400).json({ message: "Verification code has expired. Please request a new one." });
+      return res.status(400).json({
+        message: "Verification code has expired. Please request a new one.",
+      });
     }
 
     user.isVerified = true;
@@ -303,12 +358,20 @@ router.post("/verify-otp", async (req, res) => {
     await user.save();
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name, isAdmin: false, isVendor: false, adminRole: null },
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        isAdmin: false,
+        isVendor: false,
+        adminRole: null,
+      },
       JWT_SECRET,
       { expiresIn: "7d" },
     );
     res.cookie("token", token, {
-      httpOnly: true, path: "/",
+      httpOnly: true,
+      path: "/",
       secure: process.env.NODE_ENV === "production",
       maxAge: 7 * 24 * 3600 * 1000,
       sameSite: "lax",
@@ -317,7 +380,11 @@ router.post("/verify-otp", async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
     delete userObj.otp;
-    return res.json({ message: "Email verified successfully. You are now logged in.", token, user: { ...userObj, isAdmin: false, isVendor: false } });
+    return res.json({
+      message: "Email verified successfully. You are now logged in.",
+      token,
+      user: { ...userObj, isAdmin: false, isVendor: false },
+    });
   } catch (error) {
     console.error("OTP verification error:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -338,7 +405,7 @@ router.post("/resend-otp", async (req, res) => {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
-    user.otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000);
+    user.otpExpiresAt = new Date(Date.now() + 1 * 60 * 1000);
     await user.save();
 
     const { transporter } = require("../../lib/mailer");
@@ -354,7 +421,7 @@ router.post("/resend-otp", async (req, res) => {
           <div style="text-align: center; margin: 30px 0;">
             <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #8B5CF6; background: #F3F4F6; padding: 10px 20px; border-radius: 8px;">${otp}</span>
           </div>
-          <p>This code will expire in 10 minutes.</p>
+          <p>This code will expire in 1 minute.</p>
           <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
           <p style="font-size: 12px; color: #666; text-align: center;">Best regards,<br />The LinkStore Team</p>
         </div>

@@ -1,26 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/redux/slices/cartSlice";
 import { toggleWishlist } from "@/redux/slices/wishlistSlice";
 import { RootState } from "@/redux/Store";
-import {
-  ChevronRight,
-  ChevronDown,
-  ShoppingBag,
-  Heart,
-  Eye,
-  Filter,
-  Menu,
-  X,
-  Search,
-  SlidersHorizontal,
-  ChevronLeft,
-  ArrowUpRight,
-} from "lucide-react";
+import { ChevronDown, Filter, Search } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Toast from "@/components/(store)/products/Toast";
 import QuickViewModal from "@/components/(store)/products/QuickViewModal";
@@ -54,11 +39,6 @@ export default function ShopPage() {
   const router = useRouter();
 
   const page = searchParams.get("page") || "1";
-  const category = searchParams.get("category") || "All Categories";
-  const search = searchParams.get("search") || "";
-  const minPrice = searchParams.get("minPrice") || "";
-  const maxPrice = searchParams.get("maxPrice") || "";
-  const vendorId = searchParams.get("vendorId") || "";
   const sortBy = searchParams.get("sort") || "Default Sorting";
 
   const [products, setProducts] = useState<any[]>([]);
@@ -215,7 +195,6 @@ export default function ShopPage() {
 
       <div className="max-w-8xl mx-auto px-4 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
           <aside
             className={`fixed inset-y-0 left-0 z-50 w-80 lg:relative lg:block transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-300 ease-in-out`}
           >
@@ -226,7 +205,6 @@ export default function ShopPage() {
             />
           </aside>
 
-          {/* Background Overlay for Mobile Sidebar */}
           {isSidebarOpen && (
             <div
               className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -234,9 +212,7 @@ export default function ShopPage() {
             />
           )}
 
-          {/* Main Content */}
           <main className="flex-1">
-            {/* Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-3xl border border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-4">
                 <button
@@ -321,7 +297,6 @@ export default function ShopPage() {
               </>
             )}
 
-            {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-16 flex justify-center items-center gap-3">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(

@@ -26,15 +26,18 @@ const CancelOrderConfirmModal = ({
         className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm transition-opacity"
         onClick={() => !isLoading && onClose()}
       />
-      
+
       <div className="relative bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-full animate-in zoom-in-95 duration-200">
         <div className="bg-red-50 dark:bg-red-950/20 p-6 sm:p-8 flex flex-col items-center text-center shrink-0 transition-colors">
           <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-4 ring-8 ring-red-50 dark:ring-red-900/20">
             <AlertTriangle className="w-8 h-8 text-red-500 dark:text-red-400" />
           </div>
-          <h2 className="text-2xl font-bold text-red-900 dark:text-red-100 mb-2 transition-colors">Cancel Order</h2>
+          <h2 className="text-2xl font-bold text-red-900 dark:text-red-100 mb-2 transition-colors">
+            Cancel Order
+          </h2>
           <p className="text-red-700 dark:text-red-400 font-medium transition-colors">
-            Are you sure you want to cancel this order? This action cannot be undone.
+            Are you sure you want to cancel this order? This action cannot be
+            undone.
           </p>
         </div>
 
@@ -46,17 +49,23 @@ const CancelOrderConfirmModal = ({
                   <Package className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider transition-colors">Order ID</div>
-                  <div className="font-mono font-bold text-slate-700 dark:text-slate-200 transition-colors">#{order.id.slice(-8).toUpperCase()}</div>
+                  <div className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider transition-colors">
+                    Order ID
+                  </div>
+                  <div className="font-mono font-bold text-slate-700 dark:text-slate-200 transition-colors">
+                    #{order.id.slice(-8).toUpperCase()}
+                  </div>
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-100">
                 <div>
                   <div className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1 flex items-center gap-1 transition-colors">
                     <User className="w-3 h-3" /> Customer
                   </div>
-                  <div className="text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors">{order.customer?.name || "Deleted User"}</div>
+                  <div className="text-sm font-semibold text-slate-700 dark:text-slate-200 transition-colors">
+                    {order.customer?.name || "Deleted User"}
+                  </div>
                 </div>
                 <div>
                   <div className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1 flex items-center gap-1 transition-colors">
@@ -67,7 +76,7 @@ const CancelOrderConfirmModal = ({
                       <>
                         {order.customer.address}
                         <br />
-                        {order.customer.city && order.customer.country 
+                        {order.customer.city && order.customer.country
                           ? `${order.customer.city}, ${order.customer.country}`
                           : order.customer.city || order.customer.country || ""}
                       </>
@@ -80,11 +89,17 @@ const CancelOrderConfirmModal = ({
                   <div className="text-xs font-medium text-slate-400 mb-1 flex items-center gap-1">
                     <Clock className="w-3 h-3" /> Date
                   </div>
-                  <div className="text-sm font-semibold text-slate-700">{new Date(order.date).toLocaleDateString()}</div>
+                  <div className="text-sm font-semibold text-slate-700">
+                    {new Date(order.date).toLocaleDateString()}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-xs font-medium text-slate-400 mb-1">Total Amount</div>
-                  <div className="text-sm font-bold text-red-600">${order.total?.toFixed(2)}</div>
+                  <div className="text-xs font-medium text-slate-400 mb-1">
+                    Total Amount
+                  </div>
+                  <div className="text-sm font-bold text-red-600">
+                    ${order.total?.toFixed(2)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -95,7 +110,10 @@ const CancelOrderConfirmModal = ({
               </div>
               <div className="divide-y divide-slate-50 overflow-y-auto max-h-40">
                 {order.items?.map((item, idx) => (
-                  <div key={idx} className="p-3 flex items-center justify-between text-sm">
+                  <div
+                    key={idx}
+                    className="p-3 flex items-center justify-between text-sm"
+                  >
                     <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
                       <div className="w-10 h-10 bg-slate-100 dark:bg-slate-900 rounded-lg relative overflow-hidden shrink-0 border border-slate-200/60 dark:border-slate-700 flex items-center justify-center transition-colors">
                         {item.image ? (
@@ -110,17 +128,25 @@ const CancelOrderConfirmModal = ({
                           <Package className="w-4 h-4 text-slate-300 dark:text-slate-600" />
                         )}
                       </div>
-                      <span className="font-medium text-slate-700 dark:text-slate-200 truncate transition-colors">{item.name}</span>
+                      <span className="font-medium text-slate-700 dark:text-slate-200 truncate transition-colors">
+                        {item.name}
+                      </span>
                     </div>
-                    <span className="font-semibold text-slate-500 dark:text-slate-400 shrink-0 transition-colors">x{item.quantity}</span>
+                    <span className="font-semibold text-slate-500 dark:text-slate-400 shrink-0 transition-colors">
+                      x{item.quantity}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
-            
+
             <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-4 border border-amber-100 dark:border-amber-900/40 flex gap-3 text-amber-800 dark:text-amber-300 text-sm font-medium transition-colors">
               <AlertTriangle className="w-5 h-5 shrink-0" />
-              <p>Cancelling an order will halt its delivery process, send a cancellation email to the customer, and deduct its total from your revenue statistics.</p>
+              <p>
+                Cancelling an order will halt its delivery process, send a
+                cancellation email to the customer, and deduct its total from
+                your revenue statistics.
+              </p>
             </div>
           </div>
         </div>

@@ -22,7 +22,9 @@ export default function ContactSection({
         readOnly={isReadOnly}
         placeholder="Email address"
         className={`w-full border border-slate-300 dark:border-slate-700 rounded-md px-4 py-3 text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-colors ${
-          isReadOnly ? "bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed" : "bg-white dark:bg-slate-900"
+          isReadOnly
+            ? "bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed"
+            : "bg-white dark:bg-slate-900"
         }`}
         value={email}
         onChange={(e) => update({ email: e.target.value })}

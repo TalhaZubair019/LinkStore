@@ -6,13 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   Store,
-  Calendar,
   Star,
   ArrowLeft,
   Search,
-  CheckCircle,
-  Filter,
-  ArrowDownUp,
   ShieldCheck,
   ChevronDown,
 } from "lucide-react";
@@ -38,7 +34,6 @@ interface VendorStore {
   recentReviews: any[];
 }
 
-// Framer Motion Variants
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
@@ -197,7 +192,7 @@ export default function VendorStorePage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#FCF9F2] dark:bg-[#110F17] p-6">
         <div className="bg-white dark:bg-zinc-900 rounded-4xl p-12 shadow-xl border border-slate-200 dark:border-white/10 text-center max-w-md">
-          <div className="w-24 h-24 bg-slate-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-[#1E2749] dark:text-[#FF00AA] mx-auto mb-8 border border-slate-200 dark:border-white/10">
+          <div className="w-24 h-24 bg-slate-50 dark:bg-zinc-800 rounded-2xl flex items-center justify-center text-[#1E2749] mx-auto mb-8 border border-slate-200 dark:border-white/10">
             <Store size={48} strokeWidth={1.5} />
           </div>
           <h1 className="text-3xl font-black text-[#1E2749] dark:text-white mb-3">
@@ -209,7 +204,7 @@ export default function VendorStorePage() {
           </p>
           <Link
             href="/shop"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-[#1E2749] dark:bg-[#FF00AA] text-white font-bold rounded-xl transition-transform hover:scale-105"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-[#1E2749]text-white font-bold rounded-xl transition-transform hover:scale-105"
           >
             <ArrowLeft size={20} /> Back to Catalog
           </Link>
@@ -229,28 +224,21 @@ export default function VendorStorePage() {
   } = store;
 
   return (
-    <div className="min-h-screen bg-[#FCF9F2] dark:bg-[#110F17] transition-colors font-sans pb-32 selection:bg-[#1E2749] selection:text-[#FCF9F2] dark:selection:bg-[#FF00AA] dark:selection:text-white">
+    <div className="min-h-screen bg-[#FCF9F2] dark:bg-[#110F17] transition-colors font-sans pb-32 selection:bg-[#1E2749] selection:text-[#FCF9F2] dark:selection:text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32 relative z-20">
-        {/* BRUTALIST SPLIT LAYOUT */}
-        <div className="flex flex-col xl:flex-row gap-12 xl:gap-24">
-          {/* LEFT PANE: Sticky Typographic Header */}
-          <div className="xl:w-[450px] shrink-0">
+        <div className="gap-12 xl:gap-24">
+          <div className="shrink-0">
             <div className="xl:sticky top-32 flex flex-col items-start text-left">
-              {/* Massive Brutalist Typography */}
-              <h1 className="text-6xl sm:text-7xl md:text-8xl xl:text-9xl font-black text-slate-950 dark:text-white tracking-tighter leading-[0.85] uppercase break-word mb-8">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-black text-slate-950 dark:text-white tracking-tighter leading-[0.85] uppercase break-word mb-8">
                 {storeName}
               </h1>
-
               <div className="w-full h-px bg-slate-950 dark:bg-white mb-8" />
-
-              <p className="text-xl sm:text-2xl text-slate-600 dark:text-zinc-400 font-medium leading-snug tracking-tight mb-8 max-w-lg">
+              <p className="text-lg sm:text-xl text-slate-600 dark:text-zinc-400 font-medium leading-snug tracking-tight mb-8 max-w-lg">
                 {storeDescription ||
                   "A curated selection of premium goods by a verified professional vendor."}
               </p>
 
-              {/* Minimalist Stats / Info Grid */}
               <div className="w-full grid grid-cols-2 gap-x-8 gap-y-6 pt-8 border-t border-slate-950 dark:border-white">
-                {/* Curator */}
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-1">
                     Owner
@@ -260,7 +248,6 @@ export default function VendorStorePage() {
                   </span>
                 </div>
 
-                {/* Rating */}
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-1">
                     Rating
@@ -276,7 +263,6 @@ export default function VendorStorePage() {
                   </div>
                 </div>
 
-                {/* Status */}
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-1">
                     Status
@@ -292,7 +278,6 @@ export default function VendorStorePage() {
                   </div>
                 </div>
 
-                {/* Est. */}
                 <div className="flex flex-col">
                   <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-1">
                     Established
@@ -304,8 +289,6 @@ export default function VendorStorePage() {
                   </span>
                 </div>
               </div>
-
-              {/* Optional: Stark Logo Integration (Square/Sharp) */}
               {logo && (
                 <div className="mt-12 relative w-24 h-24 grayscale contrast-125">
                   <Image
@@ -319,15 +302,12 @@ export default function VendorStorePage() {
             </div>
           </div>
 
-          {/* RIGHT PANE: Product Grid & Filters */}
           <div className="grow min-w-0">
-            {/* Filters Section */}
-            <div className="mb-8">
+            <div className="mb-8 pt-10">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                 Filters
               </h2>
               <div className="flex flex-col md:flex-row items-center gap-4">
-                {/* Sort By */}
                 <div className="relative group">
                   <select
                     value={sortBy}
@@ -344,7 +324,6 @@ export default function VendorStorePage() {
                   />
                 </div>
 
-                {/* Search */}
                 <div className="relative grow w-full group">
                   <Search
                     className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-900 dark:text-white"
@@ -361,9 +340,7 @@ export default function VendorStorePage() {
               </div>
             </div>
 
-            {/* Layout Grid (Sidebar + Products) */}
             <div className="flex flex-col lg:flex-row gap-8">
-              {/* Sidebar Categories */}
               <div className="hidden lg:block w-64 shrink-0">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
                   Categories
@@ -385,8 +362,6 @@ export default function VendorStorePage() {
                   ))}
                 </ul>
               </div>
-
-              {/* Product Grid */}
               <div className="grow">
                 <AnimatePresence mode="wait">
                   {filteredProducts.length > 0 ? (
@@ -402,7 +377,6 @@ export default function VendorStorePage() {
                           variants={itemVariants}
                           layoutId={product.id.toString()}
                         >
-                          {/* Product Card Container */}
                           <div className="h-full flex flex-col">
                             <SimpleProductCard
                               product={product}

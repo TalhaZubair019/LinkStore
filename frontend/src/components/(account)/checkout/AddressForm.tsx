@@ -19,7 +19,9 @@ export default function AddressForm({
   isReadOnly,
 }: AddressFormProps) {
   const InputClass = `w-full border border-slate-300 dark:border-slate-700 rounded-md px-4 py-3 focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 text-slate-700 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-colors ${
-    isReadOnly ? "bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed opacity-80" : "bg-white dark:bg-slate-900"
+    isReadOnly
+      ? "bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed opacity-80"
+      : "bg-white dark:bg-slate-900"
   }`;
   const LabelClass =
     "text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1 block transition-colors";

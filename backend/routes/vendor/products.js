@@ -21,8 +21,11 @@ router.post("/", requireVendor, async (req, res) => {
       ...req.body,
       id: newId,
       vendorId: vendorId,
-      vendorStoreName: vendorProfile.vendorProfile?.storeName || vendorProfile.name,
-      vendorStoreSlug: vendorProfile.vendorProfile?.storeSlug || vendorProfile.name.toLowerCase().replace(/\s+/g, '-'),
+      vendorStoreName:
+        vendorProfile.vendorProfile?.storeName || vendorProfile.name,
+      vendorStoreSlug:
+        vendorProfile.vendorProfile?.storeSlug ||
+        vendorProfile.name.toLowerCase().replace(/\s+/g, "-"),
       warehouseInventory: [],
       stockQuantity: 0,
       lowStockThreshold: 5,
@@ -51,7 +54,7 @@ router.get("/:id", requireVendor, async (req, res) => {
     await connectDB();
     const product = await ProductModel.findOne({
       id: Number(req.params.id),
-      vendorId: req.user.id
+      vendorId: req.user.id,
     }).lean();
     if (!product) return res.status(404).json({ message: "Product not found" });
     return res.json({ product });
@@ -66,12 +69,13 @@ router.patch("/:id", requireVendor, async (req, res) => {
 
     const oldProduct = await ProductModel.findOne({
       id: Number(req.params.id),
-      vendorId: req.user.id
+      vendorId: req.user.id,
     }).lean();
     if (!oldProduct)
-      return res.status(404).json({ message: "Product not found or unauthorized" });
+      return res
+        .status(404)
+        .json({ message: "Product not found or unauthorized" });
 
-    // Ensure vendors don't overwrite vendorId in the payload
     const { vendorId, ...safeUpdateData } = req.body;
 
     const updated = await ProductModel.findOneAndUpdate(
@@ -104,14 +108,19 @@ router.patch("/:id", requireVendor, async (req, res) => {
       if (newVal !== undefined) {
         let hasChanged = false;
         if (Array.isArray(oldVal) || Array.isArray(newVal)) {
-          hasChanged = JSON.stringify(oldVal || []) !== JSON.stringify(newVal || []);
+          hasChanged =
+            JSON.stringify(oldVal || []) !== JSON.stringify(newVal || []);
         } else {
           hasChanged = String(oldVal ?? "") !== String(newVal ?? "");
         }
 
         if (hasChanged) {
-          const oldStr = Array.isArray(oldVal) ? `[${oldVal.join(", ")}]` : (oldVal ?? "(empty)");
-          const newStr = Array.isArray(newVal) ? `[${newVal.join(", ")}]` : (newVal ?? "(empty)");
+          const oldStr = Array.isArray(oldVal)
+            ? `[${oldVal.join(", ")}]`
+            : (oldVal ?? "(empty)");
+          const newStr = Array.isArray(newVal)
+            ? `[${newVal.join(", ")}]`
+            : (newVal ?? "(empty)");
           const label = field.charAt(0).toUpperCase() + field.slice(1);
           changes.push(`${label}: "${oldStr}" → "${newStr}"`);
         }
@@ -141,10 +150,19 @@ router.patch("/:id/inventory", requireVendor, async (req, res) => {
     const { sku, lowStockThreshold, warehouseInventory } = req.body;
     await connectDB();
 
-    const oldProduct = await ProductModel.findOne({ id: Number(req.params.id), vendorId: req.user.id }).lean();
-    if (!oldProduct) return res.status(404).json({ message: "Product not found or unauthorized" });
+    const oldProduct = await ProductModel.findOne({
+      id: Number(req.params.id),
+      vendorId: req.user.id,
+    }).lean();
+    if (!oldProduct)
+      return res
+        .status(404)
+        .json({ message: "Product not found or unauthorized" });
 
-    const totalStock = (warehouseInventory || []).reduce((acc, curr) => acc + (curr.quantity || 0), 0);
+    const totalStock = (warehouseInventory || []).reduce(
+      (acc, curr) => acc + (curr.quantity || 0),
+      0,
+    );
 
     const updated = await ProductModel.findOneAndUpdate(
       { id: Number(req.params.id), vendorId: req.user.id },
@@ -154,7 +172,7 @@ router.patch("/:id/inventory", requireVendor, async (req, res) => {
         warehouseInventory,
         stockQuantity: totalStock,
       },
-      { returnDocument: "after" }
+      { returnDocument: "after" },
     ).lean();
 
     if (!updated) return res.status(404).json({ message: "Product not found" });
@@ -162,8 +180,10 @@ router.patch("/:id/inventory", requireVendor, async (req, res) => {
     if (warehouseInventory && warehouseInventory.length > 0) {
       for (const w of warehouseInventory) {
         if (!w.warehouseName || !w.location) continue;
-        
-        const existingWarehouse = await WarehouseModel.findOne({ name: w.warehouseName });
+
+        const existingWarehouse = await WarehouseModel.findOne({
+          name: w.warehouseName,
+        });
         if (!existingWarehouse) {
           const whId = `wh_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
           await WarehouseModel.create({
@@ -171,12 +191,12 @@ router.patch("/:id/inventory", requireVendor, async (req, res) => {
             name: w.warehouseName,
             location: w.location,
           });
-          
+
           if (req.user && req.user.id) {
             await logActivity(req, {
               action: "add",
               entity: "warehouse",
-              details: `Auto-created warehouse "${w.warehouseName}" during inventory adjustment`
+              details: `Auto-created warehouse "${w.warehouseName}" during inventory adjustment`,
             });
           }
         }
@@ -202,10 +222,12 @@ router.delete("/:id", requireVendor, async (req, res) => {
     await connectDB();
     const deleted = await ProductModel.findOneAndDelete({
       id: Number(req.params.id),
-      vendorId: req.user.id
+      vendorId: req.user.id,
     });
     if (!deleted)
-      return res.status(404).json({ message: "Product not found or unauthorized" });
+      return res
+        .status(404)
+        .json({ message: "Product not found or unauthorized" });
 
     await logActivity(req, {
       action: "delete",

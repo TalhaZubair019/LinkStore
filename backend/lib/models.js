@@ -1,8 +1,4 @@
 const mongoose = require("mongoose");
-
-// ─────────────────────────────────────────────
-// Shared auth fields (used in all 3 user types)
-// ─────────────────────────────────────────────
 const commonAuthFields = {
   id: { type: String, required: true, unique: true },
   name: { type: String, required: true },
@@ -14,9 +10,6 @@ const commonAuthFields = {
   otpExpiresAt: { type: Date, default: null },
 };
 
-// ─────────────────────────────────────────────
-// users collection — regular customers
-// ─────────────────────────────────────────────
 const userSchema = new mongoose.Schema(
   {
     ...commonAuthFields,
@@ -30,7 +23,6 @@ const userSchema = new mongoose.Schema(
     cart: { type: Array, default: [] },
     wishlist: { type: Array, default: [] },
     savedCards: { type: Array, default: [] },
-    // Vendor application pending flag (set before moving to vendors collection)
     vendorApplicationPending: { type: Boolean, default: false },
     vendorProfile: {
       storeName: { type: String, default: "" },
@@ -43,12 +35,9 @@ const userSchema = new mongoose.Schema(
       },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// ─────────────────────────────────────────────
-// admins collection — admin accounts
-// ─────────────────────────────────────────────
 const adminSchema = new mongoose.Schema(
   {
     ...commonAuthFields,
@@ -63,12 +52,9 @@ const adminSchema = new mongoose.Schema(
     suspensionPending: { type: Boolean, default: false },
     unsuspensionPending: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// ─────────────────────────────────────────────
-// vendors collection — approved vendor store profiles
-// ─────────────────────────────────────────────
 const vendorSchema = new mongoose.Schema(
   {
     ...commonAuthFields,
@@ -101,14 +87,13 @@ const vendorSchema = new mongoose.Schema(
       stripeOnboardingComplete: { type: Boolean, default: false },
       averageRating: { type: Number, default: 0 },
       totalReviews: { type: Number, default: 0 },
+      outstandingCommission: { type: Number, default: 0 },
+      totalCommissionPaid: { type: Number, default: 0 },
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// ─────────────────────────────────────────────
-// orders collection
-// ─────────────────────────────────────────────
 const orderSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
@@ -154,7 +139,13 @@ const orderSchema = new mongoose.Schema(
           vendorId: { type: String, required: true },
           status: {
             type: String,
-            enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
+            enum: [
+              "Pending",
+              "Processing",
+              "Shipped",
+              "Delivered",
+              "Cancelled",
+            ],
             default: "Pending",
           },
         },
@@ -164,12 +155,9 @@ const orderSchema = new mongoose.Schema(
     platformFee: { type: Number, default: 0 },
     vendorPayout: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// ─────────────────────────────────────────────
-// products collection
-// ─────────────────────────────────────────────
 const productSchema = new mongoose.Schema(
   {
     id: { type: Number, required: true, unique: true },
@@ -198,18 +186,18 @@ const productSchema = new mongoose.Schema(
     vendorStoreName: { type: String, required: true },
     vendorStoreSlug: { type: String, required: true },
     isApproved: { type: Boolean, default: true },
+    averageRating: { type: Number, default: 0 },
+    totalReviews: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// ─────────────────────────────────────────────
-// reviews collection
-// ─────────────────────────────────────────────
 const reviewSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
     productId: { type: Number },
     vendorId: { type: String, default: null },
+    orderId: { type: String, default: null },
     targetType: {
       type: String,
       enum: ["product", "vendor"],
@@ -224,24 +212,18 @@ const reviewSchema = new mongoose.Schema(
     isEdited: { type: Boolean, default: false },
     previousReview: { type: Object, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// ─────────────────────────────────────────────
-// categories collection
-// ─────────────────────────────────────────────
 const categorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true },
     slug: { type: String, required: true, unique: true },
     image: { type: String, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// ─────────────────────────────────────────────
-// warehouses collection (now scoped per vendor)
-// ─────────────────────────────────────────────
 const warehouseSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
@@ -250,14 +232,10 @@ const warehouseSchema = new mongoose.Schema(
     vendorId: { type: String, required: true, index: true },
     capacity: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// ─────────────────────────────────────────────
-// Model registrations
-// ─────────────────────────────────────────────
-const UserModel =
-  mongoose.models?.User || mongoose.model("User", userSchema);
+const UserModel = mongoose.models?.User || mongoose.model("User", userSchema);
 const AdminModel =
   mongoose.models?.Admin || mongoose.model("Admin", adminSchema);
 const VendorModel =
@@ -283,5 +261,3 @@ module.exports = {
   CategoryModel,
   WarehouseModel,
 };
-
-

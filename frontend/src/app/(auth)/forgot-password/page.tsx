@@ -1,15 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import {
-  Loader2,
-  ChevronRight,
-  ArrowLeft,
-  Mail,
-  CheckCircle2,
-} from "lucide-react";
-import db from "@data/db.json";
+import { Loader2, ArrowLeft, Mail, CheckCircle2 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 
 export default function ForgotPasswordPage() {

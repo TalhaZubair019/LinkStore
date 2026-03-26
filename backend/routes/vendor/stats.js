@@ -15,45 +15,71 @@ router.get("/", requireVendor, async (req, res) => {
   try {
     await connectDB();
     const vendorId = req.user.id;
+    const products = await ProductModel.find({ vendorId }).lean();
+    const productIds = products.map((p) => p.id);
 
-    // Fetch only data relevant to this vendor
-    const [allOrders, products, reviews, categories, vendorDoc] = await Promise.all([
-      OrderModel.find({ "items.vendorId": vendorId }).lean(),
-      ProductModel.find({ vendorId }).lean(),
-      ReviewModel.find({ vendorId, targetType: "product" }).lean(),
-      CategoryModel.find({}).sort({ name: 1 }).lean(),
-      VendorModel.findOne({ id: vendorId }).lean(),
-    ]);
+    const [allOrders, allReviews, categories, vendorDoc] =
+      await Promise.all([
+        OrderModel.find({ "items.vendorId": vendorId }).lean(),
+        ReviewModel.find({
+          $or: [{ vendorId }, { productId: { $in: productIds } }],
+        }).lean(),
+        CategoryModel.find({}).sort({ name: 1 }).lean(),
+        VendorModel.findOne({ id: vendorId }).lean(),
+      ]);
 
-    // Filter orders to only include items belonging to this vendor for revenue calculation
-    const vendorOrders = allOrders.map(order => {
-      const vendorItems = order.items.filter(item => item.vendorId === vendorId);
-      const vendorTotal = vendorItems.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
-      
-      // Ensure customer object exists and has a name field for the frontend tables
-      const customer = order.customer ? {
-        ...order.customer,
-        name: `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || order.customer.name || "Guest Customer"
-      } : {
-        name: "Guest Customer"
-      };
+    const productReviews = allReviews.filter((r) => r.targetType === "product");
+    const storeReviews = allReviews.filter((r) => r.targetType === "vendor");
+    const vendorOrders = allOrders.map((order) => {
+      const vendorItems = order.items.filter(
+        (item) => item.vendorId === vendorId,
+      );
+      const vendorTotal = vendorItems.reduce(
+        (sum, item) => sum + (item.totalPrice || 0),
+        0,
+      );
+      const customer = order.customer
+        ? {
+            ...order.customer,
+            name:
+              `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() ||
+              order.customer.name ||
+              "Guest Customer",
+          }
+        : {
+            name: "Guest Customer",
+          };
 
       return {
         ...order,
         items: vendorItems,
         vendorTotal,
-        total: vendorTotal, // Override total for the frontend table component
-        customer
+        total: vendorTotal,
+        customer,
       };
     });
 
     const totalRevenue = vendorOrders
       .filter((o) => o.status !== "Cancelled")
       .reduce((acc, o) => acc + (o.vendorTotal || 0), 0);
-    
+
     const totalEarnings = vendorOrders
       .filter((o) => o.status !== "Cancelled")
-      .reduce((acc, o) => acc + (o.vendorPayout || (o.vendorTotal * 0.9 || 0)), 0);
+      .reduce(
+        (acc, o) => acc + (o.vendorPayout || o.vendorTotal * 0.9 || 0),
+        0,
+      );
+
+    const grossRevenue = vendorOrders.reduce(
+      (acc, o) => acc + (o.vendorTotal || 0),
+      0,
+    );
+    const cancelledRevenue = grossRevenue - totalRevenue;
+    const averageOrderValue =
+      vendorOrders.filter((o) => o.status !== "Cancelled").length > 0
+        ? totalRevenue /
+          vendorOrders.filter((o) => o.status !== "Cancelled").length
+        : 0;
 
     const { startDate: startDateParam, endDate: endDateParam } = req.query;
     let rangeStart, rangeEnd;
@@ -125,34 +151,155 @@ router.get("/", requireVendor, async (req, res) => {
     const hourCounts = {};
     for (let i = 0; i < 24; i++)
       hourCounts[i.toString().padStart(2, "0") + ":00"] = 0;
-    
+
+    const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    allReviews.forEach((r) => {
+      if (r.rating >= 1 && r.rating <= 5) {
+        ratingDistribution[Math.floor(r.rating)]++;
+      }
+    });
+
     vendorOrders.forEach((order) => {
-      const hour = new Date(order.date).getHours().toString().padStart(2, "0") + ":00";
+      const hour =
+        new Date(order.date).getHours().toString().padStart(2, "0") + ":00";
       if (hourCounts[hour] !== undefined) hourCounts[hour]++;
-      
+
       if (order.status !== "Cancelled") {
         order.items?.forEach((item) => {
-          const cat = products.find((p) => p.title === item.name)?.category || "General";
-          categorySales[cat] = (categorySales[cat] || 0) + (item.totalPrice || 0);
+          const cat =
+            products.find((p) => p.title === item.name)?.category || "General";
+          categorySales[cat] =
+            (categorySales[cat] || 0) + (item.totalPrice || 0);
         });
       }
     });
 
-    const grossRevenue = vendorOrders.reduce((acc, o) => acc + (o.vendorTotal || 0), 0);
-    const cancelledRevenue = grossRevenue - totalRevenue;
-    const nonCancelledOrders = vendorOrders.filter((o) => o.status !== "Cancelled");
-    const averageOrderValue = nonCancelledOrders.length > 0 ? totalRevenue / nonCancelledOrders.length : 0;
+    const perCategoryStats = {};
+    vendorOrders.forEach((order) => {
+      order.items?.forEach((item) => {
+        const cat = products.find((p) => p.title === item.name)?.category || "General";
+        if (!perCategoryStats[cat]) {
+          perCategoryStats[cat] = {
+            totalRevenue: 0,
+            units: 0,
+            orders: new Set(),
+            fulfilledOrders: new Set(),
+            totalItems: 0,
+            fulfilledItems: 0,
+          };
+        }
 
-    const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    reviews.forEach((r) => {
-      if (r.rating >= 1 && r.rating <= 5) ratingDistribution[r.rating]++;
+        perCategoryStats[cat].totalItems++;
+        perCategoryStats[cat].units += item.quantity || 1;
+        perCategoryStats[cat].orders.add(order.id);
+
+        if (order.status !== "Cancelled") {
+          perCategoryStats[cat].fulfilledItems++;
+          perCategoryStats[cat].fulfilledOrders.add(order.id);
+          perCategoryStats[cat].totalRevenue += item.totalPrice || 0;
+        }
+      });
     });
 
-    const sentimentMap = { good: 0, bad: 0, neutral: 0 };
-    reviews.forEach((r) => {
-      if (r.rating >= 4) sentimentMap.good++;
-      else if (r.rating <= 2) sentimentMap.bad++;
-      else sentimentMap.neutral++;
+    const categoryPerformance = {
+      topSeller: { label: "N/A", value: 0 },
+      mostPopular: { label: "N/A", value: 0 },
+      highestValue: { label: "N/A", value: 0 },
+      bestFulfillment: { label: "N/A", value: 0 },
+    };
+
+    const catStatsArray = Object.entries(perCategoryStats).map(([cat, stats]) => {
+      const fulfillmentRate = stats.totalItems > 0 ? (stats.fulfilledItems / stats.totalItems) * 100 : 0;
+      const aov = stats.fulfilledOrders.size > 0 ? stats.totalRevenue / stats.fulfilledOrders.size : 0;
+      return {
+        category: cat,
+        revenue: stats.totalRevenue,
+        units: stats.units,
+        aov,
+        fulfillmentRate,
+      };
+    });
+
+    if (catStatsArray.length > 0) {
+      const topSeller = [...catStatsArray].sort((a, b) => b.revenue - a.revenue)[0];
+      const mostPopular = [...catStatsArray].sort((a, b) => b.units - a.units)[0];
+      const highestValue = [...catStatsArray].sort((a, b) => b.aov - a.aov)[0];
+      const bestFulfillment = [...catStatsArray].sort((a, b) => b.fulfillmentRate - a.fulfillmentRate)[0];
+
+      categoryPerformance.topSeller = { label: topSeller.category, value: topSeller.revenue };
+      categoryPerformance.mostPopular = { label: mostPopular.category, value: mostPopular.units };
+      categoryPerformance.highestValue = { label: highestValue.category, value: highestValue.aov };
+      categoryPerformance.bestFulfillment = { label: bestFulfillment.category, value: Math.round(bestFulfillment.fulfillmentRate) };
+    }
+
+    const reviewCounts = {};
+    allReviews.forEach((r) => {
+      if (r.targetType === "product") {
+        reviewCounts[r.productId] = (reviewCounts[r.productId] || 0) + 1;
+      }
+    });
+
+    const topReviewedProducts = Object.entries(reviewCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .map(([productId, count]) => {
+        const p = products.find((p) => (p.id ? p.id.toString() : p._id.toString()) === productId);
+        return {
+          name: p?.title || `Product ${productId}`,
+          image: p?.image || "",
+          count,
+        };
+      });
+
+    const sentimentMap = {};
+    allReviews.forEach((r) => {
+      if (r.targetType === "product") {
+        if (!sentimentMap[r.productId]) sentimentMap[r.productId] = { good: 0, bad: 0, neutral: 0 };
+        if (r.rating >= 4) sentimentMap[r.productId].good++;
+        else if (r.rating <= 2) sentimentMap[r.productId].bad++;
+        else sentimentMap[r.productId].neutral++;
+      }
+    });
+
+    const productSentiment = Object.entries(sentimentMap)
+      .map(([pid, counts]) => {
+        const p = products.find((p) => (p.id ? p.id.toString() : p._id.toString()) === pid);
+        return {
+          name: p?.title || `Product ${pid}`,
+          image: p?.image || "",
+          ...counts,
+          total: counts.good + counts.bad + counts.neutral,
+        };
+      })
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+
+    const statusCounts = {};
+    vendorOrders.forEach((o) => {
+      statusCounts[o.status] = (statusCounts[o.status] || 0) + 1;
+      if (o.status === "Completed") {
+        statusCounts["Delivered"] = (statusCounts["Delivered"] || 0) + 1;
+      }
+    });
+
+    const aovData = dayRange.map((d) => {
+      const dayOrders = vendorOrders.filter((o) => {
+        const od = new Date(o.date);
+        return (
+          o.status !== "Cancelled" &&
+          od.getDate() === d.getDate() &&
+          od.getMonth() === d.getMonth() &&
+          od.getFullYear() === d.getFullYear()
+        );
+      });
+      const revenue = dayOrders.reduce((sum, o) => sum + (o.vendorTotal || 0), 0);
+      const count = dayOrders.length;
+      return {
+        date: d.toISOString(),
+        revenue,
+        aov: count > 0 ? revenue / count : 0,
+        orderCount: count,
+      };
     });
 
     return res.json({
@@ -164,15 +311,30 @@ router.get("/", requireVendor, async (req, res) => {
       cancelledRevenue,
       averageOrderValue,
       recentOrders,
-      revenueData,
+      revenueData: aovData,
+      aovData,
+      statusCounts,
+      categoryPerformance,
       topProductsByQuantity,
       topProductsByRevenue,
       products,
       ratingDistribution,
-      totalReviews: reviews.length,
-      productSentiment: [], // Optional: needs per-product breakdown if desired
-      reviews,
+      topReviewedProducts,
+      totalReviews: allReviews.length,
+      productSentiment,
+      reviews: productReviews,
+      productReviews,
+      storeReviews,
       categorySalesData: Object.entries(categorySales)
+        .map(([c, v]) => ({ category: c, value: v }))
+        .sort((a, b) => b.value - a.value),
+      categoryInventoryData: Object.entries(
+        products.reduce((acc, p) => {
+          const cat = p.category || "General";
+          acc[cat] = (acc[cat] || 0) + (p.stockQuantity || 0);
+          return acc;
+        }, {}),
+      )
         .map(([c, v]) => ({ category: c, value: v }))
         .sort((a, b) => b.value - a.value),
       orderVelocityData: Object.entries(hourCounts).map(([h, c]) => ({
@@ -181,6 +343,7 @@ router.get("/", requireVendor, async (req, res) => {
       })),
       categories,
       outstandingCommission: vendorDoc?.vendorProfile?.outstandingCommission || 0,
+      totalCommissionPaid: vendorDoc?.vendorProfile?.totalCommissionPaid || 0,
     });
   } catch (error) {
     console.error("Vendor stats error:", error);

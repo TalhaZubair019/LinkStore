@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Eye, ShoppingBag } from "lucide-react";
+import { Heart, Eye, ShoppingBag, Star } from "lucide-react";
 
 interface Product {
   id: string | number;
@@ -16,6 +15,8 @@ interface Product {
   badge?: string | null;
   badges?: string[];
   stockQuantity?: number;
+  averageRating?: number;
+  totalReviews?: number;
 }
 
 interface SimpleProductCardProps {
@@ -112,7 +113,6 @@ export default function SimpleProductCard({
               isOutOfStock ? "grayscale opacity-40" : "group-hover:scale-110"
             }`}
           />
- 
           {isOutOfStock && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
               <span className="bg-red-500 text-white font-black px-5 py-2.5 rounded-xl rotate-12 shadow-2xl border-none whitespace-nowrap text-[10px] tracking-widest uppercase">
@@ -188,6 +188,15 @@ export default function SimpleProductCard({
             ),
           )}
         </div>
+        
+        {/* Rating */}
+        <div className="flex items-center justify-center gap-1.5 mb-2.5">
+          <Star size={12} className={product.averageRating && product.averageRating > 0 ? "fill-yellow-400 text-yellow-400" : "text-slate-300 dark:text-slate-600"} />
+          <span className="text-[10px] text-slate-500 font-bold tracking-tight">
+            {product.averageRating && product.averageRating > 0 ? `${product.averageRating} (${product.totalReviews || 0})` : "No reviews yet"}
+          </span>
+        </div>
+
         <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors tracking-tight">
           {product.title}
         </h3>

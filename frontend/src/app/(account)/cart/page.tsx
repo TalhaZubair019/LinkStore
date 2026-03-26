@@ -10,7 +10,7 @@ import {
   deleteItem,
   syncCart,
 } from "@/redux/slices/cartSlice";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import db from "@data/db.json";
 import Loading from "@/components/ui/Loading";
 import AuthPromptModal from "@/components/(auth)/auth/AuthPromptModal";
@@ -174,26 +174,39 @@ export default function CartPage() {
                   </span>
                 </div>
                 <div>
-                  {Object.entries(groupedCartItems).map(([storeName, items]: [string, any]) => (
-                    <div key={storeName} className="mb-12 last:mb-0">
-                      <div className="flex items-center gap-3 mb-6 pb-2 border-b border-slate-100 dark:border-slate-800">
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                          <span className="text-purple-600 dark:text-purple-400 font-black text-xs">
-                            {storeName.charAt(0).toUpperCase()}
-                          </span>
+                  {Object.entries(groupedCartItems).map(
+                    ([storeName, items]: [string, any]) => (
+                      <div key={storeName} className="mb-12 last:mb-0">
+                        <div className="flex items-center gap-3 mb-6 pb-2 border-b border-slate-100 dark:border-slate-800">
+                          <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                            <span className="text-purple-600 dark:text-purple-400 font-black text-xs">
+                              {storeName.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">
+                            Sold by{" "}
+                            <span className="text-purple-600 dark:text-purple-400">
+                              {storeName}
+                            </span>
+                          </h3>
                         </div>
-                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">
-                          Sold by <span className="text-purple-600 dark:text-purple-400">{storeName}</span>
-                        </h3>
+                        <div className="space-y-12">
+                          {items.map((item: CartItemType) => {
+                            const product = productsCache.find(
+                              (p) => String(p.id) === String(item.id),
+                            );
+                            return (
+                              <CartItem
+                                key={item.id}
+                                item={item}
+                                product={product}
+                              />
+                            );
+                          })}
+                        </div>
                       </div>
-                      <div className="space-y-12">
-                        {items.map((item: CartItemType) => {
-                          const product = productsCache.find((p) => String(p.id) === String(item.id));
-                          return <CartItem key={item.id} item={item} product={product} />;
-                        })}
-                      </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </div>
               <div className="lg:col-span-4">
@@ -232,7 +245,7 @@ function EmptyCart() {
   );
 }
 
-function CartItem({ item, product }: { item: CartItemType, product?: any }) {
+function CartItem({ item, product }: { item: CartItemType; product?: any }) {
   const dispatch = useDispatch();
   const subTotal = (item.price * item.quantity).toFixed(2);
 

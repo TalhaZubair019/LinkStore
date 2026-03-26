@@ -23,6 +23,8 @@ interface Product {
   stockQuantity?: number;
   badges?: string[];
   badge?: string | null;
+  averageRating?: number;
+  totalReviews?: number;
 }
 
 export default function JustForYou() {
@@ -190,8 +192,10 @@ export default function JustForYou() {
                 </div>
                 
                 <div className="flex items-center gap-1 mb-2">
-                  <Star size={12} className="fill-yellow-400 text-yellow-400" />
-                  <span className="text-[10px] text-slate-500 font-bold tracking-tight">4.8 (120)</span>
+                  <Star size={12} className={product.averageRating && product.averageRating > 0 ? "fill-yellow-400 text-yellow-400" : "text-slate-300 dark:text-slate-600"} />
+                  <span className="text-[10px] text-slate-500 font-bold tracking-tight">
+                    {product.averageRating && product.averageRating > 0 ? `${product.averageRating} (${product.totalReviews || 0})` : "No reviews yet"}
+                  </span>
                 </div>
 
                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 line-clamp-2 mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-relaxed">

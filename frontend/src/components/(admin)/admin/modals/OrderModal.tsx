@@ -1,6 +1,13 @@
 import React from "react";
 import Image from "next/image";
-import { X, ClipboardList, Users, MapPin, Package, CreditCard } from "lucide-react";
+import {
+  X,
+  ClipboardList,
+  Users,
+  MapPin,
+  Package,
+  CreditCard,
+} from "lucide-react";
 import { Order } from "@/app/(admin)/admin/types";
 import StatusBadge from "../ui/StatusBadge";
 
@@ -89,23 +96,36 @@ const OrderModal = ({ selectedOrder, onClose }: OrderModalProps) => {
             </div>
             <div>
               <h4 className="flex items-center gap-2 font-bold mb-4 text-sm uppercase dark:text-gray-200">
-                <CreditCard size={16} className="text-purple-500" /> Financial Split
+                <CreditCard size={16} className="text-purple-500" /> Financial
+                Split
               </h4>
               <div className="space-y-3 text-sm bg-slate-50 dark:bg-gray-800/50 p-4 rounded-xl border dark:border-gray-700">
                 <div className="flex justify-between border-b dark:border-gray-700 pb-2">
-                  <span className="text-slate-500 dark:text-gray-400">Total Revenue</span>
-                  <span className="font-bold dark:text-gray-100">${selectedOrder.total}</span>
+                  <span className="text-slate-500 dark:text-gray-400">
+                    Total Revenue
+                  </span>
+                  <span className="font-bold dark:text-gray-100">
+                    ${selectedOrder.total}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b dark:border-gray-700 pb-2">
-                  <span className="text-slate-500 dark:text-gray-400">Vendor Payout (90%)</span>
+                  <span className="text-slate-500 dark:text-gray-400">
+                    Vendor Payout (90%)
+                  </span>
                   <span className="font-bold text-blue-600 dark:text-blue-400">
-                    ${selectedOrder.vendorPayout ?? (selectedOrder.total * 0.9).toFixed(2)}
+                    $
+                    {selectedOrder.vendorPayout ??
+                      (selectedOrder.total * 0.9).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500 dark:text-gray-400">Platform Fee (10%)</span>
+                  <span className="text-slate-500 dark:text-gray-400">
+                    Platform Fee (10%)
+                  </span>
                   <span className="font-bold text-purple-600 dark:text-purple-400">
-                    ${selectedOrder.platformFee ?? (selectedOrder.total * 0.1).toFixed(2)}
+                    $
+                    {selectedOrder.platformFee ??
+                      (selectedOrder.total * 0.1).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -148,11 +168,46 @@ const OrderModal = ({ selectedOrder, onClose }: OrderModalProps) => {
                 ),
               ).map(([vendor, items], vIdx) => (
                 <div key={vIdx} className="space-y-3">
-                  <div className="flex items-center gap-2 px-1">
-                    <div className="h-1.5 w-1.5 rounded-full bg-purple-500" />
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-400">
-                      Vendor: {vendor}
-                    </span>
+                  <div className="flex items-center justify-between px-1">
+                    <div className="flex items-center gap-2">
+                      <div className="h-1.5 w-1.5 rounded-full bg-purple-500" />
+                      <span className="text-xs font-black uppercase tracking-widest text-slate-400">
+                        Vendor: {vendor}
+                      </span>
+                    </div>
+                    {(() => {
+                      const vendorId = items[0]?.vendorId;
+                      const vStatus = selectedOrder.vendorStatuses?.find(
+                        (vs) => vs.vendorId === vendorId,
+                      )?.status;
+                      if (!vStatus) return null;
+
+                      return (
+                        <span
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border ${
+                            vStatus === "Pending"
+                              ? "bg-amber-50 text-amber-600 border-amber-100"
+                              : vStatus === "Processing"
+                                ? "bg-orange-50 text-orange-600 border-orange-100"
+                                : vStatus === "Accepted"
+                                  ? "bg-blue-50 text-blue-600 border-blue-100"
+                                  : vStatus === "Shipped"
+                                    ? "bg-indigo-50 text-indigo-600 border-indigo-100"
+                                    : vStatus === "Arrived in Country"
+                                      ? "bg-violet-50 text-violet-600 border-violet-100"
+                                      : vStatus === "Arrived in City"
+                                        ? "bg-pink-50 text-pink-600 border-pink-100"
+                                        : vStatus === "Out for Delivery"
+                                          ? "bg-orange-50 text-orange-600 border-orange-100"
+                                          : vStatus === "Delivered"
+                                            ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                            : "bg-red-50 text-red-600 border-red-100"
+                          }`}
+                        >
+                          {vStatus}
+                        </span>
+                      );
+                    })()}
                   </div>
                   <div className="border dark:border-gray-700 rounded-xl overflow-hidden shadow-sm">
                     <table className="w-full text-left text-sm">

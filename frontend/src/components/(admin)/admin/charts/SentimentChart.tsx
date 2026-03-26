@@ -70,8 +70,12 @@ const SentimentChart = ({ stats }: SentimentChartProps) => {
                 )}
               </div>
               <div className="flex justify-between text-[10px] text-slate-400 px-1">
-                <span className="text-green-600 dark:text-green-400">Good: {item.good}</span>
-                <span className="text-red-500 dark:text-red-400">Bad: {item.bad}</span>
+                <span className="text-green-600 dark:text-green-400">
+                  Good: {item.good}
+                </span>
+                <span className="text-red-500 dark:text-red-400">
+                  Bad: {item.bad}
+                </span>
               </div>
             </div>
           );

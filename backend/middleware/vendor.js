@@ -6,9 +6,8 @@ async function requireVendor(req, res, next) {
   requireAuth(req, res, async () => {
     try {
       await connectDB();
-      // Look up strictly in VendorModel
       const user = await VendorModel.findOne({ id: req.user.id }).lean();
-      
+
       if (!user) {
         return res.status(401).json({ message: "Vendor account not found" });
       }
@@ -18,9 +17,9 @@ async function requireVendor(req, res, next) {
         return next();
       }
 
-      return res.status(403).json({ 
+      return res.status(403).json({
         message: "Access denied. Approved vendor account required.",
-        vendorStatus: user.vendorProfile ? user.vendorProfile.status : "none"
+        vendorStatus: user.vendorProfile ? user.vendorProfile.status : "none",
       });
     } catch (error) {
       console.error("Vendor middleware error:", error);

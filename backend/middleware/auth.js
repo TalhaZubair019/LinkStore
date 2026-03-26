@@ -19,7 +19,6 @@ function extractToken(req) {
 
 async function findUserAcrossCollections(id) {
   await connectDB();
-  // Search all 3 collections in parallel
   const [user, admin, vendor] = await Promise.all([
     UserModel.findOne({ id }).lean(),
     AdminModel.findOne({ id }).lean(),

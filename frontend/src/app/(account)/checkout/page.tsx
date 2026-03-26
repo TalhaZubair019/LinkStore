@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,7 +9,6 @@ import AuthPromptModal from "@/components/(auth)/auth/AuthPromptModal";
 import Toast from "@/components/(store)/products/Toast";
 
 import { ChevronLeft } from "lucide-react";
-import db from "@data/db.json";
 import { Country, State, City } from "country-state-city";
 
 import ContactSection from "@/components/(account)/checkout/ContactSection";
@@ -18,8 +16,6 @@ import BillingSection from "@/components/(account)/checkout/BillingSection";
 import PaymentSection from "@/components/(account)/checkout/PaymentSection";
 import OrderSummary from "@/components/(account)/checkout/OrderSummary";
 import PageHeader from "@/components/ui/PageHeader";
-
-const checkoutConfig = db.checkout;
 
 interface CheckoutData {
   email: string;
@@ -318,10 +314,7 @@ export default function CheckoutPage() {
           }}
         />
       )}
-      <PageHeader
-        title="Checkout"
-        breadcrumb="Checkout"
-      />
+      <PageHeader title="Checkout" breadcrumb="Checkout" />
 
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto mt-16 px-4 lg:px-8 pb-32">
@@ -339,7 +332,11 @@ export default function CheckoutPage() {
             >
               <div className="lg:col-span-5">
                 {hasMounted ? (
-                  <OrderSummary cartItems={cartItems} subtotal={subtotal} products={productsCache} />
+                  <OrderSummary
+                    cartItems={cartItems}
+                    subtotal={subtotal}
+                    products={productsCache}
+                  />
                 ) : (
                   <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 lg:p-8 animate-pulse transition-colors">
                     <div className="h-6 w-32 bg-slate-100 dark:bg-slate-800/50 rounded mb-6" />
@@ -382,7 +379,9 @@ export default function CheckoutPage() {
                   </Link>
                   <button
                     type="submit"
-                    disabled={isSubmitting || (hasMounted && cartItems.length === 0)}
+                    disabled={
+                      isSubmitting || (hasMounted && cartItems.length === 0)
+                    }
                     className={`w-full sm:w-auto px-10 py-4 rounded-full bg-linear-to-r from-[#8B5CF6] to-[#2DD4BF] text-white font-bold text-lg shadow-lg shadow-purple-200 transition-all duration-300 ${
                       isSubmitting || (hasMounted && cartItems.length === 0)
                         ? "opacity-60 cursor-not-allowed grayscale"

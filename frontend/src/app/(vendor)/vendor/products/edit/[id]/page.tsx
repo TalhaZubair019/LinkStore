@@ -3,7 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Upload, Sparkles, Loader2, Save } from "lucide-react";
+import { Upload, Sparkles, Loader2, Save } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 
 interface Category {
@@ -15,7 +15,10 @@ interface Category {
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
-  const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const searchParams =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search)
+      : null;
   const id = params.id as string;
   const fromPage = searchParams?.get("fromPage") || "1";
 
@@ -171,10 +174,7 @@ export default function EditProductPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans transition-colors duration-300">
-      <PageHeader
-        title="Edit Product"
-        breadcrumb="Edit Product"
-      />
+      <PageHeader title="Edit Product" breadcrumb="Edit Product" />
 
       <div className="max-w-5xl mx-auto px-4 lg:px-8 pt-8 pb-12">
         <form onSubmit={handleSubmit}>

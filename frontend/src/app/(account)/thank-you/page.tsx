@@ -78,7 +78,10 @@ export default function ThankYouPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 mt-50 font-sans transition-colors duration-300">
       <div className="bg-white dark:bg-slate-900 max-w-md w-full rounded-2xl shadow-xl dark:shadow-black/50 p-8 text-center border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in duration-300 transition-colors">
         <div className="mx-auto w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6 transition-colors">
-          <CheckCircle className="w-10 h-10 text-green-600 dark:text-green-400" strokeWidth={3} />
+          <CheckCircle
+            className="w-10 h-10 text-green-600 dark:text-green-400"
+            strokeWidth={3}
+          />
         </div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 transition-colors">
           Order Placed!

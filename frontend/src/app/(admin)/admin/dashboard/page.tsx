@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { CheckCircle, X } from "lucide-react";
-import PageHeader from "@/components/ui/PageHeader";
 import AdminSidebar from "@/components/(admin)/admin/layout/AdminSidebar";
 import DashboardHeader from "@/components/(admin)/admin/layout/DashboardHeader";
 import DashboardModals from "@/components/(admin)/admin/layout/DashboardModals";
@@ -13,6 +12,8 @@ import ActivityLogsTabContent from "@/components/(admin)/admin/tabs/ActivityLogs
 import VendorsTabContent from "@/components/(admin)/admin/tabs/VendorsTabContent";
 import ProductsTabContent from "@/components/(admin)/admin/tabs/ProductsTabContent";
 import OrdersTabContent from "@/components/(admin)/admin/tabs/OrdersTabContent";
+import ReviewsTabContent from "@/components/(admin)/admin/tabs/ReviewsTabContent";
+import CommissionTabContent from "@/components/(admin)/admin/tabs/CommissionTabContent";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
@@ -105,18 +106,23 @@ export default function AdminDashboard() {
           setIsSidebarOpen(false);
         }}
         stats={d.stats}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         <main className="flex-1 p-6 lg:p-8 pt-8">
-          <div className="mb-8 flex justify-between items-start">
+          <div className="hidden lg:flex mb-8 justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                {d.activeTab.charAt(0).toUpperCase() + d.activeTab.slice(1)}
+                {d.activeTab.charAt(0).toUpperCase() +
+                  d.activeTab.slice(1).replace("_", " ")}
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1">
-                Welcome back, {d.user?.name || "Admin"}!
-              </p>
+              {d.activeTab === "overview" && (
+                <p className="text-slate-500 dark:text-slate-400 mt-1">
+                  Welcome back, {d.user?.name || "Admin"}!
+                </p>
+              )}
             </div>
             <div className="hidden lg:block shrink-0">
               <ThemeToggle />
@@ -129,8 +135,17 @@ export default function AdminDashboard() {
             setActiveTab={d.setActiveTab}
             searchTerm={d.searchTerm}
             setSearchTerm={d.setSearchTerm}
-            showSearch={["users", "admins", "products", "orders"].includes(d.activeTab)}
+            showSearch={[
+              "users",
+              "admins",
+              "products",
+              "orders",
+              "product_reviews",
+              "store_reviews",
+              "commission",
+            ].includes(d.activeTab)}
             isAdminView={true}
+            onMenuClick={() => setIsSidebarOpen(true)}
           />
           {d.activeTab === "overview" && (
             <OverviewTab stats={d.stats} isAdminView={true} />
@@ -179,7 +194,7 @@ export default function AdminDashboard() {
             <ProductsTabContent
               allProducts={filteredProducts || []}
               categories={d.stats.categories || []}
-              setProductDeleteConfirm={() => {}} // Read-only
+              setProductDeleteConfirm={() => {}}
               productPage={d.productPage}
               setProductPage={d.setProductPage}
               totalProductPages={totalProductPages}
@@ -190,8 +205,8 @@ export default function AdminDashboard() {
           {d.activeTab === "orders" && (
             <OrdersTabContent
               allOrders={filteredOrders || []}
-              handleStatusChange={() => {}} // Read-only
-              requestCancelOrder={() => {}} // Read-only
+              handleStatusChange={() => {}}
+              requestCancelOrder={() => {}}
               setSelectedOrder={d.setSelectedOrder}
               orderPage={d.orderPage}
               setOrderPage={d.setOrderPage}
@@ -199,7 +214,41 @@ export default function AdminDashboard() {
               updatingOrderId={null}
               isAdminView={true}
               totalOrderPages={totalOrderPages}
+            />
+          )}
+          {d.activeTab === "product_reviews" && (
+            <ReviewsTabContent
+              reviews={d.stats.productReviews || []}
+              products={d.stats.products || []}
+              users={d.stats.users || []}
+              reviewPage={d.reviewPage}
+              setReviewPage={d.setReviewPage}
               itemsPerPage={d.ITEMS_PER_PAGE}
+              searchTerm={d.searchTerm}
+              isStoreReview={false}
+              onReviewDeleted={d.fetchStats}
+              isAdminView={true}
+            />
+          )}
+          {d.activeTab === "store_reviews" && (
+            <ReviewsTabContent
+              reviews={d.stats.storeReviews || []}
+              products={d.stats.products || []}
+              users={d.stats.users || []}
+              reviewPage={d.reviewPage}
+              setReviewPage={d.setReviewPage}
+              itemsPerPage={d.ITEMS_PER_PAGE}
+              searchTerm={d.searchTerm}
+              isStoreReview={true}
+              onReviewDeleted={d.fetchStats}
+              isAdminView={true}
+            />
+          )}
+          {d.activeTab === "commission" && (
+            <CommissionTabContent
+              stats={d.stats}
+              isAdminView={true}
+              onClearDebt={d.handleClearCommissionDebt}
             />
           )}
         </main>

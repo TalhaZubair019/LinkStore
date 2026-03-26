@@ -18,7 +18,7 @@ export function useAdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "admins" | "vendors" | "logs" | "products" | "orders"
+    "overview" | "users" | "admins" | "vendors" | "logs" | "products" | "orders" | "product_reviews" | "store_reviews" | "commission"
   >("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -30,6 +30,7 @@ export function useAdminDashboard() {
   const [adminPage, setAdminPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
   const [orderPage, setOrderPage] = useState(1);
+  const [reviewPage, setReviewPage] = useState(1);
 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState(false);
@@ -66,7 +67,7 @@ export function useAdminDashboard() {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");
       const page = params.get("page");
-      const validTabs = ["overview", "users", "admins", "vendors", "logs", "products", "orders"];
+      const validTabs = ["overview", "users", "admins", "vendors", "logs", "products", "orders", "product_reviews", "store_reviews", "commission"];
 
       if (tab && validTabs.includes(tab)) {
         setActiveTab(tab as any);
@@ -75,6 +76,7 @@ export function useAdminDashboard() {
         if (tab === "admins") setAdminPage(pageNum);
         if (tab === "products") setProductPage(pageNum);
         if (tab === "orders") setOrderPage(pageNum);
+        if (tab === "product_reviews" || tab === "store_reviews") setReviewPage(pageNum);
       }
     }
   }, []);
@@ -120,6 +122,7 @@ export function useAdminDashboard() {
         else if (activeTab === "admins") currentPage = adminPage;
         else if (activeTab === "products") currentPage = productPage;
         else if (activeTab === "orders") currentPage = orderPage;
+        else if (activeTab === "product_reviews" || activeTab === "store_reviews") currentPage = reviewPage;
 
         if (currentPage > 1) {
           url.searchParams.set("page", currentPage.toString());
@@ -319,6 +322,8 @@ export function useAdminDashboard() {
     setProductPage,
     orderPage,
     setOrderPage,
+    reviewPage,
+    setReviewPage,
     deleteConfirm,
     setDeleteConfirm,
     isAddAdminModalOpen,

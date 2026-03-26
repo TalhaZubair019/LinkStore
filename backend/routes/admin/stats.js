@@ -17,16 +17,16 @@ const ADMIN_EMAIL = process.env.EMAIL_USER;
 router.get("/", requireAdmin, async (req, res) => {
   try {
     await connectDB();
-    const [users, admins, vendors, orders, products, reviews, categories] = await Promise.all([
-      UserModel.find({ "vendorProfile.status": { $ne: "approved" } }).lean(),
-      AdminModel.find({}).lean(),
-      VendorModel.find({}).lean(),
-      OrderModel.find({}).lean(),
-      ProductModel.find({}).lean(),
-      ReviewModel.find({}).lean(),
-      CategoryModel.find({}).sort({ name: 1 }).lean(),
-    ]);
-    // Combine all user types for lookups
+    const [users, admins, vendors, orders, products, allReviews, categories] =
+      await Promise.all([
+        UserModel.find({ "vendorProfile.status": { $ne: "approved" } }).lean(),
+        AdminModel.find({}).lean(),
+        VendorModel.find({}).lean(),
+        OrderModel.find({}).lean(),
+        ProductModel.find({}).lean(),
+        ReviewModel.find({}).lean(),
+        CategoryModel.find({}).sort({ name: 1 }).lean(),
+      ]);
     const allUsers = [...users, ...admins, ...vendors];
 
     const totalRevenue = orders
@@ -103,15 +103,20 @@ router.get("/", requireAdmin, async (req, res) => {
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .map((order) => {
         const liveCustomer = allUsers.find((u) => u.id === order.userId);
-        
-        // Find unique vendor names from items
-        const itemVendors = Array.from(new Set(order.items?.map(item => vendorLookup[item.vendorId] || "Unknown Store").filter(Boolean)));
-        const vendorStoreName = itemVendors.length > 1 ? "Multiple Vendors" : itemVendors[0] || "Unknown Store";
-
-        // Map vendorStoreName to each item
-        const itemsWithVendorNames = order.items?.map(item => ({
+        const itemVendors = Array.from(
+          new Set(
+            order.items
+              ?.map((item) => vendorLookup[item.vendorId] || "Unknown Store")
+              .filter(Boolean),
+          ),
+        );
+        const vendorStoreName =
+          itemVendors.length > 1
+            ? "Multiple Vendors"
+            : itemVendors[0] || "Unknown Store";
+        const itemsWithVendorNames = order.items?.map((item) => ({
           ...item,
-          vendorStoreName: vendorLookup[item.vendorId] || "Unknown Store"
+          vendorStoreName: vendorLookup[item.vendorId] || "Unknown Store",
         }));
 
         return {
@@ -132,9 +137,10 @@ router.get("/", requireAdmin, async (req, res) => {
 
     const usersWithDetails = allUsers.map((user) => {
       const { password, ...rest } = user;
-      const isAdmin = admins.some(a => a.id === user.id);
-      const isVendor = vendors.some(v => v.id === user.id);
-      const adminRole = user.email === ADMIN_EMAIL ? "super_admin" : isAdmin ? "admin" : null;
+      const isAdmin = admins.some((a) => a.id === user.id);
+      const isVendor = vendors.some((v) => v.id === user.id);
+      const adminRole =
+        user.email === ADMIN_EMAIL ? "super_admin" : isAdmin ? "admin" : null;
       return {
         ...rest,
         isAdmin,
@@ -152,29 +158,40 @@ router.get("/", requireAdmin, async (req, res) => {
     const perCategoryStats = {};
     orders.forEach((order) => {
       order.items?.forEach((item) => {
-        const cat = products.find((p) => p.title === item.name)?.badge || "General";
+        const cat =
+          products.find((p) => p.title === item.name)?.badge || "General";
         if (!perCategoryStats[cat]) {
-          perCategoryStats[cat] = { totalRevenue: 0, units: 0, orders: new Set(), fulfilledOrders: new Set(), totalItems: 0, fulfilledItems: 0 };
+          perCategoryStats[cat] = {
+            totalRevenue: 0,
+            units: 0,
+            orders: new Set(),
+            fulfilledOrders: new Set(),
+            totalItems: 0,
+            fulfilledItems: 0,
+          };
         }
-        
+
         perCategoryStats[cat].totalItems++;
-        perCategoryStats[cat].units += (item.quantity || 1);
+        perCategoryStats[cat].units += item.quantity || 1;
         perCategoryStats[cat].orders.add(order.id);
 
         if (order.status !== "Cancelled") {
           perCategoryStats[cat].fulfilledItems++;
           perCategoryStats[cat].fulfilledOrders.add(order.id);
-          perCategoryStats[cat].totalRevenue += (item.totalPrice || 0);
+          perCategoryStats[cat].totalRevenue += item.totalPrice || 0;
         }
       });
 
-      const hour = new Date(order.date).getHours().toString().padStart(2, "0") + ":00";
+      const hour =
+        new Date(order.date).getHours().toString().padStart(2, "0") + ":00";
       if (hourCounts[hour] !== undefined) hourCounts[hour]++;
-      
+
       if (order.status !== "Cancelled") {
         order.items?.forEach((item) => {
-          const cat = products.find((p) => p.title === item.name)?.badge || "General";
-          categorySales[cat] = (categorySales[cat] || 0) + (item.totalPrice || 0);
+          const cat =
+            products.find((p) => p.title === item.name)?.badge || "General";
+          categorySales[cat] =
+            (categorySales[cat] || 0) + (item.totalPrice || 0);
         });
       }
     });
@@ -183,40 +200,66 @@ router.get("/", requireAdmin, async (req, res) => {
       topSeller: { label: "N/A", value: 0 },
       mostPopular: { label: "N/A", value: 0 },
       highestValue: { label: "N/A", value: 0 },
-      bestFulfillment: { label: "N/A", value: 0 }
+      bestFulfillment: { label: "N/A", value: 0 },
     };
 
-    const catStatsArray = Object.entries(perCategoryStats).map(([cat, stats]) => {
-      const fulfillmentRate = stats.totalItems > 0 ? (stats.fulfilledItems / stats.totalItems) * 100 : 0;
-      const aov = stats.fulfilledOrders.size > 0 ? stats.totalRevenue / stats.fulfilledOrders.size : 0;
-      return {
-        category: cat,
-        revenue: stats.totalRevenue,
-        units: stats.units,
-        aov,
-        fulfillmentRate
-      };
-    });
+    const catStatsArray = Object.entries(perCategoryStats).map(
+      ([cat, stats]) => {
+        const fulfillmentRate =
+          stats.totalItems > 0
+            ? (stats.fulfilledItems / stats.totalItems) * 100
+            : 0;
+        const aov =
+          stats.fulfilledOrders.size > 0
+            ? stats.totalRevenue / stats.fulfilledOrders.size
+            : 0;
+        return {
+          category: cat,
+          revenue: stats.totalRevenue,
+          units: stats.units,
+          aov,
+          fulfillmentRate,
+        };
+      },
+    );
 
     if (catStatsArray.length > 0) {
-      const topSeller = [...catStatsArray].sort((a, b) => b.revenue - a.revenue)[0];
-      const mostPopular = [...catStatsArray].sort((a, b) => b.units - a.units)[0];
+      const topSeller = [...catStatsArray].sort(
+        (a, b) => b.revenue - a.revenue,
+      )[0];
+      const mostPopular = [...catStatsArray].sort(
+        (a, b) => b.units - a.units,
+      )[0];
       const highestValue = [...catStatsArray].sort((a, b) => b.aov - a.aov)[0];
-      const bestFulfillment = [...catStatsArray].sort((a, b) => b.fulfillmentRate - a.fulfillmentRate)[0];
+      const bestFulfillment = [...catStatsArray].sort(
+        (a, b) => b.fulfillmentRate - a.fulfillmentRate,
+      )[0];
 
-      categoryPerformance.topSeller = { label: topSeller.category, value: topSeller.revenue };
-      categoryPerformance.mostPopular = { label: mostPopular.category, value: mostPopular.units };
-      categoryPerformance.highestValue = { label: highestValue.category, value: highestValue.aov };
-      categoryPerformance.bestFulfillment = { label: bestFulfillment.category, value: Math.round(bestFulfillment.fulfillmentRate) };
+      categoryPerformance.topSeller = {
+        label: topSeller.category,
+        value: topSeller.revenue,
+      };
+      categoryPerformance.mostPopular = {
+        label: mostPopular.category,
+        value: mostPopular.units,
+      };
+      categoryPerformance.highestValue = {
+        label: highestValue.category,
+        value: highestValue.aov,
+      };
+      categoryPerformance.bestFulfillment = {
+        label: bestFulfillment.category,
+        value: Math.round(bestFulfillment.fulfillmentRate),
+      };
     }
 
     const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    reviews.forEach((r) => {
+    allReviews.forEach((r) => {
       if (r.rating >= 1 && r.rating <= 5) ratingDistribution[r.rating]++;
     });
 
     const reviewCounts = {};
-    reviews.forEach((r) => {
+    allReviews.forEach((r) => {
       reviewCounts[r.productId] = (reviewCounts[r.productId] || 0) + 1;
     });
     const topReviewedProducts = Object.entries(reviewCounts)
@@ -232,7 +275,7 @@ router.get("/", requireAdmin, async (req, res) => {
       });
 
     const sentimentMap = {};
-    reviews.forEach((r) => {
+    allReviews.forEach((r) => {
       if (!sentimentMap[r.productId])
         sentimentMap[r.productId] = { good: 0, bad: 0, neutral: 0 };
       if (r.rating >= 4) sentimentMap[r.productId].good++;
@@ -252,21 +295,36 @@ router.get("/", requireAdmin, async (req, res) => {
       .sort((a, b) => b.total - a.total)
       .slice(0, 5);
 
+    const productReviews = allReviews.filter((r) => r.targetType === "product");
+    const storeReviews = allReviews.filter((r) => r.targetType === "vendor");
+
     const grossRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
     const cancelledRevenue = grossRevenue - totalRevenue;
-    
+
     const totalPlatformCommission = orders
       .filter((o) => o.status !== "Cancelled")
-      .reduce((acc, o) => acc + (o.platformFee || (o.total * 0.1 || 0)), 0);
-    
+      .reduce((acc, o) => acc + (o.platformFee || o.total * 0.1 || 0), 0);
+
     const netRevenue = totalRevenue - totalPlatformCommission;
 
     const nonCancelledOrders = orders.filter((o) => o.status !== "Cancelled");
-    const averageOrderValue = nonCancelledOrders.length > 0 ? totalRevenue / nonCancelledOrders.length : 0;
+    const averageOrderValue =
+      nonCancelledOrders.length > 0
+        ? totalRevenue / nonCancelledOrders.length
+        : 0;
 
     const totalAdmins = admins.length;
     const totalVendors = vendors.length;
-    const pendingVendors = users.filter((u) => u.vendorProfile?.status === "pending").length;
+    const pendingVendors = users.filter(
+      (u) => u.vendorProfile?.status === "pending",
+    ).length;
+
+    const commissionStats = vendors.map((v) => ({
+      vendorId: v.id,
+      storeName: v.vendorProfile?.storeName || v.name || "Unknown Store",
+      outstandingCommission: v.vendorProfile?.outstandingCommission || 0,
+      totalCommissionPaid: v.vendorProfile?.totalCommissionPaid || 0,
+    }));
 
     return res.json({
       totalUsers: users.length + admins.length + vendors.length,
@@ -289,9 +347,11 @@ router.get("/", requireAdmin, async (req, res) => {
       products,
       ratingDistribution,
       topReviewedProducts,
-      totalReviews: reviews.length,
+      totalReviews: allReviews.length,
       productSentiment,
-      reviews,
+      reviews: productReviews,
+      productReviews,
+      storeReviews,
       categorySalesData: Object.entries(categorySales)
         .map(([c, v]) => ({ category: c, value: v }))
         .sort((a, b) => b.value - a.value),
@@ -309,6 +369,7 @@ router.get("/", requireAdmin, async (req, res) => {
         count: c,
       })),
       categoryPerformance,
+      commissionStats,
       categories,
     });
   } catch (error) {

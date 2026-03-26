@@ -8,9 +8,9 @@ router.get("/", async (req, res) => {
   try {
     await connectDB();
     const { productId, vendorId, targetType } = req.query;
-    
+
     let query = {};
-    if (productId) query.productId = productId.toString();
+    if (productId) query.productId = Number(productId);
     if (vendorId) query.vendorId = vendorId;
     if (targetType) query.targetType = targetType;
 
@@ -23,44 +23,50 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /api/public/reviews/vendor
 router.post("/vendor", async (req, res) => {
   try {
-    const { vendorId, rating, comment, userId, userName, userImage } = req.body;
-    
+    const { vendorId, rating, comment, userId, userName, userImage, orderId } =
+      req.body;
+
     if (!vendorId || !rating) {
-      return res.status(400).json({ error: "Vendor ID and rating are required" });
+      return res
+        .status(400)
+        .json({ error: "Vendor ID and rating are required" });
     }
 
     await connectDB();
     const { VendorModel } = require("../../lib/models");
 
-    // 1. Create the review
     const savedReview = await ReviewModel.create({
       id: Date.now().toString(),
       vendorId,
+      orderId,
       rating: Number(rating),
       comment,
       userId,
       userName,
       userImage,
       targetType: "vendor",
-      date: new Date().toLocaleDateString()
+      date: new Date().toLocaleDateString(),
     });
 
-    // 2. Recalculate Vendor Stats
-    const allVendorReviews = await ReviewModel.find({ vendorId, targetType: "vendor" });
+    const allVendorReviews = await ReviewModel.find({
+      vendorId,
+      targetType: "vendor",
+    });
     const totalReviews = allVendorReviews.length;
-    const averageRating = allVendorReviews.reduce((acc, curr) => acc + curr.rating, 0) / totalReviews;
+    const averageRating =
+      allVendorReviews.reduce((acc, curr) => acc + curr.rating, 0) /
+      totalReviews;
 
     await VendorModel.findOneAndUpdate(
       { id: vendorId },
-      { 
-        $set: { 
+      {
+        $set: {
           "vendorProfile.averageRating": Number(averageRating.toFixed(1)),
-          "vendorProfile.totalReviews": totalReviews
-        } 
-      }
+          "vendorProfile.totalReviews": totalReviews,
+        },
+      },
     );
 
     return res.status(201).json(savedReview);
@@ -72,18 +78,57 @@ router.post("/vendor", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { productId, review } = req.body;
-    if (!productId || !review)
-      return res.status(400).json({ error: "Missing required fields" });
+    const body = req.body.review ? { ...req.body, ...req.body.review } : req.body;
+    const { productId, rating, comment, userId, userName, userImage } = body;
+
+    if (!productId || !rating) {
+      return res
+        .status(400)
+        .json({ error: "Product ID and rating are required" });
+    }
 
     await connectDB();
+    const { ProductModel } = require("../../lib/models");
+    const product = await ProductModel.findOne({ id: Number(productId) }).lean();
+    if (!product) return res.status(404).json({ error: "Product not found" });
+
     const savedReview = await ReviewModel.create({
-      ...review,
-      productId: productId.toString(),
+      id: Date.now().toString(),
+      productId: Number(productId),
+      vendorId: product.vendorId,
+      rating: Number(rating),
+      comment,
+      userId,
+      userName,
+      userImage,
+      targetType: "product",
+      date: new Date().toLocaleDateString(),
     });
+
+    // Update product stats
+    const allProductReviews = await ReviewModel.find({
+      productId: Number(productId),
+      targetType: "product",
+    });
+    const totalReviews = allProductReviews.length;
+    const averageRating =
+      allProductReviews.reduce((acc, curr) => acc + curr.rating, 0) /
+      totalReviews;
+
+    await ProductModel.findOneAndUpdate(
+      { id: Number(productId) },
+      {
+        $set: {
+          averageRating: Number(averageRating.toFixed(1)),
+          totalReviews: totalReviews,
+        },
+      },
+    );
+
     return res.status(201).json(savedReview);
   } catch (error) {
-    return res.status(500).json({ error: "Failed to save review" });
+    console.error("Product review error:", error);
+    return res.status(500).json({ error: "Failed to save product review" });
   }
 });
 
@@ -118,17 +163,6 @@ router.put("/:id", async (req, res) => {
     return res.json(updated);
   } catch (error) {
     return res.status(500).json({ error: "Failed to update review" });
-  }
-});
-
-router.delete("/:id", async (req, res) => {
-  try {
-    await connectDB();
-    const deleted = await ReviewModel.findOneAndDelete({ id: req.params.id });
-    if (!deleted) return res.status(404).json({ message: "Review not found" });
-    return res.json({ message: "Review deleted successfully" });
-  } catch (error) {
-    return res.status(500).json({ error: "Failed to delete review" });
   }
 });
 

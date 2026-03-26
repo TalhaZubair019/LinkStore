@@ -1,7 +1,13 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const { connectDB } = require("../../lib/db");
-const { OrderModel, UserModel, AdminModel, VendorModel, ProductModel } = require("../../lib/models");
+const {
+  OrderModel,
+  UserModel,
+  AdminModel,
+  VendorModel,
+  ProductModel,
+} = require("../../lib/models");
 const { requireAuth, JWT_SECRET } = require("../../middleware/auth");
 const { transporter } = require("../../lib/mailer");
 const db = require("../../../data/db.json");
@@ -102,18 +108,29 @@ router.post("/place-order", async (req, res) => {
           console.log(
             `[ALERT] Product ${product.title} (ID: ${product.id}) is low on stock: ${newTotalStock} remaining.`,
           );
+          const vendor = await VendorModel.findOne({
+            id: product.vendorId,
+          }).lean();
+          const recipientEmail = vendor?.email || process.env.EMAIL_USER;
 
           const alertHtml = `
-            <h2>Low Stock Alert</h2>
-            <p><strong>Product:</strong> ${product.title} (SKU: ${product.sku || "N/A"})</p>
-            <p><strong>Remaining Stock:</strong> ${newTotalStock} (Threshold: ${product.lowStockThreshold || 5})</p>
-            <p>Please restock this item soon to avoid turning away customers.</p>
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+              <h2 style="color: #e11d48;">Low Stock Alert</h2>
+              <p>One of your products is running low on stock. Please restock soon to avoid service interruptions.</p>
+              <div style="background: #fff1f2; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>Product:</strong> ${product.title}</p>
+                <p><strong>SKU:</strong> ${product.sku || "N/A"}</p>
+                <p><strong>Remaining Stock:</strong> <span style="color: #e11d48; font-weight: bold;">${newTotalStock}</span></p>
+                <p><strong>Threshold:</strong> ${product.lowStockThreshold || 5}</p>
+              </div>
+              <p style="font-size: 13px; color: #64748b;">This is an automated notification from LinkStore Marketplace.</p>
+            </div>
           `;
 
           transporter
             .sendMail({
-              from: `"Store Alerts" <${process.env.EMAIL_USER}>`,
-              to: process.env.EMAIL_USER,
+              from: `"LinkStore Alerts" <${process.env.EMAIL_USER}>`,
+              to: recipientEmail,
               subject: `⚠️ Low Stock Alert: ${product.title}`,
               html: alertHtml,
             })
@@ -147,8 +164,6 @@ router.post("/place-order", async (req, res) => {
       }
       return item;
     });
-
-    // Dynamically generate vendorStatuses for multi-vendor tracking
     const uniqueVendorIds = [
       ...new Set(itemsWithFulfillment.map((item) => item.vendorId)),
     ].filter(Boolean);
@@ -192,12 +207,11 @@ router.post("/place-order", async (req, res) => {
       await Promise.all([
         UserModel.findOneAndUpdate({ id: userId }, { cart: [] }),
         AdminModel.findOneAndUpdate({ id: userId }, { cart: [] }),
-        VendorModel.findOneAndUpdate({ id: userId }, { cart: [] })
+        VendorModel.findOneAndUpdate({ id: userId }, { cart: [] }),
       ]);
     }
 
     try {
-      // Group items by vendor for individual notifications
       const itemsByVendor = itemsWithFulfillment.reduce((acc, item) => {
         if (item.vendorId) {
           if (!acc[item.vendorId]) acc[item.vendorId] = [];
@@ -205,8 +219,6 @@ router.post("/place-order", async (req, res) => {
         }
         return acc;
       }, {});
-
-      // Function to generate email HTML for a specific set of items
       const generateEmailHtml = (orderItems, isVendor = false) => `
         <!DOCTYPE html>
         <html lang="en">
@@ -271,10 +283,16 @@ router.post("/place-order", async (req, res) => {
                         <span class="label">Payment Method</span>
                         <span class="value">${customer.paymentMethod?.toUpperCase()}</span>
                       </td>
+                      ${
+                        !isVendor
+                          ? `
                       <td>
                         <span class="label">Customer Email</span>
                         <span class="value">${customer.email}</span>
                       </td>
+                      `
+                          : ""
+                      }
                     </tr>
                   </table>
                 </div>
@@ -333,31 +351,37 @@ router.post("/place-order", async (req, res) => {
         </body>
         </html>`;
 
-      // 1. Send customer confirmation email (full order)
-      transporter.sendMail({
-        from: `"LinkStore" <${process.env.EMAIL_USER}>`,
-        to: customer.email,
-        subject: `Order Confirmation #${orderId}`,
-        html: generateEmailHtml(itemsWithFulfillment, false),
-      }).catch(e => console.error("Customer email error:", e));
+      transporter
+        .sendMail({
+          from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+          to: customer.email,
+          subject: `Order Confirmation #${orderId}`,
+          html: generateEmailHtml(itemsWithFulfillment, false),
+        })
+        .catch((e) => console.error("Customer email error:", e));
 
-      // 2. Send individual vendor notifications
       for (const [vendorId, vendorItems] of Object.entries(itemsByVendor)) {
         try {
           const vendor = await VendorModel.findOne({ id: vendorId }).lean();
           if (vendor && vendor.email) {
-            transporter.sendMail({
-              from: `"LinkStore Marketplace" <${process.env.EMAIL_USER}>`,
-              to: vendor.email,
-              subject: `New Order #${orderId} - Fulfill Items`,
-              html: generateEmailHtml(vendorItems, true),
-            }).catch(e => console.error(`Vendor ${vendorId} email error:`, e));
+            transporter
+              .sendMail({
+                from: `"LinkStore Marketplace" <${process.env.EMAIL_USER}>`,
+                to: vendor.email,
+                subject: `New Order #${orderId} - Fulfill Items`,
+                html: generateEmailHtml(vendorItems, true),
+              })
+              .catch((e) =>
+                console.error(`Vendor ${vendorId} email error:`, e),
+              );
           }
         } catch (fetchErr) {
-          console.error(`Failed to fetch vendor ${vendorId} for email:`, fetchErr);
+          console.error(
+            `Failed to fetch vendor ${vendorId} for email:`,
+            fetchErr,
+          );
         }
       }
-
     } catch (e) {
       console.error("Critical error generating email HTML:", e);
     }

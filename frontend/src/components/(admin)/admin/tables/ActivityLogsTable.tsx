@@ -284,11 +284,13 @@ export default function ActivityLogsTable() {
               className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
             >
               <option value="all">All Vendors</option>
-              {availableVendors.map((v: { id: string; name: string; email: string }) => (
-                <option key={v.id} value={v.id}>
-                  {v.name} ({v.email})
-                </option>
-              ))}
+              {availableVendors.map(
+                (v: { id: string; name: string; email: string }) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name} ({v.email})
+                  </option>
+                ),
+              )}
             </select>
           </div>
 
@@ -305,11 +307,13 @@ export default function ActivityLogsTable() {
               className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
             >
               <option value="all">All Admins</option>
-              {availableAdmins.map((a: { id: string; name: string; email: string }) => (
-                <option key={a.id} value={a.id}>
-                  {a.name} ({a.email})
-                </option>
-              ))}
+              {availableAdmins.map(
+                (a: { id: string; name: string; email: string }) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} ({a.email})
+                  </option>
+                ),
+              )}
             </select>
           </div>
           {hasFilters && (

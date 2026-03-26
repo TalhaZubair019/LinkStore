@@ -40,12 +40,20 @@ export default function AdminReviewsPage() {
   return (
     <div className="space-y-6 transition-colors duration-300">
       <div className="flex justify-between items-center px-4">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Reviews Management</h1>
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+          Reviews Management
+        </h1>
       </div>
       <AdminReviewList
         reviews={data.reviews}
         products={data.products}
         onReviewDeleted={fetchReviews}
+        page={0}
+        setPage={function (page: number): void {
+          throw new Error("Function not implemented.");
+        }}
+        itemsPerPage={0}
+        searchTerm={""}
       />
     </div>
   );

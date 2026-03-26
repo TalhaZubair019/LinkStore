@@ -9,9 +9,9 @@ import {
   Filter,
   FilterX,
   Calendar,
+  Store,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import Toast from "@/components/(store)/products/Toast";
 
 interface Review {
@@ -22,6 +22,7 @@ interface Review {
   comment: string;
   date: string;
   productId: number;
+  vendorId?: string;
   isEdited?: boolean;
   previousReview?: {
     rating: number;
@@ -40,7 +41,13 @@ interface AdminReviewListProps {
   onReviewDeleted?: () => void;
   reviews: Review[];
   products: Product[];
-  users?: { id: string; name: string; email?: string }[];
+  users?: any[];
+  isStoreReview?: boolean;
+  page: number;
+  setPage: (page: number) => void;
+  itemsPerPage: number;
+  searchTerm: string;
+  isAdminView?: boolean;
 }
 
 export default function AdminReviewList({
@@ -48,7 +55,14 @@ export default function AdminReviewList({
   reviews,
   products,
   users = [],
+  isStoreReview = false,
+  page,
+  setPage,
+  itemsPerPage,
+  searchTerm,
+  isAdminView = false,
 }: AdminReviewListProps) {
+  const canDelete = isAdminView;
   const [toast, setToast] = useState<{
     show: boolean;
     message: string;
@@ -77,6 +91,13 @@ export default function AdminReviewList({
 
   const filteredReviews = useMemo(() => {
     return reviews.filter((review) => {
+      const searchMatch =
+        !searchTerm ||
+        review.comment?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        review.userName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      if (!searchMatch) return false;
+
       const userMatch =
         selectedUserId === "all" || review.userId === selectedUserId;
       const productMatch =
@@ -128,7 +149,14 @@ export default function AdminReviewList({
     selectedStatus,
     customStart,
     customEnd,
+    searchTerm,
   ]);
+
+  const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+  const paginatedReviews = filteredReviews.slice(
+    (page - 1) * itemsPerPage,
+    page * itemsPerPage,
+  );
 
   const uniqueUsersInReviews = useMemo(() => {
     const userMap = new Map<string, string>();
@@ -146,6 +174,12 @@ export default function AdminReviewList({
 
   const getProductDetails = (productId: number) => {
     return products.find((p) => p.id === productId);
+  };
+
+  const getVendorStoreName = (vendorId?: string) => {
+    if (!vendorId) return "Unknown Store";
+    const vendor = users.find((u) => u.id === vendorId);
+    return vendor?.vendorProfile?.storeName || vendor?.name || "Unknown Store";
   };
 
   const showToast = (message: string, type: "add" | "remove") => {
@@ -179,10 +213,14 @@ export default function AdminReviewList({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              Review Management
+              {isStoreReview
+                ? "Seller Feedback Management"
+                : "Product Review Management"}
             </h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Manage and filter customer feedback
+              {isStoreReview
+                ? "Manage and filter seller-level feedback"
+                : "Manage and filter product-specific feedback"}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -196,48 +234,72 @@ export default function AdminReviewList({
         </div>
 
         <div className="flex flex-wrap items-center gap-3 pt-2">
-          <div className="relative flex-1 min-w-[200px]">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-              <User size={16} />
+          {!isStoreReview && (
+            <div className="relative flex-1 min-w-[200px]">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <User size={16} />
+              </div>
+              <select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all appearance-none text-slate-700 dark:text-slate-100 font-medium"
+              >
+                <option value="all">All Users</option>
+                {(users.length > 0 ? users : uniqueUsersInReviews).map((u) => (
+                  <option key={u.id} value={u.id} className="dark:bg-slate-800">
+                    {u.name}
+                    {u.name && nameFrequencies[u.name] > 1 && u.email
+                      ? ` (${u.email})`
+                      : ""}
+                  </option>
+                ))}
+              </select>
             </div>
-            <select
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all appearance-none text-slate-700 dark:text-slate-100 font-medium"
-            >
-              <option value="all">All Users</option>
-              {(users.length > 0 ? users : uniqueUsersInReviews).map((u) => (
-                <option key={u.id} value={u.id} className="dark:bg-slate-800">
-                  {u.name}
-                  {u.name && nameFrequencies[u.name] > 1 && u.email
-                    ? ` (${u.email})`
-                    : ""}
-                </option>
-              ))}
-            </select>
-          </div>
+          )}
 
-          <div className="relative flex-1 min-w-[200px]">
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-              <Package size={16} />
+          {!isStoreReview && (
+            <div className="relative flex-1 min-w-[200px]">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <Package size={16} />
+              </div>
+              <select
+                value={selectedProductId}
+                onChange={(e) => setSelectedProductId(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all appearance-none text-slate-700 dark:text-slate-100 font-medium"
+              >
+                <option value="all">All Products</option>
+                {products.map((p) => (
+                  <option
+                    key={p.id}
+                    value={p.id.toString()}
+                    className="dark:bg-slate-800"
+                  >
+                    {p.title}
+                  </option>
+                ))}
+              </select>
             </div>
-            <select
-              value={selectedProductId}
-              onChange={(e) => setSelectedProductId(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all appearance-none text-slate-700 dark:text-slate-100 font-medium"
-            >
-              <option value="all">All Products</option>
-              {products.map((p) => (
-                <option
-                  key={p.id}
-                  value={p.id.toString()}
-                  className="dark:bg-slate-800"
-                >
-                  {p.title}
-                </option>
-              ))}
-            </select>
-          </div>
+          )}
+
+          {isStoreReview && (
+            <div className="relative flex-1 min-w-[200px]">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <User size={16} />
+              </div>
+              <select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all appearance-none text-slate-700 dark:text-slate-100 font-medium"
+              >
+                <option value="all">All Customers</option>
+                {(users.length > 0 ? users : uniqueUsersInReviews).map((u) => (
+                  <option key={u.id} value={u.id} className="dark:bg-slate-800">
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className="relative flex-1 min-w-[200px]">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -338,12 +400,12 @@ export default function AdminReviewList({
         )}
       </div>
       <div className="lg:hidden divide-y divide-slate-100 dark:divide-slate-800 border-t border-slate-100 dark:border-slate-800">
-        {filteredReviews.length === 0 ? (
+        {paginatedReviews.length === 0 ? (
           <div className="px-6 py-10 text-center text-slate-500 dark:text-slate-400 italic">
             No reviews found.
           </div>
         ) : (
-          filteredReviews.map((review) => {
+          paginatedReviews.map((review) => {
             const product = getProductDetails(review.productId);
             return (
               <div
@@ -364,12 +426,14 @@ export default function AdminReviewList({
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDelete(review.id)}
-                    className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDelete(review.id)}
+                      className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
 
                 {product && (
@@ -388,6 +452,22 @@ export default function AdminReviewList({
                       </div>
                       <div className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate max-w-[180px]">
                         {product.title}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {isStoreReview && isAdminView && review.vendorId && (
+                  <div className="flex items-center gap-3 p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <div className="h-10 w-10 rounded-lg bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center text-purple-600 dark:text-purple-400 shrink-0 border border-purple-100 dark:border-purple-800/50">
+                      <Store size={20} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">
+                        Store Reviewed
+                      </div>
+                      <div className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">
+                        {getVendorStoreName(review.vendorId)}
                       </div>
                     </div>
                   </div>
@@ -466,15 +546,22 @@ export default function AdminReviewList({
           <thead className="bg-slate-50/50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
             <tr>
               <th className="px-6 py-4 font-bold">User</th>
-              <th className="px-6 py-4 font-bold">Product</th>
+              {!isStoreReview && (
+                <th className="px-6 py-4 font-bold">Product</th>
+              )}
+              {isStoreReview && isAdminView && (
+                <th className="px-6 py-4 font-bold">Store</th>
+              )}
               <th className="px-6 py-4 font-bold">Rating</th>
               <th className="px-6 py-4 font-bold">Comment</th>
               <th className="px-6 py-4 font-bold">Date</th>
-              <th className="px-6 py-4 font-bold text-right">Actions</th>
+              {canDelete && (
+                <th className="px-6 py-4 font-bold text-right">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {filteredReviews.map((review) => {
+            {paginatedReviews.map((review) => {
               const product = getProductDetails(review.productId);
               return (
                 <Fragment key={review.id}>
@@ -489,27 +576,41 @@ export default function AdminReviewList({
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      {product ? (
-                        <div className="flex items-center gap-3">
-                          <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-slate-100 dark:border-slate-800">
-                            <Image
-                              src={product.image}
-                              alt={product.title}
-                              fill
-                              className="object-cover"
-                            />
+                    {!isStoreReview && (
+                      <td className="px-6 py-4">
+                        {product ? (
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-slate-100 dark:border-slate-800">
+                              <Image
+                                src={product.image}
+                                alt={product.title}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate max-w-[120px]">
+                              {product.title}
+                            </span>
                           </div>
-                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200 truncate max-w-[120px]">
-                            {product.title}
+                        ) : (
+                          <span className="text-slate-400 italic text-xs">
+                            Unknown Product
+                          </span>
+                        )}
+                      </td>
+                    )}
+                    {isStoreReview && isAdminView && (
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1.5 bg-purple-50 dark:bg-purple-900/20 rounded-lg text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-800/50">
+                            <Store size={14} />
+                          </div>
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">
+                            {getVendorStoreName(review.vendorId)}
                           </span>
                         </div>
-                      ) : (
-                        <span className="text-slate-400 italic text-xs">
-                          Unknown Product
-                        </span>
-                      )}
-                    </td>
+                      </td>
+                    )}
                     <td className="px-6 py-4">
                       <div className="flex text-amber-400 gap-0.5">
                         {[...Array(5)].map((_, i) => (
@@ -546,17 +647,19 @@ export default function AdminReviewList({
                         </button>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-1">
-                        <button
-                          onClick={() => handleDelete(review.id)}
-                          className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                          title="Delete Review"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+                    {canDelete && (
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button
+                            onClick={() => handleDelete(review.id)}
+                            className="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                            title="Delete Review"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                   {expandedEditId === review.id && review.previousReview && (
                     <tr className="bg-slate-50/50 dark:bg-slate-800/20">
@@ -619,6 +722,68 @@ export default function AdminReviewList({
             >
               Clear all filters
             </button>
+          </div>
+        )}
+
+        {/* Pagination UI */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-6 py-6 border-t dark:border-gray-800 bg-slate-50/30 dark:bg-slate-900/30">
+            <p className="text-sm text-slate-500 dark:text-gray-400">
+              Showing{" "}
+              <span className="font-bold text-slate-900 dark:text-white">
+                {(page - 1) * itemsPerPage + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold text-slate-900 dark:text-white">
+                {Math.min(page * itemsPerPage, filteredReviews.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold text-slate-900 dark:text-white">
+                {filteredReviews.length}
+              </span>{" "}
+              results
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 text-sm font-bold bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Previous
+              </button>
+              <div className="flex items-center gap-1">
+                {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                  let pageToShow = page;
+                  if (page <= 3) pageToShow = i + 1;
+                  else if (page >= totalPages - 2)
+                    pageToShow = totalPages - 4 + i;
+                  else pageToShow = page - 2 + i;
+
+                  if (pageToShow <= 0 || pageToShow > totalPages) return null;
+
+                  return (
+                    <button
+                      key={pageToShow}
+                      onClick={() => setPage(pageToShow)}
+                      className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${
+                        page === pageToShow
+                          ? "bg-purple-600 text-white shadow-lg shadow-purple-500/20"
+                          : "bg-white dark:bg-gray-800 border dark:border-gray-700 text-slate-600 dark:text-gray-400 hover:bg-slate-50 dark:hover:bg-gray-700"
+                      }`}
+                    >
+                      {pageToShow}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setPage(Math.min(totalPages, page + 1))}
+                disabled={page === totalPages}
+                className="px-4 py-2 text-sm font-bold bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-xl disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>

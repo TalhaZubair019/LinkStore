@@ -11,33 +11,34 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Weekly COD Commission Billing Cron Job
 const cron = require("node-cron");
 const { VendorModel } = require("./lib/models");
 const { transporter } = require("./lib/mailer");
 const { connectDB } = require("./lib/db");
 
-cron.schedule("0 0 * * 1", async () => {
-  console.log("Running Weekly COD Commission Billing Cron Job...");
+cron.schedule("0 * * * *", async () => {
+  console.log("Running Hourly COD Commission Billing Cron Job...");
   try {
     await connectDB();
-    const vendorsWithDebt = await VendorModel.find({ 
-      "vendorProfile.outstandingCommission": { $gt: 0 } 
+    const vendorsWithDebt = await VendorModel.find({
+      "vendorProfile.outstandingCommission": { $gt: 0 },
     }).lean();
 
     for (const vendor of vendorsWithDebt) {
       try {
         const email = vendor.email;
-        const amount = (vendor.vendorProfile.outstandingCommission || 0).toFixed(2);
-        
+        const amount = (
+          vendor.vendorProfile.outstandingCommission || 0
+        ).toFixed(2);
+
         await transporter.sendMail({
           to: email,
-          subject: "Action Required: Your Weekly COD Commission Invoice",
+          subject: "Action Required: Your Hourly COD Commission Invoice",
           html: `
             <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="color: #0f172a;">Weekly Commission Invoice</h2>
+              <h2 style="color: #0f172a;">Hourly Commission Invoice</h2>
               <p>Hello <strong>${vendor.vendorProfile.storeName || vendor.name}</strong>,</p>
-              <p>This is an automated notification regarding your outstanding Cash on Delivery (COD) commissions for the past week.</p>
+              <p>This is an automated notification regarding your outstanding Cash on Delivery (COD) commissions for the past hour.</p>
               <div style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin: 25px 0; text-align: center;">
                 <span style="color: #64748b; font-size: 13px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em;">Outstanding Balance</span>
                 <h1 style="margin: 10px 0; color: #2563eb; font-size: 36px;">$${amount}</h1>
@@ -47,9 +48,11 @@ cron.schedule("0 0 * * 1", async () => {
               <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
               <p style="font-size: 11px; color: #94a3b8; text-align: center;">This is an automated message from LinkStore. Please do not reply directly to this email.</p>
             </div>
-          `
+          `,
         });
-        console.log(`[Cron] Billed vendor ${vendor.id} (${vendor.vendorProfile.storeName}) for $${amount}`);
+        console.log(
+          `[Cron] Billed vendor ${vendor.id} (${vendor.vendorProfile.storeName}) for $${amount}`,
+        );
       } catch (err) {
         console.error(`[Cron] Failed to bill vendor ${vendor.id}:`, err);
       }
@@ -63,7 +66,6 @@ app.use(cors({ origin: true, credentials: true }));
 
 app.use(helmet({ crossOriginResourcePolicy: false }));
 
-// Stripe Webhook needs raw body - MUST be before express.json()
 app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 
 const apiLimiter = rateLimit({

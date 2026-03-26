@@ -14,15 +14,19 @@ interface StockAdjustmentModalProps {
   isAdminView?: boolean;
 }
 
-export default function StockAdjustmentModal({ 
-  product, 
-  onClose, 
+export default function StockAdjustmentModal({
+  product,
+  onClose,
   onSuccess,
-  isAdminView = true 
+  isAdminView = true,
 }: StockAdjustmentModalProps) {
   const [sku, setSku] = useState(product.sku || "");
-  const [lowStockThreshold, setLowStockThreshold] = useState(product.lowStockThreshold || 5);
-  const [warehouses, setWarehouses] = useState<WarehouseInventory[]>(product.warehouseInventory || []);
+  const [lowStockThreshold, setLowStockThreshold] = useState(
+    product.lowStockThreshold || 5,
+  );
+  const [warehouses, setWarehouses] = useState<WarehouseInventory[]>(
+    product.warehouseInventory || [],
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableWarehouses, setAvailableWarehouses] = useState<any[]>([]);
 
@@ -42,28 +46,39 @@ export default function StockAdjustmentModal({
     fetchWH();
   }, [isAdminView]);
 
-  const totalStock = warehouses.reduce((acc, curr) => acc + (curr.quantity || 0), 0);
+  const totalStock = warehouses.reduce(
+    (acc, curr) => acc + (curr.quantity || 0),
+    0,
+  );
 
   const addWarehouse = () => {
-    setWarehouses([...warehouses, { warehouseName: "", location: "", quantity: 0 }]);
+    setWarehouses([
+      ...warehouses,
+      { warehouseName: "", location: "", quantity: 0 },
+    ]);
   };
 
   const removeWarehouse = (index: number) => {
     setWarehouses(warehouses.filter((_, i) => i !== index));
   };
 
-  const updateWarehouse = (index: number, field: keyof WarehouseInventory, value: string | number) => {
+  const updateWarehouse = (
+    index: number,
+    field: keyof WarehouseInventory,
+    value: string | number,
+  ) => {
     const newW = [...warehouses];
-    const updated = { ...newW[index] as any, [field]: value };
-    
-    // If name changed, try to auto-fill location from availableWarehouses
+    const updated = { ...(newW[index] as any), [field]: value };
+
     if (field === "warehouseName") {
-      const found = availableWarehouses.find(w => w.name === value || w.warehouseName === value);
+      const found = availableWarehouses.find(
+        (w) => w.name === value || w.warehouseName === value,
+      );
       if (found) {
         updated.location = found.location;
       }
     }
-    
+
     newW[index] = updated;
     setWarehouses(newW);
   };
@@ -98,8 +113,11 @@ export default function StockAdjustmentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm" onClick={onClose} />
-      
+      <div
+        className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
       <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-white dark:border-slate-800 transition-colors">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30 transition-colors">
           <div className="flex items-center gap-3">
@@ -107,21 +125,33 @@ export default function StockAdjustmentModal({
               <Package size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800 dark:text-white transition-colors">Adjust Inventory</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[300px] transition-colors">{product.title}</p>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white transition-colors">
+                Adjust Inventory
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[300px] transition-colors">
+                {product.title}
+              </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          >
             <X size={20} />
           </button>
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
-          <form id="inventory-form" onSubmit={handleSubmit} className="space-y-6">
-            
+          <form
+            id="inventory-form"
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider transition-colors">SKU</label>
+                <label className="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider transition-colors">
+                  SKU
+                </label>
                 <input
                   type="text"
                   value={sku}
@@ -131,7 +161,9 @@ export default function StockAdjustmentModal({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider transition-colors">Low Stock Threshold</label>
+                <label className="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-400 uppercase tracking-wider transition-colors">
+                  Low Stock Threshold
+                </label>
                 <input
                   type="number"
                   min="0"
@@ -146,18 +178,28 @@ export default function StockAdjustmentModal({
             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 transition-colors">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-white transition-colors">Warehouse Locations</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium transition-colors">Manage stock across different locations</p>
+                  <h4 className="text-sm font-bold text-slate-800 dark:text-white transition-colors">
+                    Warehouse Locations
+                  </h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium transition-colors">
+                    Manage stock across different locations
+                  </p>
                 </div>
                 <div className="text-right">
-                  <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1 transition-colors">Total Stock</span>
-                  <span className="text-xl font-black text-purple-600 dark:text-purple-400 leading-none transition-colors">{totalStock}</span>
+                  <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1 transition-colors">
+                    Total Stock
+                  </span>
+                  <span className="text-xl font-black text-purple-600 dark:text-purple-400 leading-none transition-colors">
+                    {totalStock}
+                  </span>
                 </div>
               </div>
 
               {warehouses.length === 0 ? (
                 <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700 transition-colors">
-                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-3 transition-colors">No inventory locations set up.</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-3 transition-colors">
+                    No inventory locations set up.
+                  </p>
                   <button
                     type="button"
                     onClick={addWarehouse}
@@ -169,7 +211,10 @@ export default function StockAdjustmentModal({
               ) : (
                 <div className="space-y-3">
                   {warehouses.map((wh, idx) => (
-                    <div key={idx} className="bg-slate-50 dark:bg-slate-800/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 relative group animate-in fade-in transition-colors">
+                    <div
+                      key={idx}
+                      className="bg-slate-50 dark:bg-slate-800/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 relative group animate-in fade-in transition-colors"
+                    >
                       <button
                         type="button"
                         onClick={() => removeWarehouse(idx)}
@@ -179,23 +224,36 @@ export default function StockAdjustmentModal({
                       </button>
                       <div className="grid grid-cols-12 gap-3 items-end">
                         <div className="col-span-12 sm:col-span-5">
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">Warehouse Name</label>
+                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">
+                            Warehouse Name
+                          </label>
                           <select
                             required
                             value={wh.warehouseName}
-                            onChange={(e) => updateWarehouse(idx, "warehouseName", e.target.value)}
+                            onChange={(e) =>
+                              updateWarehouse(
+                                idx,
+                                "warehouseName",
+                                e.target.value,
+                              )
+                            }
                             className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-sm text-slate-700 dark:text-slate-200 outline-none focus:border-purple-500 transition-colors"
                           >
                             <option value="">Select Warehouse</option>
                             {availableWarehouses.map((aw: any) => (
-                              <option key={aw.id || aw._id} value={aw.name || aw.warehouseName}>
+                              <option
+                                key={aw.id || aw._id}
+                                value={aw.name || aw.warehouseName}
+                              >
                                 {aw.name || aw.warehouseName}
                               </option>
                             ))}
                           </select>
                         </div>
                         <div className="col-span-12 sm:col-span-4">
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">Location</label>
+                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">
+                            Location
+                          </label>
                           <input
                             required
                             type="text"
@@ -206,20 +264,28 @@ export default function StockAdjustmentModal({
                           />
                         </div>
                         <div className="col-span-12 sm:col-span-3">
-                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">Qty</label>
+                          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5 pl-0.5 transition-colors">
+                            Qty
+                          </label>
                           <input
                             required
                             type="number"
                             min="0"
                             value={wh.quantity}
-                            onChange={(e) => updateWarehouse(idx, "quantity", parseInt(e.target.value) || 0)}
+                            onChange={(e) =>
+                              updateWarehouse(
+                                idx,
+                                "quantity",
+                                parseInt(e.target.value) || 0,
+                              )
+                            }
                             className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded font-mono text-sm text-center text-slate-700 dark:text-slate-200 outline-none focus:border-purple-500 font-bold transition-colors"
                           />
                         </div>
                       </div>
                     </div>
                   ))}
-                  
+
                   <button
                     type="button"
                     onClick={addWarehouse}
@@ -230,7 +296,6 @@ export default function StockAdjustmentModal({
                 </div>
               )}
             </div>
-
           </form>
         </div>
 
@@ -248,7 +313,13 @@ export default function StockAdjustmentModal({
             disabled={isSubmitting}
             className="px-6 py-2 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center min-w-[120px]"
           >
-            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <><Save size={16} className="mr-1.5" /> Save Changes</>}
+            {isSubmitting ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <>
+                <Save size={16} className="mr-1.5" /> Save Changes
+              </>
+            )}
           </button>
         </div>
       </div>

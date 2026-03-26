@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
 import { 
@@ -15,7 +15,7 @@ import {
   CheckCircle2,
   Clock,
   Loader2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -66,6 +66,8 @@ export default function OrderFulfillmentModal({ order, onClose, onUpdate }: Orde
     { label: "Cancelled", value: "Cancelled", icon: AlertCircle }
   ];
 
+  if (!order) return null;
+
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 md:p-10 pointer-events-none">
       <motion.div 
@@ -85,7 +87,7 @@ export default function OrderFulfillmentModal({ order, onClose, onUpdate }: Orde
         <div className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-              <ShoppingBag size={24} />
+              <Package size={24} />
             </div>
             <div>
               <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Order #{order.id}</h2>
@@ -228,26 +230,5 @@ export default function OrderFulfillmentModal({ order, onClose, onUpdate }: Orde
         </div>
       </motion.div>
     </div>
-  );
-}
-
-function ShoppingBag(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-      <path d="M3 6h18" />
-      <path d="M16 10a4 4 0 0 1-8 0" />
-    </svg>
   );
 }

@@ -2,8 +2,6 @@
 
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
 import { ChevronDown, ShoppingBag, Heart, Filter } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/redux/slices/cartSlice";
@@ -102,7 +100,6 @@ export default function CategoryPage() {
                 : p.price || 0;
             const singularPCat = pCat.replace(/s$/, "");
 
-            // Initial Category Match
             const isCategoryMatch =
               pCat === lowerTitle ||
               singularPCat === singularTitle ||
@@ -113,7 +110,6 @@ export default function CategoryPage() {
 
             if (!isCategoryMatch) return false;
 
-            // Extra Sidebar Filters
             if (search && !pTitle.includes(search)) return false;
             if (pPrice < minPrice || pPrice > maxPrice) return false;
             if (vendorId && p.vendorId !== vendorId) return false;
@@ -233,7 +229,6 @@ export default function CategoryPage() {
       />
       <div className="max-w-8xl mx-auto px-4 lg:px-8 py-12">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar */}
           <aside
             className={`fixed inset-y-0 left-0 z-50 w-80 lg:relative lg:block transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 transition-transform duration-300 ease-in-out`}
           >
@@ -244,8 +239,6 @@ export default function CategoryPage() {
               activeCategoryName={category.title}
             />
           </aside>
-
-          {/* Background Overlay for Mobile Sidebar */}
           {isSidebarOpen && (
             <div
               className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -253,9 +246,7 @@ export default function CategoryPage() {
             />
           )}
 
-          {/* Main Content */}
           <main className="flex-1">
-            {/* Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-8 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-3xl border border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-4">
                 <button

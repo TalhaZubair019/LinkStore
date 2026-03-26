@@ -23,6 +23,7 @@ interface OrderTrackingTimelineProps {
 
 const STATUS_STEPS = [
   { key: "Pending", label: "Order Placed", icon: "📦" },
+  { key: "Processing", label: "Processing", icon: "⚙️" },
   { key: "Accepted", label: "Order Accepted", icon: "✅" },
   { key: "Shipped", label: "Shipped", icon: "🚚" },
   { key: "Arrived in Country", label: "Arrived in Country", icon: "🌍" },
@@ -101,7 +102,11 @@ const OrderTrackingTimeline: React.FC<OrderTrackingTimelineProps> = ({
                     <span className="text-white text-xs font-black">✓</span>
                   ) : (
                     <span
-                      className={isCurrent ? "text-white" : "text-slate-300 dark:text-slate-600"}
+                      className={
+                        isCurrent
+                          ? "text-white"
+                          : "text-slate-300 dark:text-slate-600"
+                      }
                     >
                       {step.icon}
                     </span>
@@ -110,7 +115,9 @@ const OrderTrackingTimeline: React.FC<OrderTrackingTimelineProps> = ({
                 {!isLast && (
                   <div
                     className={`w-0.5 flex-1 my-1 min-h-[32px] rounded-full transition-colors ${
-                      isCompleted ? "bg-emerald-400 dark:bg-emerald-600" : "bg-slate-100 dark:bg-slate-800"
+                      isCompleted
+                        ? "bg-emerald-400 dark:bg-emerald-600"
+                        : "bg-slate-100 dark:bg-slate-800"
                     }`}
                   />
                 )}

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { RootState } from "@/redux/Store";
-import VendorSidebar from "@/components/(vendor)/vendor/VendorSidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
@@ -14,7 +13,9 @@ export default function VendorLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading } = useSelector((state: RootState) => state.auth);
+  const { user, isAuthenticated, isLoading } = useSelector(
+    (state: RootState) => state.auth,
+  );
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
@@ -30,7 +31,9 @@ export default function VendorLayout({
       }
 
       if (user.vendorProfile?.status !== "approved") {
-        router.push("/vendor/apply?status=" + (user.vendorProfile?.status || "none"));
+        router.push(
+          "/vendor/apply?status=" + (user.vendorProfile?.status || "none"),
+        );
         return;
       }
 
@@ -43,7 +46,9 @@ export default function VendorLayout({
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-slate-950">
         <div className="text-center">
           <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Verifying Vendor Access...</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium">
+            Verifying Vendor Access...
+          </p>
         </div>
       </div>
     );

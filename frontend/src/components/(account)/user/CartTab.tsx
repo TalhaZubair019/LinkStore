@@ -12,7 +12,9 @@ interface CartTabProps {
 const CartTab: React.FC<CartTabProps> = ({ cartItems }) => {
   return (
     <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">Items in Cart</h3>
+      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">
+        Items in Cart
+      </h3>
       {cartItems.length === 0 ? (
         <div className="text-center py-12 text-slate-400 dark:text-slate-500 transition-colors">
           <ShoppingCart size={48} className="mx-auto mb-3 opacity-20" />
@@ -43,7 +45,9 @@ const CartTab: React.FC<CartTabProps> = ({ cartItems }) => {
                   )}
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-700 dark:text-slate-200 transition-colors">{item.name}</h4>
+                  <h4 className="font-bold text-slate-700 dark:text-slate-200 transition-colors">
+                    {item.name}
+                  </h4>
                   <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors">
                     {item.quantity} x ${item.price}
                   </p>

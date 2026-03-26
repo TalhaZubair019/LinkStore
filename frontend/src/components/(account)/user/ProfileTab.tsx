@@ -31,11 +31,14 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
 }) => {
   const InputClass =
     "w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/20 focus:border-purple-500 outline-none transition-all disabled:bg-slate-50 dark:disabled:bg-slate-900/50 disabled:cursor-not-allowed";
-  const LabelClass = "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 transition-colors";
+  const LabelClass =
+    "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 transition-colors";
 
   return (
     <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">Edit Profile</h3>
+      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">
+        Edit Profile
+      </h3>
       <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -103,14 +106,28 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               >
                 <option value="">Select Country...</option>
                 {countries.map((c: any) => (
-                  <option key={c.isoCode} value={c.isoCode} className="bg-white dark:bg-slate-900">
+                  <option
+                    key={c.isoCode}
+                    value={c.isoCode}
+                    className="bg-white dark:bg-slate-900"
+                  >
                     {c.flag} {c.name}
                   </option>
                 ))}
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -136,14 +153,28 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               >
                 <option value="">Select...</option>
                 {states.map((s: any) => (
-                  <option key={s.isoCode} value={s.isoCode} className="bg-white dark:bg-slate-900">
+                  <option
+                    key={s.isoCode}
+                    value={s.isoCode}
+                    className="bg-white dark:bg-slate-900"
+                  >
                     {s.name}
                   </option>
                 ))}
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -167,7 +198,11 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
                 >
                   <option value="">Select...</option>
                   {cities.map((c: any) => (
-                    <option key={c.name} value={c.name} className="bg-white dark:bg-slate-900">
+                    <option
+                      key={c.name}
+                      value={c.name}
+                      className="bg-white dark:bg-slate-900"
+                    >
                       {c.name}
                     </option>
                   ))}
@@ -188,8 +223,18 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               )}
               {cities.length > 0 && (
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </div>
               )}

@@ -3,18 +3,17 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
-import { 
-  ShoppingBag, 
-  Search, 
-  Filter, 
-  ExternalLink, 
-  Clock, 
-  CheckCircle2, 
-  Truck, 
+import {
+  ShoppingBag,
+  Search,
+  Filter,
+  ExternalLink,
+  Clock,
+  CheckCircle2,
+  Truck,
   Package,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import OrderFulfillmentModal from "@/components/(vendor)/vendor/OrderFulfillmentModal";
 
 interface OrderItem {
@@ -70,41 +69,56 @@ export default function VendorOrdersPage() {
 
   const calculateVendorSubtotal = (orderItems: OrderItem[]) => {
     return orderItems
-      .filter(item => item.vendorId === user?.id)
-      .reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      .filter((item) => item.vendorId === user?.id)
+      .reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
   const getVendorStatus = (order: Order) => {
-    return order.vendorStatuses?.find(vs => vs.vendorId === user?.id)?.status || "Pending";
+    return (
+      order.vendorStatuses?.find((vs) => vs.vendorId === user?.id)?.status ||
+      "Pending"
+    );
   };
 
-  const filteredOrders = orders.filter(order => 
-    order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer?.lastName?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOrders = orders.filter(
+    (order) =>
+      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.customer?.firstName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      order.customer?.lastName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()),
   );
 
   const StatusBadge = ({ status }: { status: string }) => {
     const styles: Record<string, string> = {
-      "Pending": "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
-      "Processing": "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
-      "Shipped": "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
-      "Delivered": "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
-      "Cancelled": "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400"
+      Pending:
+        "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
+      Processing:
+        "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400",
+      Shipped:
+        "bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400",
+      Delivered:
+        "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400",
+      Cancelled:
+        "bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400",
     };
 
     const icons: Record<string, any> = {
-      "Pending": Clock,
-      "Processing": Package,
-      "Shipped": Truck,
-      "Delivered": CheckCircle2,
-      "Cancelled": AlertCircle
+      Pending: Clock,
+      Processing: Package,
+      Shipped: Truck,
+      Delivered: CheckCircle2,
+      Cancelled: AlertCircle,
     };
 
     const Icon = icons[status] || Clock;
 
     return (
-      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-current/10 ${styles[status]}`}>
+      <span
+        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border border-current/10 ${styles[status]}`}
+      >
         <Icon size={12} />
         {status}
       </span>
@@ -115,15 +129,22 @@ export default function VendorOrdersPage() {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Order Fulfillment</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">Manage and ship your marketplace orders</p>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+            Order Fulfillment
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1 font-medium">
+            Manage and ship your marketplace orders
+          </p>
         </div>
 
         <div className="flex items-center gap-4">
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={18} />
-            <input 
-              type="text" 
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors"
+              size={18}
+            />
+            <input
+              type="text"
               placeholder="Search Order ID or Customer..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -161,27 +182,44 @@ export default function VendorOrdersPage() {
               ) : filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-8 py-20 text-center">
-                    <ShoppingBag size={48} className="mx-auto text-slate-200 dark:text-slate-800 mb-4" />
-                    <p className="text-slate-500 dark:text-slate-400 font-bold text-lg">No orders found</p>
-                    <p className="text-slate-400 dark:text-slate-500 text-sm">When customers buy your products, they'll appear here.</p>
+                    <ShoppingBag
+                      size={48}
+                      className="mx-auto text-slate-200 dark:text-slate-800 mb-4"
+                    />
+                    <p className="text-slate-500 dark:text-slate-400 font-bold text-lg">
+                      No orders found
+                    </p>
+                    <p className="text-slate-400 dark:text-slate-500 text-sm">
+                      When customers buy your products, they'll appear here.
+                    </p>
                   </td>
                 </tr>
               ) : (
                 filteredOrders.map((order) => (
-                  <tr key={order.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                  <tr
+                    key={order.id}
+                    className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
+                  >
                     <td className="px-8 py-6">
-                      <span className="text-sm font-black text-slate-900 dark:text-white block">#{order.id}</span>
-                      <span className="text-xs text-slate-400 font-medium">{order.date}</span>
+                      <span className="text-sm font-black text-slate-900 dark:text-white block">
+                        #{order.id}
+                      </span>
+                      <span className="text-xs text-slate-400 font-medium">
+                        {order.date}
+                      </span>
                     </td>
                     <td className="px-8 py-6">
                       <span className="text-sm font-bold text-slate-700 dark:text-slate-300 block">
                         {order.customer?.firstName} {order.customer?.lastName}
                       </span>
-                      <span className="text-xs text-slate-400 font-medium">{order.customer?.city}, {order.customer?.postcode}</span>
+                      <span className="text-xs text-slate-400 font-medium">
+                        {order.customer?.city}, {order.customer?.postcode}
+                      </span>
                     </td>
                     <td className="px-8 py-6">
                       <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                        {order.items.length} {order.items.length === 1 ? "Product" : "Products"}
+                        {order.items.length}{" "}
+                        {order.items.length === 1 ? "Product" : "Products"}
                       </p>
                     </td>
                     <td className="px-8 py-6">
@@ -193,7 +231,7 @@ export default function VendorOrdersPage() {
                       <StatusBadge status={getVendorStatus(order)} />
                     </td>
                     <td className="px-8 py-6 text-right">
-                      <button 
+                      <button
                         onClick={() => {
                           setSelectedOrder(order);
                           setIsModalOpen(true);
@@ -212,9 +250,9 @@ export default function VendorOrdersPage() {
       </div>
 
       {isModalOpen && selectedOrder && (
-        <OrderFulfillmentModal 
-          order={selectedOrder} 
-          onClose={() => setIsModalOpen(false)} 
+        <OrderFulfillmentModal
+          order={selectedOrder}
+          onClose={() => setIsModalOpen(false)}
           onUpdate={fetchOrders}
         />
       )}

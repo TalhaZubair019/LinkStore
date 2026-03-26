@@ -4,7 +4,20 @@ const { connectDB } = require("./db");
 const activityLogSchema = new mongoose.Schema(
   {
     action: { type: String, required: true },
-    entity: { type: String, required: true, enum: ["product", "category", "order", "review", "warehouse", "user", "inventory", "system"] },
+    entity: {
+      type: String,
+      required: true,
+      enum: [
+        "product",
+        "category",
+        "order",
+        "review",
+        "warehouse",
+        "user",
+        "inventory",
+        "system",
+      ],
+    },
     entityId: { type: String },
     details: { type: String, required: true },
     adminId: { type: String, required: true },
@@ -15,7 +28,8 @@ const activityLogSchema = new mongoose.Schema(
 );
 
 const ActivityLogModel =
-  mongoose.models?.ActivityLog || mongoose.model("ActivityLog", activityLogSchema);
+  mongoose.models?.ActivityLog ||
+  mongoose.model("ActivityLog", activityLogSchema);
 
 async function logActivity(req, { action, entity, entityId, details }) {
   try {

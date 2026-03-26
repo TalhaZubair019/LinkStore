@@ -69,10 +69,15 @@ const AddAdminModal = ({
         <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800 transition-colors">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center transition-colors">
-              <Shield size={20} className="text-purple-600 dark:text-purple-400" />
+              <Shield
+                size={20}
+                className="text-purple-600 dark:text-purple-400"
+              />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white transition-colors">Add Admin</h2>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white transition-colors">
+                Add Admin
+              </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Create a new administrator account
               </p>

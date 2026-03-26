@@ -44,21 +44,21 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
     <div className="space-y-6">
       {/* Header & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm w-fit">
+        <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm w-full md:w-fit overflow-x-auto scrollbar-hide">
           <button
             onClick={() => setViewMode("pending")}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0 ${
               viewMode === "pending"
                 ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
                 : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
             }`}
           >
             <Clock size={16} />
-            Pending Applications
+            Pending
           </button>
           <button
             onClick={() => setViewMode("active")}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0 ${
               viewMode === "active"
                 ? "bg-emerald-600 text-white shadow-lg shadow-emerald-500/20"
                 : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
@@ -69,14 +69,14 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
           </button>
           <button
             onClick={() => setViewMode("suspended")}
-            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+            className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shrink-0 ${
               viewMode === "suspended"
                 ? "bg-rose-600 text-white shadow-lg shadow-rose-500/20"
                 : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200"
             }`}
           >
             <Ban size={16} />
-            Suspended Account
+            Suspended
           </button>
         </div>
 

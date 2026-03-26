@@ -47,7 +47,8 @@ const VendorsTable = ({
         </div>
       </div>
 
-      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
         <table className="w-full text-left border-collapse">
           <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">
             <tr>
@@ -180,6 +181,117 @@ const VendorsTable = ({
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+        {vendors.length === 0 ? (
+          <div className="px-6 py-16 text-center">
+            <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
+              <Store size={40} className="mb-4 opacity-20" />
+              <p className="text-base font-medium italic">No {viewMode} vendors found.</p>
+            </div>
+          </div>
+        ) : (
+          vendors.map((v) => (
+            <div key={v.id} className="p-5 space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                    {v.vendorProfile?.storeName?.[0]?.toUpperCase() || <Store size={16} />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-bold text-slate-900 dark:text-white truncate">
+                      {v.vendorProfile?.storeName || "Unnamed Store"}
+                    </p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate flex items-center gap-1">
+                      <ShieldCheck size={10} className={v.isVendor ? "text-emerald-500" : "text-amber-500"} />
+                      {v.name}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end">
+                  <span className={`text-sm font-bold ${v.vendorProfile?.outstandingCommission ? 'text-rose-500' : 'text-emerald-500'}`}>
+                    ${(v.vendorProfile?.outstandingCommission || 0).toLocaleString()}
+                  </span>
+                  <span className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">Outstanding</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <div className="flex items-center gap-1.5">
+                  <Mail size={12} className="text-slate-400" />
+                  <span>{v.email}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={12} />
+                  <span>{v.createdAt ? new Date(v.createdAt).toLocaleDateString() : 'N/A'}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                {viewMode === "pending" ? (
+                  <>
+                    <button
+                      onClick={() => onApprove(v.id)}
+                      disabled={isLoading}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50"
+                    >
+                      <Check size={14} /> Approve
+                    </button>
+                    <button
+                      onClick={() => onReject?.(v.id)}
+                      disabled={isLoading}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-500 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50"
+                    >
+                      <X size={14} /> Reject
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-2 w-full">
+                    {viewMode === "active" && (v.vendorProfile?.outstandingCommission || 0) > 0 && (
+                      <button
+                        onClick={() => {
+                          if (window.confirm(`Clear debt of $${v.vendorProfile?.outstandingCommission} for ${v.vendorProfile?.storeName}?`)) {
+                            onClearDebt?.(v.id);
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50"
+                      >
+                        <ShieldCheck size={14} /> Clear Debt
+                      </button>
+                    )}
+                    {viewMode === "active" && (
+                      <button
+                        onClick={() => setSuspendConfirm(v)}
+                        disabled={isLoading}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50"
+                      >
+                        <X size={14} /> Suspend
+                      </button>
+                    )}
+                    {viewMode === "suspended" && (
+                      <button
+                        onClick={() => setUnsuspendConfirm(v)}
+                        disabled={isLoading}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-500 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50"
+                      >
+                        <Check size={14} /> Unsuspend
+                      </button>
+                    )}
+                     <Link
+                      href={`/admin/vendors/view/${v.vendorProfile?.storeSlug}`}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-50 dark:bg-indigo-800/30 text-indigo-600 dark:text-indigo-400 rounded-xl text-[11px] font-bold border border-indigo-100 dark:border-indigo-800/30"
+                    >
+                      <Store size={14} /> Visit
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Suspend Modal */}

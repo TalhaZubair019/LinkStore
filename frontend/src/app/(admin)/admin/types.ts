@@ -4,6 +4,7 @@ export interface OrderItem {
   quantity: number;
   totalPrice: number;
   image?: string;
+  vendorId?: string;
   vendorStoreName?: string;
 }
 
@@ -33,6 +34,7 @@ export interface Order {
   trackingHistory?: { status: string; message: string; timestamp: string }[];
   platformFee?: number;
   vendorPayout?: number;
+  vendorStatuses?: { vendorId: string; status: string }[];
 }
 
 export interface UserData {
@@ -92,6 +94,8 @@ export interface DashboardStats {
     total: number;
   }[];
   reviews: any[];
+  productReviews?: any[];
+  storeReviews?: any[];
   categorySalesData: { category: string; value: number }[];
   categoryInventoryData?: { category: string; value: number }[];
   orderVelocityData: { hour: string; count: number }[];
@@ -100,4 +104,6 @@ export interface DashboardStats {
   warehouses?: any[];
   totalVendors?: number;
   pendingVendors?: number;
+  statusCounts?: Record<string, number>;
+  aovData?: { date: string; revenue: number; aov: number; orderCount: number }[];
 }

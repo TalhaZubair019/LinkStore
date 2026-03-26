@@ -112,7 +112,9 @@ const CategoryModal = ({
             {name.trim() && (
               <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 transition-colors">
                 Slug:{" "}
-                <span className="font-mono text-slate-600 dark:text-slate-300">{previewSlug}</span>
+                <span className="font-mono text-slate-600 dark:text-slate-300">
+                  {previewSlug}
+                </span>
               </p>
             )}
           </div>
@@ -120,7 +122,9 @@ const CategoryModal = ({
           <div>
             <label className="block text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-300 transition-colors">
               Image URL{" "}
-              <span className="text-slate-400 dark:text-slate-500 font-normal">(optional)</span>
+              <span className="text-slate-400 dark:text-slate-500 font-normal">
+                (optional)
+              </span>
             </label>
             <input
               type="url"

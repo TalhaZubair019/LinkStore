@@ -21,10 +21,12 @@ export function useVendorDashboard() {
     | "orders"
     | "products"
     | "reviews"
+    | "store_reviews"
     | "categories"
     | "warehouses"
     | "inventory"
     | "settings"
+    | "commission"
   >("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -34,6 +36,7 @@ export function useVendorDashboard() {
   const ITEMS_PER_PAGE = 5;
   const [orderPage, setOrderPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
+  const [reviewPage, setReviewPage] = useState(1);
 
   const [isDeletingProduct, setIsDeletingProduct] = useState(false);
 
@@ -54,6 +57,7 @@ export function useVendorDashboard() {
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [selectedProductForInventory, setSelectedProductForInventory] = useState<any>(null);
+  const [isProcessingStripe, setIsProcessingStripe] = useState(false);
 
   const [revenueFilter, setRevenueFilter] = useState<"week" | "month" | "current-month" | "custom">("week");
   const [showRevenueDropdown, setShowRevenueDropdown] = useState(false);
@@ -81,8 +85,8 @@ export function useVendorDashboard() {
         const whData = await whRes.json();
         const nextStats = { ...data, warehouses: whData };
         setStats(nextStats);
-        setFilteredRevenueData(nextStats.revenueData);
-        setFilteredAovData(nextStats.revenueData);
+        setFilteredRevenueData(nextStats.revenueData || []);
+        setFilteredAovData(nextStats.aovData || []);
       }
     } catch (error) {
       console.error("Failed to fetch vendor stats");
@@ -96,13 +100,14 @@ export function useVendorDashboard() {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");
       const page = params.get("page");
-      const validTabs = ["overview", "orders", "products", "reviews", "categories", "warehouses", "inventory", "settings"];
+      const validTabs = ["overview", "orders", "products", "reviews", "store_reviews", "categories", "warehouses", "inventory", "settings", "commission"];
 
       if (tab && validTabs.includes(tab)) {
         setActiveTab(tab as any);
         const pageNum = Number(page) || 1;
         if (tab === "products") setProductPage(pageNum);
         if (tab === "orders") setOrderPage(pageNum);
+        if (tab === "reviews" || tab === "store_reviews") setReviewPage(pageNum);
       }
     }
   }, []);
@@ -144,6 +149,7 @@ export function useVendorDashboard() {
         let currentPage = 1;
         if (activeTab === "products") currentPage = productPage;
         else if (activeTab === "orders") currentPage = orderPage;
+        else if (activeTab === "reviews" || activeTab === "store_reviews") currentPage = reviewPage;
 
         if (currentPage > 1) {
           url.searchParams.set("page", currentPage.toString());
@@ -155,7 +161,7 @@ export function useVendorDashboard() {
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [activeTab, productPage, orderPage]);
+  }, [activeTab, productPage, orderPage, reviewPage]);
 
   const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
     setToast({ message, type });
@@ -302,6 +308,63 @@ export function useVendorDashboard() {
     }
   };
 
+  const [isNotifyingPayment, setIsNotifyingPayment] = useState(false);
+  const handlePayNow = async () => {
+    if (!stats?.outstandingCommission || stats.outstandingCommission <= 0) {
+      showToast("You have no outstanding commission to pay.", "error");
+      return;
+    }
+
+    setIsNotifyingPayment(true);
+    try {
+      const res = await fetch("/api/vendor/payments/notify-admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: stats.outstandingCommission,
+          method: "Vendor Initiated (Dashboard)",
+          reference: "Payment notification sent via dashboard button."
+        }),
+      });
+
+      if (res.ok) {
+        showToast("Payment notification sent to admin. They will verify and clear your debt soon.", "success");
+      } else {
+        const data = await res.json();
+        showToast(data.message || "Failed to notify admin.", "error");
+      }
+    } catch {
+      showToast("Error sending payment notification.", "error");
+    } finally {
+      setIsNotifyingPayment(false);
+    }
+  };
+  
+  const handleStripeCommissionPayment = async () => {
+    if (!stats?.outstandingCommission || stats.outstandingCommission <= 0) {
+      showToast("You have no outstanding commission to pay.", "error");
+      return;
+    }
+
+    setIsProcessingStripe(true);
+    try {
+      const res = await fetch("/api/vendor/payments/create-commission-checkout", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showToast(data.message || "Failed to initiate payment", "error");
+      }
+    } catch (error) {
+      console.error("Stripe payment error:", error);
+      showToast("An error occurred while starting Stripe payment.", "error");
+    } finally {
+      setIsProcessingStripe(false);
+    }
+  };
+
   const handleDeleteCategory = async (id: string) => {
     setIsDeletingCategory(true);
     try {
@@ -359,6 +422,8 @@ export function useVendorDashboard() {
     setOrderPage,
     productPage,
     setProductPage,
+    reviewPage,
+    setReviewPage,
     isDeletingProduct,
     isCategoryModalOpen,
     setIsCategoryModalOpen,
@@ -413,6 +478,10 @@ export function useVendorDashboard() {
     handleCancelOrder,
     handleDeleteCategory,
     handleDeleteWarehouse,
+    handlePayNow,
+    isNotifyingPayment,
+    handleStripeCommissionPayment,
+    isProcessingStripe,
     ITEMS_PER_PAGE,
   };
 }

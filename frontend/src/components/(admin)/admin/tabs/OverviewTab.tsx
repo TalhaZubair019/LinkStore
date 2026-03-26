@@ -109,11 +109,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             type="earnings"
           />
         )}
-        <UsersStatCard
-          totalUsers={stats.totalUsers}
-          totalAdmins={stats.totalAdmins ?? 0}
-          totalVendors={stats.totalVendors ?? 0}
-        />
+        {isAdminView && (
+          <UsersStatCard
+            totalUsers={stats.totalUsers}
+            totalAdmins={stats.totalAdmins ?? 0}
+            totalVendors={stats.totalVendors ?? 0}
+          />
+        )}
         {isAdminView && (
           <VendorsStatCard
             totalVendors={stats.totalVendors || 0}

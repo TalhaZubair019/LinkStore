@@ -10,7 +10,9 @@ router.get("/", requireVendor, async (req, res) => {
   try {
     await connectDB();
     const vendorId = req.user.id;
-    const warehouses = await WarehouseModel.find({ vendorId }).sort({ name: 1 }).lean();
+    const warehouses = await WarehouseModel.find({ vendorId })
+      .sort({ name: 1 })
+      .lean();
 
     const aggregatedWarehouses = await ProductModel.aggregate([
       { $match: { vendorId: vendorId } },
@@ -32,11 +34,11 @@ router.get("/", requireVendor, async (req, res) => {
     ]);
 
     const aggMap = {};
-    aggregatedWarehouses.forEach(agg => {
+    aggregatedWarehouses.forEach((agg) => {
       aggMap[agg._id] = agg;
     });
 
-    const enrichedWarehouses = warehouses.map(w => {
+    const enrichedWarehouses = warehouses.map((w) => {
       const agg = aggMap[w.name] || { items: [], totalItemsInWarehouse: 0 };
       return {
         _id: w._id,
@@ -45,7 +47,7 @@ router.get("/", requireVendor, async (req, res) => {
         location: w.location,
         capacity: w.capacity || 0,
         items: agg.items,
-        totalItemsInWarehouse: agg.totalItemsInWarehouse
+        totalItemsInWarehouse: agg.totalItemsInWarehouse,
       };
     });
 
@@ -60,13 +62,20 @@ router.post("/", requireVendor, async (req, res) => {
   try {
     const { name, location, capacity } = req.body;
     if (!name?.trim() || !location?.trim()) {
-      return res.status(400).json({ message: "Name and location are required" });
+      return res
+        .status(400)
+        .json({ message: "Name and location are required" });
     }
 
     await connectDB();
-    const existing = await WarehouseModel.findOne({ name: name.trim(), vendorId: req.user.id });
+    const existing = await WarehouseModel.findOne({
+      name: name.trim(),
+      vendorId: req.user.id,
+    });
     if (existing) {
-      return res.status(409).json({ message: "Warehouse with this name already exists" });
+      return res
+        .status(409)
+        .json({ message: "Warehouse with this name already exists" });
     }
 
     const warehouse = await WarehouseModel.create({
@@ -95,8 +104,14 @@ router.patch("/:id", requireVendor, async (req, res) => {
     const { name, location, capacity } = req.body;
     await connectDB();
 
-    const warehouse = await WarehouseModel.findOne({ id: req.params.id, vendorId: req.user.id });
-    if (!warehouse) return res.status(404).json({ message: "Warehouse not found or access denied" });
+    const warehouse = await WarehouseModel.findOne({
+      id: req.params.id,
+      vendorId: req.user.id,
+    });
+    if (!warehouse)
+      return res
+        .status(404)
+        .json({ message: "Warehouse not found or access denied" });
 
     const updateData = {};
     if (name?.trim()) updateData.name = name.trim();
@@ -106,7 +121,7 @@ router.patch("/:id", requireVendor, async (req, res) => {
     const updated = await WarehouseModel.findOneAndUpdate(
       { id: req.params.id, vendorId: req.user.id },
       { $set: updateData },
-      { new: true }
+      { new: true },
     );
 
     await logActivity(req, {
@@ -125,9 +140,18 @@ router.patch("/:id", requireVendor, async (req, res) => {
 router.delete("/:id", requireVendor, async (req, res) => {
   try {
     await connectDB();
-    const warehouse = await WarehouseModel.findOne({ id: req.params.id, vendorId: req.user.id });
-    if (!warehouse) return res.status(404).json({ message: "Warehouse not found or access denied" });
-    await WarehouseModel.findOneAndDelete({ id: req.params.id, vendorId: req.user.id });
+    const warehouse = await WarehouseModel.findOne({
+      id: req.params.id,
+      vendorId: req.user.id,
+    });
+    if (!warehouse)
+      return res
+        .status(404)
+        .json({ message: "Warehouse not found or access denied" });
+    await WarehouseModel.findOneAndDelete({
+      id: req.params.id,
+      vendorId: req.user.id,
+    });
 
     await logActivity(req, {
       action: "delete",
@@ -147,37 +171,45 @@ router.post("/bulk-assign", requireVendor, async (req, res) => {
     await connectDB();
     const { warehouseName, location, products } = req.body;
     const vendorId = req.user.id;
-    
+
     if (!warehouseName || !location || !Array.isArray(products)) {
       return res.status(400).json({ message: "Invalid payload" });
     }
 
     let updatedCount = 0;
     for (const p of products) {
-      if (!p.productId || typeof p.quantity !== 'number') continue;
-      
-      const dbProduct = await ProductModel.findOne({ id: p.productId, vendorId: vendorId });
+      if (!p.productId || typeof p.quantity !== "number") continue;
+
+      const dbProduct = await ProductModel.findOne({
+        id: p.productId,
+        vendorId: vendorId,
+      });
       if (dbProduct) {
         let whInventory = dbProduct.warehouseInventory || [];
-        const existingIdx = whInventory.findIndex(w => w.warehouseName === warehouseName);
+        const existingIdx = whInventory.findIndex(
+          (w) => w.warehouseName === warehouseName,
+        );
 
         if (existingIdx >= 0) {
           whInventory[existingIdx].quantity += p.quantity;
-          whInventory[existingIdx].location = location; 
+          whInventory[existingIdx].location = location;
         } else {
           whInventory.push({ warehouseName, location, quantity: p.quantity });
         }
 
-        const newTotalStock = whInventory.reduce((acc, curr) => acc + (curr.quantity || 0), 0);
+        const newTotalStock = whInventory.reduce(
+          (acc, curr) => acc + (curr.quantity || 0),
+          0,
+        );
 
         await ProductModel.findOneAndUpdate(
           { id: p.productId, vendorId: vendorId },
-          { 
-            $set: { 
+          {
+            $set: {
               warehouseInventory: whInventory,
-              stockQuantity: newTotalStock
-            } 
-          }
+              stockQuantity: newTotalStock,
+            },
+          },
         );
         updatedCount++;
       }
@@ -187,12 +219,13 @@ router.post("/bulk-assign", requireVendor, async (req, res) => {
       await logActivity(req, {
         action: "update",
         entity: "inventory",
-        details: `Vendor bulk assigned ${updatedCount} products to warehouse: ${warehouseName}`
+        details: `Vendor bulk assigned ${updatedCount} products to warehouse: ${warehouseName}`,
       });
     }
 
-    return res.json({ message: "Successfully assigned products to warehouse." });
-    
+    return res.json({
+      message: "Successfully assigned products to warehouse.",
+    });
   } catch (error) {
     console.error("Bulk assign error:", error);
     return res.status(500).json({ message: "Internal Error" });

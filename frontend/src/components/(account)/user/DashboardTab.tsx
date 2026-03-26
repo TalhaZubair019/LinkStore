@@ -22,7 +22,6 @@ const DashboardTab: React.FC<DashboardTabProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      {/* Vendor Promotion Banner */}
       {!user?.isVendor && user?.vendorProfile?.status !== "pending" && (
         <div className="relative overflow-hidden bg-linear-to-r from-purple-600 to-indigo-700 dark:from-purple-900 dark:to-indigo-950 rounded-4xl p-8 md:p-10 shadow-2xl shadow-purple-500/20 border border-white/10">
           <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
@@ -35,10 +34,12 @@ const DashboardTab: React.FC<DashboardTabProps> = ({
                 Start selling with us today!
               </h2>
               <p className="text-purple-100 max-w-xl font-medium leading-relaxed">
-                Join our community of successful vendors. Reach thousands of customers and grow your business with our powerful tools and support.
+                Join our community of successful vendors. Reach thousands of
+                customers and grow your business with our powerful tools and
+                support.
               </p>
             </div>
-            <Link 
+            <Link
               href="/apply-vendor"
               className="px-8 py-4 bg-white text-purple-700 hover:bg-purple-50 font-black rounded-2xl transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-3 shrink-0"
             >
@@ -64,7 +65,9 @@ const DashboardTab: React.FC<DashboardTabProps> = ({
         <StatCard
           label="Cart Items"
           value={cartCount.toString()}
-          icon={<ShoppingCart className="text-orange-500 dark:text-orange-400" />}
+          icon={
+            <ShoppingCart className="text-orange-500 dark:text-orange-400" />
+          }
           bg="bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-800/50"
         />
       </div>

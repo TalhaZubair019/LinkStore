@@ -1,28 +1,21 @@
 const express = require("express");
 const { ProductModel } = require("../../lib/models");
 const { connectDB } = require("../../lib/db");
-
 const router = express.Router();
 
-// GET /api/public/products/:slug
 router.get("/:slug", async (req, res) => {
   try {
     await connectDB();
     const { slug } = req.params;
-
-    // Try to find product by slug-ified title
-    // In this system, slug is just title.toLowerCase().replace(/\s+/g, '-')
-    // So we use a regex to match the title
     const products = await ProductModel.find({ isApproved: true }).lean();
     const product = products.find(
-      (p) => p.title.toLowerCase().replace(/\s+/g, "-") === slug
+      (p) => p.title.toLowerCase().replace(/\s+/g, "-") === slug,
     );
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Fetch related products (same category, excluding current)
     const related = await ProductModel.find({
       category: product.category,
       id: { $ne: product.id },

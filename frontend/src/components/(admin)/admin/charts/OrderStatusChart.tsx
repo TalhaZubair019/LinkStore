@@ -1,5 +1,5 @@
 import React from "react";
-import { Order, DashboardStats } from "@/app/(admin)/admin/types";
+import { DashboardStats } from "@/app/(admin)/admin/types";
 
 interface OrderStatusChartProps {
   stats: DashboardStats;
@@ -15,8 +15,12 @@ const OrderStatusChart = ({ stats }: OrderStatusChartProps) => {
       <div className="flex flex-col items-center">
         <div className="relative w-48 h-48 mb-6">
           {(() => {
-            const getCount = (status: string) =>
-              stats.recentOrders.filter((o) => o.status === status).length;
+            const getCount = (status: string) => {
+              if (stats.statusCounts && stats.statusCounts[status] !== undefined) {
+                return stats.statusCounts[status];
+              }
+              return stats.recentOrders.filter((o) => o.status === status).length;
+            };
 
             const data = [
               {
@@ -103,7 +107,9 @@ const OrderStatusChart = ({ stats }: OrderStatusChartProps) => {
               <p className="text-3xl font-bold text-slate-900 dark:text-white transition-colors">
                 {stats.totalOrders}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors">Total</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 transition-colors">
+                Total
+              </p>
             </div>
           </div>
         </div>
@@ -134,13 +140,17 @@ const OrderStatusChart = ({ stats }: OrderStatusChartProps) => {
             },
             { label: "Cancelled", status: "Cancelled", color: "bg-rose-500" },
           ].map((item, idx) => {
-            const count =
-              stats.recentOrders.filter((o) => o.status === item.status)
-                .length +
-              (item.status === "Delivered"
-                ? stats.recentOrders.filter((o) => o.status === "Completed")
-                    .length
-                : 0);
+            const getCountHelper = (status: string) => {
+              if (stats.statusCounts && stats.statusCounts[status] !== undefined) {
+                return stats.statusCounts[status];
+              }
+              return stats.recentOrders.filter((o) => o.status === status).length +
+                (status === "Delivered"
+                  ? stats.recentOrders.filter((o) => o.status === "Completed").length
+                  : 0);
+            };
+
+            const count = getCountHelper(item.status);
 
             return (
               <div key={idx} className="flex items-center gap-2">

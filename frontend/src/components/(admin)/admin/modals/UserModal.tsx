@@ -58,7 +58,10 @@ const UserModal = ({ selectedUser, onClose, viewType }: UserModalProps) => {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Package size={18} className="text-slate-300 dark:text-slate-600" />
+                    <Package
+                      size={18}
+                      className="text-slate-300 dark:text-slate-600"
+                    />
                   </div>
                 )}
               </div>
@@ -82,9 +85,15 @@ const UserModal = ({ selectedUser, onClose, viewType }: UserModalProps) => {
             ?.length === 0 && (
             <div className="flex flex-col items-center justify-center py-10 text-slate-400 dark:text-slate-600">
               {viewType === "cart" ? (
-                <ShoppingCart size={36} className="mb-2 text-slate-200 dark:text-slate-700/50" />
+                <ShoppingCart
+                  size={36}
+                  className="mb-2 text-slate-200 dark:text-slate-700/50"
+                />
               ) : (
-                <Heart size={36} className="mb-2 text-slate-200 dark:text-slate-700/50" />
+                <Heart
+                  size={36}
+                  className="mb-2 text-slate-200 dark:text-slate-700/50"
+                />
               )}
               <p className="text-sm italic">No items found.</p>
             </div>

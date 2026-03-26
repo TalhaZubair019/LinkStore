@@ -1,14 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "@/redux/slices/authSlice";
 import { initializeCart } from "@/redux/slices/cartSlice";
 import { initializeWishlist } from "@/redux/slices/wishlistSlice";
-import { Loader2, ChevronRight, Eye, EyeOff } from "lucide-react";
-import db from "@data/db.json";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 
 export default function LoginPage() {

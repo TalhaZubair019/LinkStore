@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { Package, Heart, ShoppingCart, LogOut, Shield } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/Store";
+import DashboardHeader from "@/components/(admin)/admin/layout/DashboardHeader";
 import { loginSuccess, logout } from "@/redux/slices/authSlice";
 import { addToCart } from "@/redux/slices/cartSlice";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,8 +11,6 @@ import { Suspense } from "react";
 import { Country, State, City } from "country-state-city";
 import QuickViewModal from "@/components/(store)/products/QuickViewModal";
 import UserSidebar from "@/components/(account)/user/UserSidebar";
-
-import PageHeader from "@/components/ui/PageHeader";
 import LoginForm from "@/components/(account)/user/LoginForm";
 import DashboardTab from "@/components/(account)/user/DashboardTab";
 import ProfileTab from "@/components/(account)/user/ProfileTab";
@@ -88,6 +85,7 @@ function AccountContent() {
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const searchParams = useSearchParams();
   const [profileForm, setProfileForm] = useState({
     name: "",
@@ -142,6 +140,14 @@ function AccountContent() {
       fetchOrders();
     }
   }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (user) {
@@ -208,10 +214,17 @@ function AccountContent() {
     }
   }, [activeTab]);
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSelectedOrder(null);
+    setIsSidebarOpen(false);
+    router.push(`/user?tab=${tab}`);
+  };
+
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     dispatch(logout());
-    setActiveTab("dashboard");
+    handleTabChange("dashboard");
     setOrders([]);
     router.push("/login");
   };
@@ -259,8 +272,12 @@ function AccountContent() {
     return (
       <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors flex flex-col items-center justify-center p-6">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">My Account</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">Sign in to manage your link store</p>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+            My Account
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">
+            Sign in to manage your link store
+          </p>
         </div>
         <div className="max-w-7xl mx-auto px-4 lg:px-8 pb-32 pt-10">
           <LoginForm
@@ -283,25 +300,26 @@ function AccountContent() {
         <UserSidebar
           user={user}
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
           ordersCount={orders.length}
           wishlistCount={wishlistItems.length}
           cartCount={cartItems.length}
           handleLogout={handleLogout}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
         />
         <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
           <main className="flex-1 p-6 lg:p-8 pt-8">
-            <div className="mb-8">
-              <button
-                onClick={() => setSelectedOrder(null)}
-                className="text-blue-600 hover:text-blue-700 font-medium flex items-center gap-2 mb-4"
-              >
-                ← Back to Dashboard
-              </button>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                Order #{selectedOrder!.id.slice(-8).toUpperCase()}
-              </h1>
-            </div>
+            <div className="mb-0"></div>
+            <DashboardHeader
+              user={user}
+              activeTab={activeTab}
+              setActiveTab={handleTabChange}
+              searchTerm={""}
+              setSearchTerm={() => {}}
+              showSearch={false}
+              onMenuClick={() => setIsSidebarOpen(true)}
+            />
             <OrderDetails
               selectedOrder={selectedOrder!}
               setSelectedOrder={setSelectedOrder}
@@ -323,16 +341,18 @@ function AccountContent() {
       <UserSidebar
         user={user}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={handleTabChange}
         ordersCount={orders.length}
         wishlistCount={wishlistItems.length}
         cartCount={cartItems.length}
         handleLogout={handleLogout}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
         <main className="flex-1 p-6 lg:p-8 pt-8">
-          <div className="mb-8">
+          <div className="hidden lg:block mb-8">
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
               {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
             </h1>
@@ -340,47 +360,16 @@ function AccountContent() {
               Welcome back, {user?.name || "User"}!
             </p>
           </div>
-          <div className="lg:hidden mb-6 flex items-center justify-between bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-colors">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-sm shadow-blue-500/20 shrink-0">
-                {user?.name?.[0]?.toUpperCase() || "U"}
-              </div>
-              <div className="overflow-hidden">
-                <span className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight truncate block">
-                  {user?.name || "User"}
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              {user?.isAdmin && (
-                <Link
-                  href="/admin/dashboard"
-                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-1.5 sm:p-2 rounded-lg bg-blue-50 dark:bg-slate-800/50 hover:bg-blue-100 dark:hover:bg-slate-700 transition-colors"
-                  title="Switch to Admin View"
-                >
-                  <Shield size={16} />
-                </Link>
-              )}
-              <button
-                onClick={handleLogout}
-                className="text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 p-1.5 sm:p-2 rounded-lg bg-red-50 dark:bg-slate-800/50 hover:bg-red-100 dark:hover:bg-slate-700 transition-colors"
-                title="Logout"
-              >
-                <LogOut size={16} />
-              </button>
-              <select
-                value={activeTab}
-                onChange={(e) => setActiveTab(e.target.value)}
-                className="bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-blue-400 text-[10px] sm:text-xs font-bold py-1.5 px-1.5 sm:py-2 sm:px-3 rounded-lg border border-slate-200 dark:border-slate-700 outline-none max-w-[90px] sm:max-w-none transition-colors"
-              >
-                <option value="dashboard">Dashboard</option>
-                <option value="profile">Edit Profile</option>
-                <option value="orders">Orders</option>
-                <option value="wishlist">Wishlist</option>
-                <option value="cart">Cart</option>
-              </select>
-            </div>
-          </div>
+
+          <DashboardHeader
+            user={user}
+            activeTab={activeTab}
+            setActiveTab={handleTabChange}
+            searchTerm={""}
+            setSearchTerm={() => {}}
+            showSearch={false}
+            onMenuClick={() => setIsSidebarOpen(true)}
+          />
 
           <div id="user-content-area" className="w-full">
             {activeTab === "dashboard" && (
@@ -389,7 +378,7 @@ function AccountContent() {
                 ordersCount={orders.length}
                 wishlistCount={wishlistItems.length}
                 cartCount={cartItems.length}
-                setActiveTab={setActiveTab}
+                setActiveTab={handleTabChange}
               />
             )}
             {activeTab === "profile" && (

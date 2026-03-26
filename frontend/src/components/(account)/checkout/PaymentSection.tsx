@@ -30,7 +30,9 @@ function PaymentOption({
       <div className="flex items-center gap-3">
         <div
           className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-            isSelected ? "border-blue-600 dark:border-blue-500" : "border-slate-400 dark:border-slate-600"
+            isSelected
+              ? "border-blue-600 dark:border-blue-500"
+              : "border-slate-400 dark:border-slate-600"
           }`}
         >
           {isSelected && (
@@ -38,7 +40,9 @@ function PaymentOption({
           )}
         </div>
         {icon}
-        <span className="font-bold text-slate-800 dark:text-slate-200">{label}</span>
+        <span className="font-bold text-slate-800 dark:text-slate-200">
+          {label}
+        </span>
       </div>
       {isSelected && (
         <div className="mt-3 ml-8 text-sm text-slate-500 dark:text-slate-400 animate-in fade-in slide-in-from-top-1 transition-colors">
@@ -57,12 +61,16 @@ interface PaymentSectionProps {
 export default function PaymentSection({ data, update }: PaymentSectionProps) {
   return (
     <section>
-      <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 transition-colors">Payment options</h2>
+      <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 transition-colors">
+        Payment options
+      </h2>
       <div className="space-y-3">
         <PaymentOption
           id="stripe"
           label="Credit / Debit Card (International)"
-          icon={<Wallet className="text-slate-600 dark:text-slate-400" size={20} />}
+          icon={
+            <Wallet className="text-slate-600 dark:text-slate-400" size={20} />
+          }
           description="Pay securely using your international credit or debit card."
           isSelected={data.paymentMethod === "stripe"}
           onSelect={() => update({ paymentMethod: "stripe" })}
@@ -71,7 +79,12 @@ export default function PaymentSection({ data, update }: PaymentSectionProps) {
         <PaymentOption
           id="cod"
           label="Cash on Delivery"
-          icon={<Banknote className="text-slate-600 dark:text-slate-400" size={20} />}
+          icon={
+            <Banknote
+              className="text-slate-600 dark:text-slate-400"
+              size={20}
+            />
+          }
           description="Pay with cash upon delivery."
           isSelected={data.paymentMethod === "cod"}
           onSelect={() => update({ paymentMethod: "cod" })}

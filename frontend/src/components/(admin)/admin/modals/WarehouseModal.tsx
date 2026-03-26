@@ -187,9 +187,11 @@ export default function WarehouseModal({
                 className={InputClass}
               />
             </div>
-            
+
             <div>
-              <label className={LabelClass}>Warehouse Capacity (Max Units)</label>
+              <label className={LabelClass}>
+                Warehouse Capacity (Max Units)
+              </label>
               <input
                 type="number"
                 required

@@ -12,6 +12,7 @@ interface ReviewModalProps {
     id: string | number;
     name: string;
     vendorId?: string;
+    orderId?: string;
   } | null;
   user: any;
 }
@@ -31,7 +32,7 @@ export default function ReviewModal({ isOpen, onClose, target, user }: ReviewMod
     try {
       const endpoint = target.type === "vendor" ? "/api/public/reviews/vendor" : "/api/public/reviews";
       const payload = {
-        ...(target.type === "product" ? { productId: target.id } : { vendorId: target.id }),
+        ...(target.type === "product" ? { productId: target.id } : { vendorId: target.id, orderId: target.orderId }),
         rating,
         comment,
         userId: user?.id || "guest",
@@ -45,6 +46,8 @@ export default function ReviewModal({ isOpen, onClose, target, user }: ReviewMod
         body: JSON.stringify(payload)
       });
 
+      const data = await res.json();
+
       if (res.ok) {
         setSuccess(true);
         setTimeout(() => {
@@ -53,9 +56,12 @@ export default function ReviewModal({ isOpen, onClose, target, user }: ReviewMod
           setComment("");
           onClose();
         }, 2000);
+      } else {
+        alert(data.error || "Failed to submit review. Please try again.");
       }
     } catch (error) {
       console.error("Review submission error:", error);
+      alert("An unexpected error occurred. Please try again later.");
     } finally {
       setSubmitting(false);
     }

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Search, X, Shield } from "lucide-react";
+import { Search, X, Menu, Store } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 interface DashboardHeaderProps {
@@ -13,65 +13,44 @@ interface DashboardHeaderProps {
   setSearchTerm: (term: string) => void;
   showSearch: boolean;
   isAdminView?: boolean;
+  onMenuClick?: () => void;
+  visitStoreUrl?: string;
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
-  user,
   activeTab,
-  setActiveTab,
   searchTerm,
   setSearchTerm,
   showSearch,
-  isAdminView = false,
+  onMenuClick = () => {},
+  visitStoreUrl,
 }) => {
   return (
     <>
       <div className="lg:hidden mb-6 flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="h-8 w-8 rounded-full bg-purple-600 border border-purple-500/20 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm shadow-purple-600/20">
-            {user?.name?.[0]?.toUpperCase() || "A"}
-          </div>
-          <div className="min-w-0">
-            <span className="text-xl font-bold text-slate-900 dark:text-white tracking-tight truncate block">
-              {user?.name || "Admin User"}
-            </span>
-          </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onMenuClick}
+            className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-100 dark:border-slate-800"
+            title="Open Menu"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="text-sm font-bold text-slate-900 dark:text-white capitalize">
+            {activeTab.replace("_", " ")}
+          </span>
         </div>
         <div className="flex items-center gap-2">
+          {visitStoreUrl && (
+            <Link
+              href={visitStoreUrl}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-100 dark:border-slate-800"
+              title="Visit Store"
+            >
+              <Store size={18} />
+            </Link>
+          )}
           <ThemeToggle />
-          <Link
-            href="/user"
-            className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 p-2 rounded-lg bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            title="Switch Dashboard"
-          >
-            <Shield size={18} />
-          </Link>
-          <select
-            value={activeTab}
-            onChange={(e) => setActiveTab(e.target.value as any)}
-            className="bg-slate-100 dark:bg-slate-800 text-purple-600 dark:text-purple-400 text-xs font-bold py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 outline-none max-w-[120px]"
-          >
-            <option value="overview">Overview</option>
-            {isAdminView ? (
-              <>
-                <option value="users">Users</option>
-                <option value="admins">Admins</option>
-                <option value="vendors">Vendors</option>
-                {user?.adminRole === "super_admin" && (
-                  <option value="logs">Activity Logs</option>
-                )}
-              </>
-            ) : (
-              <>
-                <option value="products">Products</option>
-                <option value="reviews">Reviews</option>
-                <option value="orders">Orders</option>
-                <option value="categories">Categories</option>
-                <option value="warehouses">Warehouses</option>
-                <option value="inventory">Inventory</option>
-              </>
-            )}
-          </select>
         </div>
       </div>
 

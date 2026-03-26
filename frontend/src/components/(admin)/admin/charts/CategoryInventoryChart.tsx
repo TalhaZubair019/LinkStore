@@ -44,8 +44,8 @@ const CategoryInventoryChart = ({ stats }: CategoryInventoryChartProps) => {
           })
         ) : (
           <div className="h-48 flex flex-col items-center justify-center text-slate-400 gap-3">
-             <div className="text-4xl animate-bounce">📦</div>
-             <p className="text-sm font-medium">No inventory data available</p>
+            <div className="text-4xl animate-bounce">📦</div>
+            <p className="text-sm font-medium">No inventory data available</p>
           </div>
         )}
       </div>
@@ -62,7 +62,7 @@ const CategoryInventoryChart = ({ stats }: CategoryInventoryChartProps) => {
             </span>
           </div>
           <div className="flex flex-col items-end">
-             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
               Top Category
             </span>
             <span className="text-lg font-black text-emerald-600 tabular-nums truncate max-w-[120px] text-right">

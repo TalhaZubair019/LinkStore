@@ -147,18 +147,21 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
         />
       )}
 
-      {productDeleteConfirm !== undefined && setProductDeleteConfirm && handleDeleteProduct && (
-        <DeleteConfirmationModal
-          isOpen={!!productDeleteConfirm}
-          onClose={() => setProductDeleteConfirm(null)}
-          onConfirm={() =>
-            productDeleteConfirm && handleDeleteProduct(productDeleteConfirm.id)
-          }
-          title="Delete Product?"
-          message={`Remove "${productDeleteConfirm?.title}" from store?`}
-          isLoading={isDeletingProduct || false}
-        />
-      )}
+      {productDeleteConfirm !== undefined &&
+        setProductDeleteConfirm &&
+        handleDeleteProduct && (
+          <DeleteConfirmationModal
+            isOpen={!!productDeleteConfirm}
+            onClose={() => setProductDeleteConfirm(null)}
+            onConfirm={() =>
+              productDeleteConfirm &&
+              handleDeleteProduct(productDeleteConfirm.id)
+            }
+            title="Delete Product?"
+            message={`Remove "${productDeleteConfirm?.title}" from store?`}
+            isLoading={isDeletingProduct || false}
+          />
+        )}
 
       {deleteConfirm !== undefined && setDeleteConfirm && handleDeleteUser && (
         <DeleteConfirmationModal
@@ -180,43 +183,46 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
         />
       )}
 
-      {promoteConfirm !== undefined && setPromoteConfirm && handlePromoteToAdmin && (
-        <DeleteConfirmationModal
-          isOpen={!!promoteConfirm}
-          onClose={() => setPromoteConfirm(null)}
-          onConfirm={() =>
-            promoteConfirm && handlePromoteToAdmin(promoteConfirm.id)
-          }
-          title="Promote to Admin?"
-          message={
-            <>
-              Promote{" "}
-              <span className="font-bold text-slate-900 dark:text-white">
-                {promoteConfirm?.name}
-              </span>{" "}
-              to Administrator? They will have full access to the admin dashboard.
-            </>
-          }
-          confirmLabel="Promote"
-          confirmClassName="flex-1 px-4 py-3 bg-linear-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:opacity-90"
-          isLoading={isPromoting || false}
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          }
-        />
-      )}
+      {promoteConfirm !== undefined &&
+        setPromoteConfirm &&
+        handlePromoteToAdmin && (
+          <DeleteConfirmationModal
+            isOpen={!!promoteConfirm}
+            onClose={() => setPromoteConfirm(null)}
+            onConfirm={() =>
+              promoteConfirm && handlePromoteToAdmin(promoteConfirm.id)
+            }
+            title="Promote to Admin?"
+            message={
+              <>
+                Promote{" "}
+                <span className="font-bold text-slate-900 dark:text-white">
+                  {promoteConfirm?.name}
+                </span>{" "}
+                to Administrator? They will have full access to the admin
+                dashboard.
+              </>
+            }
+            confirmLabel="Promote"
+            confirmClassName="flex-1 px-4 py-3 bg-linear-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:opacity-90"
+            isLoading={isPromoting || false}
+            icon={
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            }
+          />
+        )}
 
       {revokeConfirm !== undefined && setRevokeConfirm && handleRevokeAdmin && (
         <DeleteConfirmationModal
@@ -256,29 +262,33 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
         />
       )}
 
-      {categoryDeleteConfirm !== undefined && setCategoryDeleteConfirm && handleDeleteCategory && (
-        <DeleteConfirmationModal
-          isOpen={!!categoryDeleteConfirm}
-          onClose={() => setCategoryDeleteConfirm(null)}
-          onConfirm={() =>
-            categoryDeleteConfirm &&
-            handleDeleteCategory(categoryDeleteConfirm._id)
-          }
-          title="Delete Category?"
-          message={`Remove the "${categoryDeleteConfirm?.name}" category? Products assigned to this category will become uncategorized.`}
-          isLoading={isDeletingCategory || false}
-        />
-      )}
+      {categoryDeleteConfirm !== undefined &&
+        setCategoryDeleteConfirm &&
+        handleDeleteCategory && (
+          <DeleteConfirmationModal
+            isOpen={!!categoryDeleteConfirm}
+            onClose={() => setCategoryDeleteConfirm(null)}
+            onConfirm={() =>
+              categoryDeleteConfirm &&
+              handleDeleteCategory(categoryDeleteConfirm._id)
+            }
+            title="Delete Category?"
+            message={`Remove the "${categoryDeleteConfirm?.name}" category? Products assigned to this category will become uncategorized.`}
+            isLoading={isDeletingCategory || false}
+          />
+        )}
 
-      {cancelOrderConfirm !== undefined && setCancelOrderConfirm && handleCancelOrder && (
-        <CancelOrderConfirmModal
-          isOpen={!!cancelOrderConfirm}
-          order={cancelOrderConfirm}
-          onClose={() => setCancelOrderConfirm(null)}
-          onConfirm={handleCancelOrder}
-          isLoading={isCancellingOrder || false}
-        />
-      )}
+      {cancelOrderConfirm !== undefined &&
+        setCancelOrderConfirm &&
+        handleCancelOrder && (
+          <CancelOrderConfirmModal
+            isOpen={!!cancelOrderConfirm}
+            order={cancelOrderConfirm}
+            onClose={() => setCancelOrderConfirm(null)}
+            onConfirm={handleCancelOrder}
+            isLoading={isCancellingOrder || false}
+          />
+        )}
 
       {!!selectedProductForInventory && setSelectedProductForInventory && (
         <StockAdjustmentModal
@@ -304,19 +314,21 @@ const DashboardModals: React.FC<DashboardModalsProps> = ({
         />
       )}
 
-      {warehouseDeleteConfirm !== undefined && setWarehouseDeleteConfirm && handleDeleteWarehouse && (
-        <DeleteConfirmationModal
-          isOpen={!!warehouseDeleteConfirm}
-          onClose={() => setWarehouseDeleteConfirm(null)}
-          onConfirm={() =>
-            warehouseDeleteConfirm &&
-            handleDeleteWarehouse(warehouseDeleteConfirm.id)
-          }
-          title="Delete Warehouse?"
-          message={`Delete "${warehouseDeleteConfirm?.warehouseName}"? Removing this warehouse will completely delete it from the system.`}
-          isLoading={isDeletingWarehouse || false}
-        />
-      )}
+      {warehouseDeleteConfirm !== undefined &&
+        setWarehouseDeleteConfirm &&
+        handleDeleteWarehouse && (
+          <DeleteConfirmationModal
+            isOpen={!!warehouseDeleteConfirm}
+            onClose={() => setWarehouseDeleteConfirm(null)}
+            onConfirm={() =>
+              warehouseDeleteConfirm &&
+              handleDeleteWarehouse(warehouseDeleteConfirm.id)
+            }
+            title="Delete Warehouse?"
+            message={`Delete "${warehouseDeleteConfirm?.warehouseName}"? Removing this warehouse will completely delete it from the system.`}
+            isLoading={isDeletingWarehouse || false}
+          />
+        )}
     </>
   );
 };

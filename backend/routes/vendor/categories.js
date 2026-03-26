@@ -87,9 +87,10 @@ router.patch("/:id", requireVendor, async (req, res) => {
       changes.push(`Image: ${oldCategory.image ? "changed" : "added"}`);
     }
 
-    const detailStr = changes.length > 0
-      ? `Vendor updated category "${updated.name}" — ${changes.join(", ")}`
-      : `Vendor updated category "${updated.name}" (no field changes)`;
+    const detailStr =
+      changes.length > 0
+        ? `Vendor updated category "${updated.name}" — ${changes.join(", ")}`
+        : `Vendor updated category "${updated.name}" (no field changes)`;
 
     await logActivity(req, {
       action: "update",

@@ -22,7 +22,9 @@ const OrdersTab: React.FC<OrdersTabProps> = ({ orders, setSelectedOrder }) => {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
       <div className="p-6 border-b border-slate-100 dark:border-slate-800/50 transition-colors">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">Order History</h3>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">
+          Order History
+        </h3>
       </div>
       <div className="">
         {orders.length === 0 ? (
@@ -70,7 +72,7 @@ const OrdersTab: React.FC<OrdersTabProps> = ({ orders, setSelectedOrder }) => {
                       </td>
                       <td className="px-6 py-4">
                         <button
-                           onClick={() => setSelectedOrder(order)}
+                          onClick={() => setSelectedOrder(order)}
                           className="text-blue-600 dark:text-blue-400 hover:text-purple-600 dark:hover:text-purple-300 font-bold text-xs uppercase tracking-wide border border-blue-200 dark:border-blue-900/50 hover:border-purple-200 dark:hover:border-purple-300 px-3 py-1.5 rounded-full transition-all"
                         >
                           View Details
@@ -89,13 +91,17 @@ const OrdersTab: React.FC<OrdersTabProps> = ({ orders, setSelectedOrder }) => {
                       <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider transition-colors">
                         Order ID
                       </p>
-                      <p className="font-bold text-purple-600 dark:text-purple-400 transition-colors">{order.id}</p>
+                      <p className="font-bold text-purple-600 dark:text-purple-400 transition-colors">
+                        {order.id}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider transition-colors">
                         Date
                       </p>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 transition-colors">{order.date}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 transition-colors">
+                        {order.date}
+                      </p>
                     </div>
                   </div>
 

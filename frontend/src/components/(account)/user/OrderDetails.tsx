@@ -56,17 +56,19 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
     id: string | number;
     name: string;
     vendorId?: string;
+    orderId?: string;
   } | null>(null);
 
   const getItemStatus = (vendorId?: string) => {
     if (!vendorId || !selectedOrder.vendorStatuses) return null;
-    return selectedOrder.vendorStatuses.find(vs => vs.vendorId === vendorId)?.status;
+    return selectedOrder.vendorStatuses.find((vs) => vs.vendorId === vendorId)
+      ?.status;
   };
 
   const activeTotal = (selectedOrder.items || []).reduce((sum, item) => {
     const itemStatus = getItemStatus(item.vendorId);
     if (itemStatus === "Cancelled") return sum;
-    return sum + (item.price * item.quantity);
+    return sum + item.price * item.quantity;
   }, 0);
 
   return (
@@ -75,12 +77,18 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
         onClick={() => setSelectedOrder(null)}
         className="flex items-center gap-2 text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 mb-6 transition-colors group"
       >
-        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
+        <ArrowLeft
+          size={18}
+          className="group-hover:-translate-x-1 transition-transform"
+        />{" "}
+        Back to Dashboard
       </button>
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden mb-6 transition-colors">
         <div className="p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/10 dark:to-pink-900/10 border-b border-slate-100 dark:border-slate-800/50 transition-colors">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">Order Details</h2>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">
+              Order Details
+            </h2>
             <div className="flex items-center gap-4 mt-2 text-sm text-slate-500 dark:text-slate-400 transition-colors">
               <span className="flex items-center gap-1">
                 <Calendar size={14} /> {selectedOrder.date}
@@ -89,7 +97,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             </div>
           </div>
           <div className="text-left md:text-right">
-            <p className="text-sm text-slate-500 dark:text-slate-400">Order Total</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Order Total
+            </p>
             <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
               ${activeTotal.toFixed(2)}
             </p>
@@ -135,24 +145,39 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className={`font-bold transition-colors leading-tight ${
-                        itemStatus === "Cancelled" ? "text-rose-500 line-through" : "text-slate-800 dark:text-slate-200"
-                      }`}>
-                        {item.name} {itemStatus === "Cancelled" && "(Cancelled)"}
+                      <h4
+                        className={`font-bold transition-colors leading-tight ${
+                          itemStatus === "Cancelled"
+                            ? "text-rose-500 line-through"
+                            : "text-slate-800 dark:text-slate-200"
+                        }`}
+                      >
+                        {item.name}{" "}
+                        {itemStatus === "Cancelled" && "(Cancelled)"}
                       </h4>
                       <p className="text-slate-500 dark:text-slate-400 text-xs mt-1 transition-colors">
                         Qty: {item.quantity} · ${item.price} each
                       </p>
                       {itemStatus && (
                         <div className="mt-2 flex items-center gap-1.5">
-                          <span className={`w-2 h-2 rounded-full ${
-                            itemStatus === "Delivered" ? "bg-emerald-500" :
-                            itemStatus === "Shipped" ? "bg-blue-500" :
-                            itemStatus === "Processing" ? "bg-amber-500" : "bg-slate-300"
-                          }`} />
-                          <span className={`${
-                            itemStatus === "Cancelled" ? "text-rose-500 font-bold" : "text-slate-500 dark:text-slate-400"
-                          } text-[10px] uppercase tracking-wider`}>
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              itemStatus === "Delivered"
+                                ? "bg-emerald-500"
+                                : itemStatus === "Shipped"
+                                  ? "bg-blue-500"
+                                  : itemStatus === "Processing"
+                                    ? "bg-amber-500"
+                                    : "bg-slate-300"
+                            }`}
+                          />
+                          <span
+                            className={`${
+                              itemStatus === "Cancelled"
+                                ? "text-rose-500 font-bold"
+                                : "text-slate-500 dark:text-slate-400"
+                            } text-[10px] uppercase tracking-wider`}
+                          >
                             {itemStatus} by {item.vendorStoreName || "Seller"}
                           </span>
                         </div>
@@ -160,15 +185,29 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
 
                       {itemStatus === "Delivered" && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <button 
-                            onClick={() => setReviewTarget({ type: "product", id: item.id, name: item.name })}
+                          <button
+                            onClick={() =>
+                              setReviewTarget({
+                                type: "product",
+                                id: item.id,
+                                name: item.name,
+                              })
+                            }
                             className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-purple-600 hover:text-white transition-all"
                           >
                             Review Product
                           </button>
                           {item.vendorId && (
-                            <button 
-                              onClick={() => setReviewTarget({ type: "vendor", id: item.vendorId!, name: item.vendorStoreName || "Seller", vendorId: item.vendorId })}
+                            <button
+                              onClick={() =>
+                                setReviewTarget({
+                                  type: "vendor",
+                                  id: item.vendorId!,
+                                  name: item.vendorStoreName || "Seller",
+                                  vendorId: item.vendorId,
+                                  orderId: selectedOrder.id,
+                                })
+                              }
                               className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-100 dark:border-amber-800/30 hover:bg-amber-500 hover:text-white transition-all flex items-center gap-1"
                             >
                               <Star size={10} fill="currentColor" /> Rate Seller
@@ -178,10 +217,18 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                       )}
                     </div>
                     <div className="text-right">
-                      <p className={`font-bold transition-colors ${
-                        itemStatus === "Cancelled" ? "text-rose-500 line-through" : "text-slate-900 dark:text-white"
-                      }`}>
-                        ${(itemStatus === "Cancelled" ? 0 : item.price * item.quantity).toFixed(2)}
+                      <p
+                        className={`font-bold transition-colors ${
+                          itemStatus === "Cancelled"
+                            ? "text-rose-500 line-through"
+                            : "text-slate-900 dark:text-white"
+                        }`}
+                      >
+                        $
+                        {(itemStatus === "Cancelled"
+                          ? 0
+                          : item.price * item.quantity
+                        ).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -199,9 +246,9 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
           </div>
         </div>
       </div>
-      <ReviewModal 
-        isOpen={!!reviewTarget} 
-        onClose={() => setReviewTarget(null)} 
+      <ReviewModal
+        isOpen={!!reviewTarget}
+        onClose={() => setReviewTarget(null)}
         target={reviewTarget}
         user={user}
       />

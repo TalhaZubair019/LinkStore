@@ -18,32 +18,35 @@ const ProductSalesChart = ({ stats }: ProductSalesChartProps) => {
         </span>
       </h3>
       <div className="space-y-4">
-        {stats.topProductsByQuantity && stats.topProductsByQuantity.length > 0 ? (
-          stats.topProductsByQuantity.slice(0, 5).map((product: any, i: number) => {
-            const maxSales = Math.max(
-              ...stats.topProductsByQuantity.map((p: any) => p.quantity || 0),
-            );
-            const percentage =
-              maxSales > 0 ? (product.quantity / maxSales) * 100 : 0;
-            return (
-              <div key={i} className="space-y-2 group">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-slate-700 dark:text-slate-200 truncate group-hover:text-purple-600 transition-colors">
-                    {product.name}
-                  </span>
-                  <span className="font-bold text-purple-600 group-hover:scale-110 transition-transform">
-                    {product.quantity} sold
-                  </span>
+        {stats.topProductsByQuantity &&
+        stats.topProductsByQuantity.length > 0 ? (
+          stats.topProductsByQuantity
+            .slice(0, 5)
+            .map((product: any, i: number) => {
+              const maxSales = Math.max(
+                ...stats.topProductsByQuantity.map((p: any) => p.quantity || 0),
+              );
+              const percentage =
+                maxSales > 0 ? (product.quantity / maxSales) * 100 : 0;
+              return (
+                <div key={i} className="space-y-2 group">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-slate-700 dark:text-slate-200 truncate group-hover:text-purple-600 transition-colors">
+                      {product.name}
+                    </span>
+                    <span className="font-bold text-purple-600 group-hover:scale-110 transition-transform">
+                      {product.quantity} sold
+                    </span>
+                  </div>
+                  <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
+                    <div
+                      className="h-full bg-linear-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-1000 ease-out group-hover:from-purple-600 group-hover:to-blue-600 shadow-sm"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                  <div
-                    className="h-full bg-linear-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-1000 ease-out group-hover:from-purple-600 group-hover:to-blue-600 shadow-sm"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })
+              );
+            })
         ) : (
           <p className="text-sm text-slate-400 italic text-center py-4">
             No sales data available yet.

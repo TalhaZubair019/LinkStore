@@ -16,7 +16,9 @@ const WishlistTab: React.FC<WishlistTabProps> = ({
 }) => {
   return (
     <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">My Wishlist</h3>
+      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">
+        My Wishlist
+      </h3>
       {wishlistItems.length === 0 ? (
         <div className="text-center py-12 text-slate-400 dark:text-slate-500 transition-colors">
           <Heart size={48} className="mx-auto mb-3 opacity-20" />

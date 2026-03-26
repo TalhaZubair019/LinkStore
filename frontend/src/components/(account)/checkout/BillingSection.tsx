@@ -38,7 +38,9 @@ export default function BillingSection({
 
   return (
     <section>
-      <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 transition-colors">Billing address</h2>
+      <h2 className="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 transition-colors">
+        Billing address
+      </h2>
 
       {hasMounted && isAuthenticated && (
         <div className="mb-6 space-y-3">
@@ -159,6 +161,5 @@ export default function BillingSection({
           />
         )}
     </section>
-
   );
 }

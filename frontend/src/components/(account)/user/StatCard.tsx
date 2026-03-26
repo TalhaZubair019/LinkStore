@@ -18,8 +18,12 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, bg }) => {
         {icon}
       </div>
       <div>
-        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium transition-colors">{label}</p>
-        <p className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">{value}</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium transition-colors">
+          {label}
+        </p>
+        <p className="text-2xl font-bold text-slate-900 dark:text-white transition-colors">
+          {value}
+        </p>
       </div>
     </div>
   );

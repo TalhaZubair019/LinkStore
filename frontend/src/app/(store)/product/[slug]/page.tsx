@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -41,7 +41,6 @@ interface Product {
 
 export default function ProductPage() {
   const params = useParams();
-  const router = useRouter();
   const slug = params.slug as string;
   const dispatch = useDispatch();
 

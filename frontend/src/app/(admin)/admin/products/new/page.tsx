@@ -3,9 +3,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Upload, Sparkles, Loader2, Save } from "lucide-react";
+import { Upload, Sparkles, Loader2, Save } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
-import db from "@data/db.json";
 interface Category {
   _id: string;
   name: string;
@@ -147,10 +146,7 @@ export default function NewProductPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans transition-colors duration-300">
-      <PageHeader
-        title="Add New Product"
-        breadcrumb="Add Product"
-      />
+      <PageHeader title="Add New Product" breadcrumb="Add Product" />
 
       <div className="max-w-5xl mx-auto px-4 lg:px-8 pt-8 pb-12">
         <form onSubmit={handleSubmit}>

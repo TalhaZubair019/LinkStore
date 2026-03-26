@@ -20,32 +20,33 @@ async function connectDB() {
         family: 4,
       })
       .then((m) => {
-        console.log("✅ MongoDB Connected");
+        console.log("MongoDB Connected");
         return m;
       });
   }
 
   try {
     cached.conn = await cached.promise;
-    
-    // Auto-promote EMAIL_USER to super admin
     const adminEmail = process.env.EMAIL_USER;
     if (adminEmail) {
       const { UserModel, AdminModel, VendorModel } = require("./models");
-      
+
       const existingAdmin = await AdminModel.findOne({ email: adminEmail });
       if (existingAdmin) {
-        if (existingAdmin.adminRole !== "super_admin" || !existingAdmin.isVerified) {
+        if (
+          existingAdmin.adminRole !== "super_admin" ||
+          !existingAdmin.isVerified
+        ) {
           await AdminModel.updateOne(
             { _id: existingAdmin._id },
-            { $set: { adminRole: "super_admin", isVerified: true } }
+            { $set: { adminRole: "super_admin", isVerified: true } },
           );
         }
       } else {
         const existingUser = await UserModel.findOne({ email: adminEmail });
         const existingVendor = await VendorModel.findOne({ email: adminEmail });
         const target = existingUser || existingVendor;
-        
+
         if (target) {
           await AdminModel.create({
             id: target.id,
@@ -55,10 +56,12 @@ async function connectDB() {
             phone: target.phone,
             isVerified: true,
             adminRole: "super_admin",
-            promotedBy: "system"
+            promotedBy: "system",
           });
-          if (existingUser) await UserModel.deleteOne({ _id: existingUser._id });
-          if (existingVendor) await VendorModel.deleteOne({ _id: existingVendor._id });
+          if (existingUser)
+            await UserModel.deleteOne({ _id: existingUser._id });
+          if (existingVendor)
+            await VendorModel.deleteOne({ _id: existingVendor._id });
         }
       }
     }

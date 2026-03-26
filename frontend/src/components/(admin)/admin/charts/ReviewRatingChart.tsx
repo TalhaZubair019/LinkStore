@@ -12,7 +12,8 @@ const ReviewRatingChart = ({ stats }: ReviewRatingChartProps) => {
     0,
   );
   const totalStars = Object.entries(stats.ratingDistribution || {}).reduce(
-    (acc: number, [stars, count]: [string, number]) => acc + Number(stars) * count,
+    (acc: number, [stars, count]: [string, number]) =>
+      acc + Number(stars) * count,
     0,
   );
   const averageRating = totalReviews > 0 ? totalStars / totalReviews : 0;
@@ -53,17 +54,26 @@ const ReviewRatingChart = ({ stats }: ReviewRatingChartProps) => {
 
           <div className="flex justify-center items-center gap-0.5 my-1">
             {[...Array(5)].map((_, i) => {
-              const fillPercentage = Math.max(0, Math.min(100, (averageRating - i) * 100));
-              
+              const fillPercentage = Math.max(
+                0,
+                Math.min(100, (averageRating - i) * 100),
+              );
+
               return (
                 <div key={i} className="relative leading-none">
-                  <Star size={14} className="text-gray-300 dark:text-slate-700" />
+                  <Star
+                    size={14}
+                    className="text-gray-300 dark:text-slate-700"
+                  />
                   {fillPercentage > 0 && (
-                    <div 
-                      className="absolute inset-0 overflow-hidden" 
+                    <div
+                      className="absolute inset-0 overflow-hidden"
                       style={{ width: `${fillPercentage}%` }}
                     >
-                      <Star size={14} className="fill-yellow-400 text-yellow-400" />
+                      <Star
+                        size={14}
+                        className="fill-yellow-400 text-yellow-400"
+                      />
                     </div>
                   )}
                 </div>

@@ -21,10 +21,12 @@ router.get("/", async (req, res) => {
           id: v.id,
           name: v.vendorProfile?.storeName || v.name,
           logo: v.vendorProfile?.logo,
-          storeSlug: v.vendorProfile?.storeSlug || v.name.toLowerCase().replace(/\s+/g, '-'),
+          storeSlug:
+            v.vendorProfile?.storeSlug ||
+            v.name.toLowerCase().replace(/\s+/g, "-"),
           productCount,
         };
-      })
+      }),
     );
 
     return res.json(vendorList);

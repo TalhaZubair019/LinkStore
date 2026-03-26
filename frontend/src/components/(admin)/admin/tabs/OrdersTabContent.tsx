@@ -17,6 +17,7 @@ interface OrdersTabContentProps {
   isAdminView?: boolean;
   totalOrderPages?: number;
   itemsPerPage?: number;
+  currentVendorId?: string;
 }
 
 const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
@@ -32,6 +33,7 @@ const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
   isAdminView = false,
   totalOrderPages,
   itemsPerPage,
+  currentVendorId,
 }) => {
   return (
     <OrdersTable
@@ -47,6 +49,7 @@ const OrdersTabContent: React.FC<OrdersTabContentProps> = ({
       isAdminView={isAdminView}
       totalOrderPages={totalOrderPages}
       itemsPerPage={itemsPerPage}
+      currentVendorId={currentVendorId}
     />
   );
 };
