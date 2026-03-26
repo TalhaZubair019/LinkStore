@@ -211,6 +211,35 @@ router.post("/place-order", async (req, res) => {
       ]);
     }
 
+    if (customer.paymentMethod === "cod") {
+      const vendorSums = itemsWithFulfillment.reduce((acc, item) => {
+        if (item.vendorId) {
+          const itemTotal =
+            (Number(item.price) || 0) * (Number(item.quantity) || 1);
+          acc[item.vendorId] = (acc[item.vendorId] || 0) + itemTotal;
+        }
+        return acc;
+      }, {});
+
+      for (const [vId, vTotal] of Object.entries(vendorSums)) {
+        const commission = Math.round(vTotal * 0.1 * 100) / 100; // 10% Platform Fee
+        try {
+          await VendorModel.findOneAndUpdate(
+            { id: vId },
+            { $inc: { "vendorProfile.outstandingCommission": commission } },
+          );
+          console.log(
+            `[Commission] Added $${commission} debt to vendor ${vId} for COD order ${orderId}`,
+          );
+        } catch (err) {
+          console.error(
+            `[Commission] Failed to update debt for vendor ${vId}:`,
+            err,
+          );
+        }
+      }
+    }
+
     try {
       const itemsByVendor = itemsWithFulfillment.reduce((acc, item) => {
         if (item.vendorId) {
@@ -339,6 +368,20 @@ router.post("/place-order", async (req, res) => {
                       <span>${isVendor ? "Your Subtotal" : "Grand Total"}</span>
                       <span>$${orderItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0).toFixed(2)}</span>
                     </div>
+                    ${
+                      isVendor
+                        ? `
+                      <div class="summary-row" style="margin-top: 12px; font-size: 13px; color: #e11d48; font-weight: 700;">
+                        <span>Platform Commission (10%)</span>
+                        <span>-$${(orderItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0) * 0.1).toFixed(2)}</span>
+                      </div>
+                      <div class="summary-row" style="margin-top: 8px; font-size: 16px; font-weight: 800; color: #166534; border-top: 1px dashed #cbd5e1; pt: 12px;">
+                        <span>Your Net Earnings</span>
+                        <span>$${(orderItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0) * 0.9).toFixed(2)}</span>
+                      </div>
+                    `
+                        : ""
+                    }
                   </div>
                 </div>
               </div>

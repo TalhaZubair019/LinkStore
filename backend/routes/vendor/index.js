@@ -10,5 +10,6 @@ router.use("/warehouses", require("./warehouses"));
 router.use("/reviews", require("./reviews"));
 router.use("/categories", require("./categories"));
 router.use("/ai-description", require("./ai-description"));
+router.use("/payments", require("./payments"));
 
 module.exports = router;

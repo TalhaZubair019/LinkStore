@@ -1,3 +1,4 @@
+const express = require("express");
 const Stripe = require("stripe");
 const { transporter } = require("../../lib/mailer");
 const { requireVendor } = require("../../middleware/vendor");

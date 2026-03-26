@@ -24,11 +24,9 @@ router.post("/checkout", async (req, res) => {
 
       const currentStock = dbProduct.stockQuantity || 0;
       if (item.quantity > currentStock) {
-        return res
-          .status(400)
-          .json({
-            error: `Sorry, we only have ${currentStock} of "${item.name}" left in stock.`,
-          });
+        return res.status(400).json({
+          error: `Sorry, we only have ${currentStock} of "${item.name}" left in stock.`,
+        });
       }
     }
 
@@ -130,8 +128,38 @@ router.post(
                 $inc: { "vendorProfile.totalCommissionPaid": amountCleared },
               },
             );
+
+            const { transporter } = require("../../lib/mailer");
+            const adminEmail = process.env.EMAIL_USER;
+            const paymentHtml = `
+              <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
+                <h2 style="color: #166534;">Commission Payment Received</h2>
+                <p>Great news! A vendor has successfully paid their outstanding commission via Stripe.</p>
+                <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                  <p><strong>Store Name:</strong> ${vendorBefore.vendorProfile.storeName}</p>
+                  <p><strong>Vendor Email:</strong> ${vendorBefore.email}</p>
+                  <p><strong>Amount Settled:</strong> $${amountCleared.toFixed(2)}</p>
+                  <p><strong>Payment Method:</strong> Stripe Card</p>
+                </div>
+                <p>The vendor's debt has been automatically cleared in the system.</p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+                <p style="font-size: 12px; color: #64748b; text-align: center;">LinkStore Automated Billing</p>
+              </div>
+            `;
+
+            await transporter
+              .sendMail({
+                from: `"LinkStore Billing" <${process.env.EMAIL_USER}>`,
+                to: adminEmail,
+                subject: `✅ Commission Settlement: ${vendorBefore.vendorProfile.storeName}`,
+                html: paymentHtml,
+              })
+              .catch((e) =>
+                console.error("Admin notification email error:", e),
+              );
+
             console.log(
-              `[Webhook] Automatically cleared $${amountCleared} commission for vendor ${vendorId}`,
+              `[Webhook] Automatically cleared $${amountCleared} commission for vendor ${vendorId} and notified admin`,
             );
           }
           return res.json({ received: true });
