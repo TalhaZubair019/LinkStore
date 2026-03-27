@@ -8,6 +8,15 @@ const rateLimit = require("express-rate-limit");
 
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+process.on("uncaughtException", (err) => {
+  console.error("FATAL: Uncaught Exception:", err);
+  setTimeout(() => process.exit(1), 1000);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("FATAL: Unhandled Rejection at:", promise, "reason:", reason);
+});
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

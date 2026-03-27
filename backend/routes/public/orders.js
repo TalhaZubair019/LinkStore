@@ -26,13 +26,10 @@ router.get("/", requireAuth, async (req, res) => {
 
 router.post("/place-order", async (req, res) => {
   try {
-    const { customer, items, totalAmount } = req.body;
+    const { customer, items, totalAmount, userId = "guest" } = req.body;
 
     await connectDB();
-    const shopProducts = await ProductModel.find({}).lean();
-    const dbProducts = db.products?.products || [];
-    const allValidProducts = [...shopProducts, ...dbProducts];
-    const validProductIds = allValidProducts.map((p) => p.id);
+    const validProductIds = items.map((i) => i.id);
 
     for (const item of items) {
       if (!validProductIds.includes(item.id)) {
@@ -42,7 +39,7 @@ router.post("/place-order", async (req, res) => {
       }
     }
 
-    let userId = "guest";
+    let effectiveUserId = userId;
     const authHeader = req.headers["authorization"];
     const cookieHeader = req.headers["cookie"] || "";
     const cookieMatch = cookieHeader.match(/(?:^|;\s*)token=([^;]*)/);
@@ -57,10 +54,14 @@ router.post("/place-order", async (req, res) => {
       } catch (_) {}
     }
 
-    let fulfillmentDetails = [];
+    const productIds = items.map((i) => i.id);
+    const dbProducts = await ProductModel.find({ id: { $in: productIds } });
+    
+    const fulfillmentDetails = [];
+    const bulkUpdateOps = [];
 
     for (const item of items) {
-      const product = await ProductModel.findOne({ id: item.id });
+      const product = dbProducts.find((p) => p.id === item.id);
       if (!product) continue;
 
       let remainingToFulfill = item.quantity;
@@ -95,22 +96,23 @@ router.post("/place-order", async (req, res) => {
         (acc, curr) => acc + curr.quantity,
         0,
       );
-      try {
-        await ProductModel.findOneAndUpdate(
-          { id: item.id },
-          {
+      
+      bulkUpdateOps.push({
+        updateOne: {
+          filter: { id: item.id },
+          update: {
             $set: { warehouseInventory: updatedInventory },
             $inc: { stockQuantity: -item.quantity },
-          },
-        );
+          }
+        }
+      });
 
-        if (newTotalStock <= (product.lowStockThreshold || 5)) {
-          console.log(
-            `[ALERT] Product ${product.title} (ID: ${product.id}) is low on stock: ${newTotalStock} remaining.`,
-          );
-          const vendor = await VendorModel.findOne({
-            id: product.vendorId,
-          }).lean();
+      // Handle Low Stock Alert (Async)
+      if (newTotalStock <= (product.lowStockThreshold || 5)) {
+        console.log(
+          `[ALERT] Product ${product.title} (ID: ${product.id}) is low on stock: ${newTotalStock} remaining.`,
+        );
+        VendorModel.findOne({ id: product.vendorId }).lean().then(vendor => {
           const recipientEmail = vendor?.email || process.env.EMAIL_USER;
 
           const alertHtml = `
@@ -147,12 +149,7 @@ router.post("/place-order", async (req, res) => {
               html: alertHtml,
             })
             .catch((e) => console.error("Alert email error:", e));
-        }
-      } catch (err) {
-        console.error(`Failed to deduct stock for ${item.name}`, err);
-        return res
-          .status(500)
-          .json({ error: "Checkout failed during inventory reservation." });
+        }).catch(e => console.error("Failed to fetch vendor for low stock alert:", e));
       }
 
       fulfillmentDetails.push({
@@ -162,6 +159,10 @@ router.post("/place-order", async (req, res) => {
         vendorStoreName: product.vendorStoreName,
         fulfilledFromWarehouse: itemFulfillmentList,
       });
+    }
+
+    if (bulkUpdateOps.length > 0) {
+      await ProductModel.bulkWrite(bulkUpdateOps);
     }
 
     const itemsWithFulfillment = items.map((item) => {
@@ -184,25 +185,31 @@ router.post("/place-order", async (req, res) => {
       status: "Pending",
     }));
 
+    const selectedTotal = Math.round(itemsWithFulfillment.reduce(
+      (acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+      0,
+    ) * 100) / 100;
+
     const orderId = Date.now().toString();
-    let trackingNumber = "Pending";
-    let trackingUrl = "";
-    const platformFee = Math.round(totalAmount * 0.1 * 100) / 100;
-    const vendorPayout = Math.round(totalAmount * 0.9 * 100) / 100;
+    const platformFee = Math.round(selectedTotal * 0.1 * 100) / 100;
+    const vendorPayout = Math.round(selectedTotal * 0.9 * 100) / 100;
 
     const newOrder = {
       id: orderId,
-      userId,
-      date: new Date().toLocaleString(),
-      status: "Pending",
-      total: totalAmount,
+      userId: effectiveUserId,
+      customer: {
+        ...customer,
+        name: `${customer.firstName} ${customer.lastName}`,
+      },
       items: itemsWithFulfillment,
-      customer,
-      trackingNumber,
-      trackingUrl,
-      vendorStatuses,
+      total: selectedTotal,
       platformFee,
       vendorPayout,
+      status: "Pending",
+      date: new Date().toISOString(),
+      vendorStatuses,
+      trackingNumber: "Pending",
+      trackingUrl: "",
       trackingHistory: [
         {
           status: "Pending",
@@ -214,13 +221,20 @@ router.post("/place-order", async (req, res) => {
 
     await connectDB();
     await OrderModel.create(newOrder);
+    
+    // Return response immediately to prevent proxy timeouts
+    res.json({ message: "Order placed successfully!", orderId });
 
-    if (userId !== "guest") {
-      await Promise.all([
-        UserModel.findOneAndUpdate({ id: userId }, { cart: [] }),
-        AdminModel.findOneAndUpdate({ id: userId }, { cart: [] }),
-        VendorModel.findOneAndUpdate({ id: userId }, { cart: [] }),
-      ]);
+    // --- EVERYTHING BELOW RUNS IN BACKGROUND ---
+    
+    if (effectiveUserId !== "guest") {
+      try {
+        await Promise.all([
+          UserModel.findOneAndUpdate({ id: effectiveUserId }, { cart: [] }),
+          AdminModel.findOneAndUpdate({ id: effectiveUserId }, { cart: [] }),
+          VendorModel.findOneAndUpdate({ id: effectiveUserId }, { cart: [] }),
+        ]);
+      } catch (err) { console.error("Failed to clear cart:", err); }
     }
 
     if (customer.paymentMethod === "cod") {
@@ -234,20 +248,14 @@ router.post("/place-order", async (req, res) => {
       }, {});
 
       for (const [vId, vTotal] of Object.entries(vendorSums)) {
-        const commission = Math.round(vTotal * 0.1 * 100) / 100; // 10% Platform Fee
+        const commission = Math.round(vTotal * 0.1 * 100) / 100;
         try {
           await VendorModel.findOneAndUpdate(
             { id: vId },
             { $inc: { "vendorProfile.outstandingCommission": commission } },
           );
-          console.log(
-            `[Commission] Added $${commission} debt to vendor ${vId} for COD order ${orderId}`,
-          );
         } catch (err) {
-          console.error(
-            `[Commission] Failed to update debt for vendor ${vId}:`,
-            err,
-          );
+          console.error(`[Commission] Failed to update debt for vendor ${vId}:`, err);
         }
       }
     }
@@ -260,6 +268,7 @@ router.post("/place-order", async (req, res) => {
         }
         return acc;
       }, {});
+
       const generateEmailHtml = (orderItems, isVendor = false) => `
         <!DOCTYPE html>
         <html lang="en">
@@ -393,42 +402,31 @@ router.post("/place-order", async (req, res) => {
         </body>
         </html>`;
 
-      transporter
-        .sendMail({
-          from: `"LinkStore" <${process.env.EMAIL_USER}>`,
-          to: customer.email,
-          subject: `Order Confirmation #${orderId}`,
-          html: generateEmailHtml(itemsWithFulfillment, false),
-        })
-        .catch((e) => console.error("Customer email error:", e));
+      transporter.sendMail({
+        from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+        to: customer.email,
+        subject: `Order Confirmation #${orderId}`,
+        html: generateEmailHtml(itemsWithFulfillment, false),
+      }).catch((e) => console.error("Customer email error:", e));
 
       for (const [vendorId, vendorItems] of Object.entries(itemsByVendor)) {
-        try {
-          const vendor = await VendorModel.findOne({ id: vendorId }).lean();
-          if (vendor && vendor.email) {
-            transporter
-              .sendMail({
+        VendorModel.findOne({ id: vendorId }).lean()
+          .then((vendor) => {
+            if (vendor && vendor.email) {
+              return transporter.sendMail({
                 from: `"LinkStore" <${process.env.EMAIL_USER}>`,
                 to: vendor.email,
                 subject: `New Order #${orderId} - Fulfill Items`,
                 html: generateEmailHtml(vendorItems, true),
-              })
-              .catch((e) =>
-                console.error(`Vendor ${vendorId} email error:`, e),
-              );
-          }
-        } catch (fetchErr) {
-          console.error(
-            `Failed to fetch vendor ${vendorId} for email:`,
-            fetchErr,
-          );
-        }
+              });
+            }
+          })
+          .catch((e) => console.error(`Vendor ${vendorId} email error:`, e));
       }
     } catch (e) {
       console.error("Critical error generating email HTML:", e);
     }
-
-    return res.json({ message: "Order placed successfully!", orderId });
+    return; // Already responded
   } catch (error) {
     console.error("Place order failed:", error);
     return res.status(500).json({ error: "Failed to place order." });

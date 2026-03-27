@@ -196,36 +196,61 @@ export default function OrderFulfillmentModal({ order, onClose, onUpdate }: Orde
           <section>
             <div className="flex items-center gap-2 mb-6 text-slate-400">
               <Package size={18} />
-              <h3 className="text-sm uppercase tracking-widest font-black">Items to pack</h3>
+              <h3 className="text-sm uppercase tracking-widest font-black">Items to pack ({vendorItems.length})</h3>
             </div>
-            <div className="space-y-4">
-              {vendorItems.map((item: any) => (
-                <div key={item.id} className="flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-800 transition-colors">
-                  <div className="relative w-20 h-20 shrink-0 bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm">
-                    {item.image ? (
-                      <Image src={item.image} alt={item.name} fill className="object-contain p-2" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-300">
-                        <Package size={32} />
+            {(() => {
+              const [isExpanded, setIsExpanded] = useState(false);
+              const itemsToDisplay = isExpanded ? vendorItems : vendorItems.slice(0, 5);
+              const remainingCount = vendorItems.length - 5;
+
+              return (
+                <div className="space-y-4">
+                  {itemsToDisplay.map((item: any) => (
+                    <div key={item.id} className="flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-800 transition-colors">
+                      <div className="relative w-20 h-20 shrink-0 bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-sm">
+                        {item.image ? (
+                          <Image src={item.image} alt={item.name} fill className="object-contain p-2" unoptimized />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-slate-300">
+                            <Package size={32} />
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-black text-slate-900 dark:text-white leading-tight">{item.name}</h4>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">SKU: {item.sku || "N/A"}</p>
-                    <div className="flex items-center gap-4 mt-1">
-                      <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full font-bold">Qty: {item.quantity}</span>
-                      <span className="text-sm font-bold text-slate-900 dark:text-white">${item.price.toFixed(2)} ea</span>
+                      <div className="flex-1">
+                        <h4 className="font-black text-slate-900 dark:text-white leading-tight">{item.name}</h4>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">SKU: {item.sku || "N/A"}</p>
+                        <div className="flex items-center gap-4 mt-1">
+                          <span className="text-xs px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full font-bold">Qty: {item.quantity}</span>
+                          <span className="text-sm font-bold text-slate-900 dark:text-white">${Number(item.price).toFixed(2)} ea</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lg font-black text-slate-900 dark:text-white block">
+                          ${(Number(item.price) * Number(item.quantity)).toFixed(2)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-lg font-black text-slate-900 dark:text-white block">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </span>
-                  </div>
+                  ))}
+
+                  {!isExpanded && remainingCount > 0 && (
+                    <button
+                      onClick={() => setIsExpanded(true)}
+                      className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-widest hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-2xl transition-all shadow-sm flex items-center justify-center gap-2"
+                    >
+                      View {remainingCount} more items to pack
+                    </button>
+                  )}
+                  {isExpanded && vendorItems.length > 5 && (
+                    <button
+                      onClick={() => setIsExpanded(false)}
+                      className="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-black uppercase tracking-widest hover:bg-slate-200 rounded-2xl transition-all flex items-center justify-center gap-2"
+                    >
+                      Show Less
+                    </button>
+                  )}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </section>
         </div>
       </motion.div>
