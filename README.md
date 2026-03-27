@@ -1,6 +1,6 @@
 # 🛍️ LinkStore - Premium Multi-Vendor Marketplace
 
-![LinkStore Hero](/C:/Users/Talha/.gemini/antigravity/brain/1e7eabc6-a91d-4550-923f-4d487aa3cb95/linkstore_hero_1774610726025.png)
+![LinkStore Hero](C:\Users\Talha\.gemini\antigravity\brain\1e7eabc6-a91d-4550-923f-4d487aa3cb95\linkstore_hero_1774610726025.png)
 
 LinkStore is a high-end, multi-vendor e-commerce platform built with a modern tech stack. It features a sophisticated "Nexus Activation" luxury UI, comprehensive dashboards for Admins and Vendors, and a seamless shopping experience for customers.
 
@@ -127,6 +127,20 @@ linkstore/
 - **Security Headers**: `helmet` is used to secure Express apps by setting various HTTP headers.
 - **State Persistence**: Redux state is persisted across sessions using `redux-persist` for a seamless UX.
 - **Anti-Caching**: Custom middleware on `/api` routes ensures dynamic data (like stock levels) is never stale.
+
+
+---
+
+## 🗄️ Database Schema
+
+LinkStore uses a flexible MongoDB schema designed for scalability:
+
+- **Users**: Handles authentication for Customers, Vendors, and Admins. Stores profiles, addresses, and multi-factor preferences.
+- **Vendors**: Tracks store-specific data, including verification status, `outstandingCommission` for COD orders, and banking info for payouts.
+- **Products**: Contains detailed item metadata, pricing, categorical associations, and relationship to the originating Vendor.
+- **Orders**: A complex model handling multi-vendor line items, real-time status tracking (Pending → Processing → Shipped), and payment metadata.
+- **Reviews**: Linked to both Users and Products, featuring a verification flag for "Confirmed Purchases".
+- **Warehouses**: Manages storage locations with `maxCapacity` triggers for inventory safety.
 
 ---
 
