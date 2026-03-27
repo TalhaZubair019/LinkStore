@@ -1,170 +1,232 @@
-"use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
-import { X, Minus, Plus } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  Minus,
+  Plus,
+  ShoppingBag,
+  ShieldCheck,
+  Zap,
+  Info,
+  ChevronRight,
+} from "lucide-react";
 
 function QuickViewModal({ product, onClose, onAddToCart }: any) {
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (!product) return null;
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
-  const isOutOfStock = !product.stockQuantity || product.stockQuantity === 0;
-  const stock = product.stockQuantity || 0;
-  const threshold = product.lowStockThreshold || 5;
+  if (!mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-70 flex items-center justify-center p-4 sm:p-6 lg:p-10 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="absolute inset-0 cursor-pointer" onClick={onClose} />
-      <div className="bg-white dark:bg-slate-900 w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)] flex flex-col lg:flex-row relative animate-in zoom-in-95 slide-in-from-bottom-10 duration-500 ease-out z-10 transition-colors">
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 z-30 w-12 h-12 flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-all group"
-        >
-          <X
-            size={24}
-            className="group-hover:rotate-90 transition-transform duration-300"
+  const isOutOfStock = product
+    ? !product.stockQuantity || product.stockQuantity === 0
+    : false;
+
+  const handleAddToCart = () => {
+    if (isOutOfStock || !product) return;
+    setAddingToCart(true);
+    onAddToCart(product, quantity);
+    setTimeout(() => {
+      setAddingToCart(false);
+      onClose();
+    }, 800);
+  };
+
+  const modalContent = (
+    <AnimatePresence>
+      {product && (
+        <div className="fixed inset-0 z-10000 pointer-events-none">
+          {/* Backdrop with intense blur */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-slate-950/40 backdrop-blur-md pointer-events-auto cursor-pointer"
           />
-        </button>
-        <div className="w-full lg:w-[55%] bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center relative p-8 lg:p-16 overflow-hidden transition-colors">
-          <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-200/50 dark:bg-indigo-900/20 rounded-full blur-[100px]" />
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-100/50 dark:bg-blue-900/20 rounded-full blur-[100px]" />
-          </div>
-          <div className="relative w-full aspect-square max-h-[400px] lg:max-h-[500px] group transition-transform duration-700 hover:scale-105">
-            <Image
-              src={product.image}
-              alt={product.title}
-              fill
-              className={`object-contain mix-blend-multiply dark:mix-blend-normal transition-all duration-500 ${isOutOfStock ? "grayscale opacity-40" : ""}`}
-              priority
-            />
-            {isOutOfStock && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-red-500 text-white font-black px-8 py-4 rounded-2xl rotate-12 shadow-2xl border-4 border-white/20 text-xl lg:text-2xl tracking-tighter animate-in zoom-in-50 duration-500">
-                  SOLD OUT
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="w-full lg:w-[45%] p-8 lg:p-14 flex flex-col bg-white dark:bg-slate-900 overflow-y-auto no-scrollbar transition-colors">
-          <div className="mb-auto">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-[10px] uppercase tracking-widest rounded-full">
-                Featured Product
-              </span>
-              {stock <= threshold && !isOutOfStock && (
-                <span className="px-3 py-1 bg-amber-50 text-amber-600 font-bold text-[10px] uppercase tracking-widest rounded-full animate-pulse">
-                  Rare Stock
-                </span>
-              )}
-            </div>
-            <h2 className="text-3xl lg:text-5xl font-black text-slate-900 dark:text-white mb-4 leading-[1.1] tracking-tight">
-              {product.title}
-            </h2>
-            <div className="flex items-baseline gap-4 mb-8">
-              <p className="text-3xl lg:text-4xl font-extrabold text-indigo-600">
-                {product.price}
-              </p>
-              <p className="text-slate-400 dark:text-slate-500 line-through text-lg font-medium opacity-60">
-                $98.00
-              </p>
-            </div>
-            <div className="space-y-6 mb-10">
-              <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <span className="text-slate-500 dark:text-slate-400 font-medium tracking-tight">
-                  Availability
-                </span>
-                {stock <= 0 ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold text-xs rounded-full ring-1 ring-red-500/20 transition-colors">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 dark:bg-red-400 animate-pulse" />
-                    Out of Stock
-                  </span>
-                ) : stock <= threshold ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 font-bold text-xs rounded-full ring-1 ring-amber-500/20 transition-colors">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400" />
-                    Low Stock ({stock} left)
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-bold text-xs rounded-full ring-1 ring-emerald-500/20 transition-colors">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400" />
-                    In Stock
-                  </span>
-                )}
-              </div>
-              <div className="space-y-2">
-                <span className="text-[10px] uppercase tracking-widest text-slate-400 font-black">
-                  Description
-                </span>
-                <p className="text-slate-500 dark:text-slate-400 leading-relaxed text-sm">
-                  Elevate your lifestyle with this masterfully designed piece.
-                  Crafted using only the finest premium materials, it offers a
-                  harmonious blend of form and functionality that lasts a
-                  lifetime. Perfect for discerning individuals who value quality
-                  above all else.
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col gap-4 mt-8 sticky bottom-0 bg-white dark:bg-slate-900 pt-4 transition-colors">
-            <div className="flex items-center gap-4">
-              <div
-                className={`flex items-center bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl p-1 shrink-0 ${isOutOfStock ? "opacity-40 grayscale pointer-events-none" : ""}`}
-              >
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all"
-                >
-                  <Minus size={18} />
-                </button>
-                <span className="font-extrabold text-slate-900 dark:text-white w-10 text-center text-lg">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-all"
-                >
-                  <Plus size={18} />
-                </button>
-              </div>
 
+          {/* Right Drawer */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="absolute right-0 top-0 bottom-0 w-full sm:w-[500px] lg:w-[600px] bg-white dark:bg-slate-950 shadow-[-20px_0_60px_rgba(0,0,0,0.3)] pointer-events-auto flex flex-col"
+          >
+            {/* Header with Close */}
+            <div className="flex items-center justify-between p-6 md:p-8 border-b border-slate-100 dark:border-slate-800/50">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+                  Quick Preview
+                </span>
+              </div>
               <button
-                onClick={() => {
-                  if (isOutOfStock) return;
-                  setAddingToCart(true);
-                  onAddToCart(product, quantity);
-                  setTimeout(() => {
-                    setAddingToCart(false);
-                    onClose();
-                  }, 700);
-                }}
-                disabled={addingToCart || isOutOfStock}
-                className={`flex-1 h-14 text-white font-black rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 ${
-                  isOutOfStock
-                    ? "bg-slate-300 dark:bg-slate-700 cursor-not-allowed shadow-none"
-                    : "bg-slate-900 dark:bg-purple-600 hover:bg-slate-800 dark:hover:bg-purple-700 shadow-slate-200 dark:shadow-none"
-                }`}
+                onClick={onClose}
+                className="group flex items-center gap-2 text-slate-400 hover:text-purple-600 transition-all border border-slate-200 dark:border-slate-800 rounded-full px-4 py-1.5 hover:border-purple-500/30"
               >
-                {addingToCart ? (
-                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : null}
-                {isOutOfStock
-                  ? "NOT AVAILABLE"
-                  : addingToCart
-                    ? "ADDING TO BAG..."
-                    : "ADD TO BAG"}
+                <span className="text-[10px] font-bold uppercase tracking-widest group-hover:pr-1 transition-all">
+                  Close
+                </span>
+                <X
+                  size={16}
+                  className="group-hover:rotate-90 transition-all duration-300"
+                />
               </button>
             </div>
 
-            <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest py-2">
-              Free Shipping & Returns on all orders
-            </p>
-          </div>
+            {/* Scrollable Body */}
+            <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth">
+              {/* Main Showcase */}
+              <div className="relative w-full aspect-square bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-12 overflow-hidden group">
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[120px] font-black text-slate-100 dark:text-slate-800/20 select-none pointer-events-none uppercase tracking-tighter opacity-10 leading-none">
+                  LinkStore
+                </div>
+
+                <div className="relative w-full h-full scale-100 group-hover:scale-110 transition-transform duration-1000 ease-[cubic-bezier(0.23,1,0.32,1)]">
+                  <Image
+                    src={product.image}
+                    alt={product.title}
+                    fill
+                    className={`object-contain transition-all duration-700 ${isOutOfStock ? "grayscale opacity-30" : "mix-blend-multiply dark:mix-blend-normal"}`}
+                    priority
+                  />
+                </div>
+
+                {isOutOfStock && (
+                  <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[1px] flex items-center justify-center">
+                    <span className="px-6 py-3 bg-slate-950 text-white font-black text-[10px] tracking-[0.4em] rounded-full shadow-2xl border border-white/10 uppercase">
+                      Out of Stock
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-8 md:p-12 space-y-10">
+                {/* Title & Brand */}
+                <div>
+                  <p className="text-purple-600 font-bold text-[10px] uppercase tracking-[0.2em] mb-3">
+                    Premium Collection
+                  </p>
+                  <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white leading-[1.1] mb-6">
+                    {product.title}
+                  </h2>
+                  <div className="flex items-center gap-6">
+                    <p className="text-3xl font-black text-slate-900 dark:text-white">
+                      {product.price}
+                    </p>
+                    <div className="h-4 w-px bg-slate-200 dark:bg-slate-800" />
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
+                        Available Now
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50 flex flex-col gap-2">
+                    <ShieldCheck size={18} className="text-purple-600" />
+                    <span className="text-[10px] font-black uppercase text-slate-400">
+                      Authenticity
+                    </span>
+                    <span className="text-xs font-bold dark:text-slate-300 tracking-tight leading-none">
+                      100% Genuine
+                    </span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800/50 flex flex-col gap-2">
+                    <Zap size={18} className="text-amber-500" />
+                    <span className="text-[10px] font-black uppercase text-slate-400">
+                      Shipping
+                    </span>
+                    <span className="text-xs font-bold dark:text-slate-300 tracking-tight leading-none">
+                      Priority Tracked
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/50 pb-2">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                      Overview
+                    </h3>
+                    <Info size={14} className="text-slate-300" />
+                  </div>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                    {product.description ||
+                      "Crafted for excellence. This premium selection represents the pinnacle of luxury design, balancing timeless aesthetics with modern functionality for a truly elevated experience."}
+                  </p>
+                </div>
+
+                <div className="pt-4 flex items-center gap-4">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    One-tap support
+                  </span>
+                  <div className="flex-1 h-px bg-slate-100 dark:bg-slate-800" />
+                </div>
+              </div>
+            </div>
+
+            {/* Action Bar */}
+            <div className="p-8 md:p-12 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800/50 flex flex-col gap-6">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Quantity Selection
+                </span>
+                <div className="flex items-center bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 rounded-xl p-1 gap-2 shadow-inner">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-all"
+                  >
+                    <Minus size={14} strokeWidth={3} />
+                  </button>
+                  <span className="font-black text-slate-900 dark:text-white min-w-[20px] text-center">
+                    {quantity}
+                  </span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-all"
+                  >
+                    <Plus size={14} strokeWidth={3} />
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={handleAddToCart}
+                disabled={addingToCart || isOutOfStock}
+                className={`w-full h-16 rounded-2xl font-black text-xs uppercase tracking-[0.25em] flex items-center justify-center gap-4 transition-all active:scale-[0.98] shadow-2xl ${
+                  isOutOfStock
+                    ? "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed"
+                    : "bg-slate-900 dark:bg-purple-600 text-white hover:bg-slate-800 dark:hover:bg-purple-500 shadow-purple-500/20"
+                }`}
+              >
+                {addingToCart ? (
+                  <span className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <ShoppingBag size={18} />
+                    <span>Add To Bag</span>
+                    <ChevronRight size={16} className="opacity-40" />
+                  </>
+                )}
+              </button>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
+
+  return createPortal(modalContent, document.body);
 }
 
 export default QuickViewModal;

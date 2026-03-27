@@ -104,6 +104,8 @@ export default function LoginPage() {
         router.push(redirect);
       } else if (data.user.isAdmin) {
         router.push("/admin/dashboard");
+      } else if (data.user.isVendor && data.user.vendorProfile?.status === "suspended") {
+        router.push("/vendor/suspended");
       } else {
         router.push("/");
       }

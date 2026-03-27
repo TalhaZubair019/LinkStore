@@ -137,91 +137,82 @@ function buildEmailHtml(order, status, baseUrl) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${content.subject} - LinkStore</title>
+  <style>
+    body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; background-color: #f8fafc; color: #1e293b; }
+    .wrapper { width: 100%; padding: 40px 20px; box-sizing: border-box; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #f1f5f9; }
+    .header { background: #ffffff; padding: 48px 40px 32px; text-align: center; }
+    .header h1 { color: #7c3aed; margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -0.025em; }
+    .header p { margin: 12px 0 0; font-size: 16px; color: #64748b; font-weight: 500; }
+    .content { padding: 0 40px 40px; }
+    .status-badge { display: inline-block; padding: 8px 16px; background: #f5f3ff; color: #7c3aed; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 32px; }
+    .section { margin-bottom: 32px; }
+    .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
+    .value { font-size: 14px; color: #1e293b; font-weight: 700; line-height: 1.5; }
+    .order-card { background: #f8fafc; border-radius: 20px; padding: 24px; margin-bottom: 32px; border: 1px solid #f1f5f9; }
+    .btn { background: #7c3aed; color: #ffffff; padding: 16px 32px; border-radius: 16px; text-decoration: none; font-size: 15px; font-weight: 700; display: inline-block; }
+    .items-table { width: 100%; border-collapse: collapse; }
+    .items-table td { padding: 12px 0; border-bottom: 1px solid #f8fafc; }
+    .total-row { margin-top: 24px; padding-top: 16px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; color: #7c3aed; }
+    .footer { padding: 32px 40px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #f8fafc; }
+  </style>
 </head>
-<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f1f5f9;">
-  <div style="width:100%;padding:40px 16px;box-sizing:border-box;">
-    <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.08);">
-      
-      <!-- Header -->
-      <div style="background:linear-gradient(135deg,#6366f1 0%,#a855f7 50%,#ec4899 100%);padding:48px 40px;text-align:center;">
-        <div style="font-size:40px;margin-bottom:12px;">📦</div>
-        <h1 style="margin:0;font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.5px;">${content.headline}</h1>
-        <p style="margin:10px 0 0;font-size:14px;color:rgba(255,255,255,0.85);font-weight:500;">LinkStore Studio Order Update</p>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <div class="header">
+        <h1>LinkStore</h1>
+        <p>Order Update</p>
       </div>
+      <div class="content">
+        <div style="text-align: center;">
+          <div class="status-badge" style="background:${content.color}20; color:${content.color}; border: 1px solid ${content.color}30;">${status}</div>
+        </div>
 
-      <!-- Body -->
-      <div style="padding:40px;">
-        <!-- Message -->
-        <p style="font-size:15px;line-height:1.7;color:#475569;margin:0 0 32px;">${content.message}</p>
+        <h2 style="color: #1e293b; font-size: 22px; font-weight: 800; text-align: center; margin: 24px 0 16px;">${content.headline}</h2>
+        <p style="color: #64748b; line-height: 1.7; font-size: 15px; text-align: center; margin-bottom: 32px;">${content.message}</p>
 
-        <!-- Order ID badge -->
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px 20px;margin-bottom:32px;display:flex;align-items:center;gap:12px;">
-          <div style="background:${content.color};border-radius:8px;padding:8px;display:inline-block;">
-            <span style="color:#fff;font-size:16px;">🧾</span>
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:2px;">Order ID</div>
-            <div style="font-size:16px;font-weight:800;color:#1e293b;">#${order.id.slice(-8).toUpperCase()}</div>
-          </div>
-          <div style="margin-left:auto;">
-            <span style="display:inline-block;padding:6px 14px;background:${content.color};color:#fff;border-radius:999px;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;">${status}</span>
+        <div class="order-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Order Number</span>
+              <div style="font-size: 16px; font-weight: 800; color: #1e293b;">#${order.id.slice(-8).toUpperCase()}</div>
+            </div>
+            <a href="${trackUrl}" class="btn" style="padding: 10px 20px; font-size: 13px;">Track Order</a>
           </div>
         </div>
 
-        <!-- Track Order Button -->
-        <div style="text-align:center;margin:32px 0;">
-          <a href="${trackUrl}" style="background:linear-gradient(135deg,#6366f1 0%,#a855f7 100%);color:#ffffff;padding:16px 36px;border-radius:14px;text-decoration:none;font-size:15px;font-weight:800;display:inline-block;box-shadow:0 10px 20px rgba(99,102,241,0.2);">
-            Track Your Order 📍
-          </a>
-          <p style="font-size:12px;color:#94a3b8;margin-top:14px;">View live updates and delivery history in your dashboard</p>
-        </div>
-
-        <!-- Order Summary -->
-        <div>
-          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #f1f5f9;">Order Summary</div>
-          <table cellpadding="0" cellspacing="0" style="width:100%;">
+        <div class="section">
+          <div class="section-title">Purchased Items</div>
+          <table class="items-table">
             <tbody>
-              ${(order.items || [])
-                .map((i) => {
-                  const vendorStatus = (order.vendorStatuses || []).find(
-                    (vs) => vs.vendorId === i.vendorId,
-                  )?.status;
-                  const isCancelled = vendorStatus === "Cancelled";
-                  const price = Number(i.price) || 0;
-                  const qty = Number(i.quantity) || 1;
-                  const itemTotal = isCancelled ? 0 : price * qty;
-
-                  const textStyle = isCancelled
-                    ? "color:#ef4444;text-decoration:line-through;"
-                    : "color:#374151;";
-                  const nameLabel = isCancelled
-                    ? `${i.name || "Custom Product"} <span style="font-size:10px;font-weight:800;text-decoration:none;display:inline-block;">(Cancelled)</span>`
-                    : i.name || "Custom Product";
-
-                  return `<tr>
-                  <td style="padding:12px 0;border-bottom:1px solid #f8fafc;font-size:14px;font-weight:600;${textStyle}">
-                    ${nameLabel}<br>
-                    <span style="font-size:12px;font-weight:400;color:#94a3b8;text-decoration:none;display:inline-block;">Qty: ${qty} × $${price.toFixed(2)}</span>
-                  </td>
-                  <td style="padding:12px 0;border-bottom:1px solid #f8fafc;text-align:right;font-size:14px;font-weight:700;${textStyle}">$${itemTotal.toFixed(2)}</td>
-                </tr>`;
-                })
-                .join("")}
-              <tr>
-                <td style="padding-top:16px;font-size:16px;font-weight:800;color:#6366f1;">Grand Total</td>
-                <td style="padding-top:16px;text-align:right;font-size:16px;font-weight:800;color:#6366f1;">$${activeTotal.toFixed(2)}</td>
-              </tr>
+              ${(order.items || []).map((i) => {
+                const vendorStatus = (order.vendorStatuses || []).find(vs => vs.vendorId === i.vendorId)?.status;
+                const isCancelled = vendorStatus === "Cancelled";
+                const price = Number(i.price) || 0;
+                const qty = Number(i.quantity) || 1;
+                return `
+                  <tr>
+                    <td style="color: ${isCancelled ? '#94a3b8' : '#1e293b'}; font-weight: 700; font-size: 14px; text-decoration: ${isCancelled ? 'line-through' : 'none'};">
+                      ${i.name || "Product"}
+                      <div style="font-size:12px; font-weight:500; color:#64748b; text-decoration: none;">${qty} × $${price.toFixed(2)}</div>
+                    </td>
+                    <td style="text-align: right; color: ${isCancelled ? '#94a3b8' : '#1e293b'}; font-weight: 800; font-size: 14px; text-decoration: ${isCancelled ? 'line-through' : 'none'};">
+                      $${(isCancelled ? 0 : price * qty).toFixed(2)}
+                    </td>
+                  </tr>`;
+              }).join("")}
             </tbody>
           </table>
+          <div class="total-row">
+            <span>Grand Total</span>
+            <span>$${activeTotal.toFixed(2)}</span>
+          </div>
         </div>
-
-        <p style="text-align:center;font-size:13px;color:#94a3b8;margin-top:40px;font-weight:500;">Thank you for shopping with LinkStore Studio!</p>
       </div>
-
-      <!-- Footer -->
-      <div style="padding:24px 40px;background:#f8fafc;text-align:center;border-top:1px solid #f1f5f9;">
-        <p style="margin:0;font-size:12px;color:#94a3b8;">© ${new Date().getFullYear()} LinkStore Studio. All rights reserved.</p>
-        <p style="margin:6px 0 0;font-size:12px;color:#94a3b8;">Questions? Reply to this email or contact support.</p>
+      <div class="footer">
+        <p>&copy; ${new Date().getFullYear()} LinkStore Marketplace. All rights reserved.</p>
+        <p style="margin-top: 8px;">Need help? Reply to this email or visit our help center.</p>
       </div>
     </div>
   </div>

@@ -60,18 +60,43 @@ router.post("/", requireAuth, async (req, res) => {
       const admins = await AdminModel.find({ adminRole: "super_admin" }).lean();
       const adminEmails = admins.length > 0 ? admins.map(a => a.email) : [process.env.EMAIL_USER];
       const appHtml = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-          <h2 style="color: #8B5CF6;">New Vendor Application</h2>
-          <p>A user has submitted a new application to become a vendor on LinkStore.</p>
-          <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Applicant Name:</strong> ${user.name}</p>
-            <p><strong>Applicant Email:</strong> ${user.email}</p>
-            <p><strong>Store Name:</strong> ${storeName}</p>
-            <p><strong>Description:</strong> ${storeDescription}</p>
+        <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #7c3aed; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
           </div>
-          <p>Please log in to the Admin Dashboard to review and approve/reject this application.</p>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #666; text-align: center;">LinkStore Administrative Notification</p>
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="display: inline-block; padding: 8px 16px; background: #f5f3ff; color: #7c3aed; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase;">Action Required</div>
+          </div>
+          <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; margin-bottom: 16px; text-align: center;">New Vendor Application</h2>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px; text-align: center;">A user has submitted an application to open a store on LinkStore. Please review the details below:</p>
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 20px; border: 1px solid #f1f5f9; margin-bottom: 32px;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding-bottom: 12px; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase;">Store Name</td>
+                <td style="padding-bottom: 12px; color: #1e293b; font-size: 14px; font-weight: 700; text-align: right;">${storeName}</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 12px; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase;">Applicant</td>
+                <td style="padding-bottom: 12px; color: #1e293b; font-size: 14px; font-weight: 700; text-align: right;">${user.name}</td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 12px; color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase;">Email</td>
+                <td style="padding-bottom: 12px; color: #1e293b; font-size: 14px; font-weight: 700; text-align: right;">${user.email}</td>
+              </tr>
+              <tr>
+                <td style="color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; vertical-align: top;">Description</td>
+                <td style="color: #64748b; font-size: 13px; font-weight: 500; text-align: right; line-height: 1.4;">${storeDescription}</td>
+              </tr>
+            </table>
+          </div>
+          
+          <div style="text-align: center;">
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 24px;">Please log in to the administrator portal to review this application.</p>
+          </div>
+          
+          <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Administrative System.</p>
         </div>
       `;
 

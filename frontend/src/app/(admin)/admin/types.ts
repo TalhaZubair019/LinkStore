@@ -83,6 +83,8 @@ export interface DashboardStats {
   products: any[];
   revenueData: any[];
   ratingDistribution: Record<string, number>;
+  productRatingDistribution?: Record<string, number>;
+  sellerRatingDistribution?: Record<string, number>;
   topReviewedProducts: { name: string; image: string; count: number }[];
   totalReviews: number;
   productSentiment: {

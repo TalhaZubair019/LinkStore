@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { RootState } from "@/redux/Store";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
@@ -13,6 +13,7 @@ export default function VendorLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, isAuthenticated, isLoading } = useSelector(
     (state: RootState) => state.auth,
   );
@@ -20,6 +21,11 @@ export default function VendorLayout({
 
   useEffect(() => {
     if (!isLoading) {
+      if (pathname === "/vendor/suspended") {
+        setIsAuthorized(true);
+        return;
+      }
+
       if (!isAuthenticated || !user) {
         router.push("/login");
         return;
@@ -27,6 +33,11 @@ export default function VendorLayout({
 
       if (!user.isVendor) {
         router.push("/vendor/apply");
+        return;
+      }
+
+      if (user.vendorProfile?.status === "suspended") {
+        router.push("/vendor/suspended");
         return;
       }
 
@@ -39,7 +50,7 @@ export default function VendorLayout({
 
       setIsAuthorized(true);
     }
-  }, [user, isAuthenticated, isLoading, router]);
+  }, [user, isAuthenticated, isLoading, router, pathname]);
 
   if (isLoading || !isAuthorized) {
     return (

@@ -46,7 +46,9 @@ export default function JustForYou() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("/api/public/content?section=products");
+        const response = await fetch("/api/public/content?section=products", {
+          cache: "no-store",
+        });
         const data = await response.json();
         setProducts(data.products || []);
       } catch (error) {

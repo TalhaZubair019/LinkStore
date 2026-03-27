@@ -253,9 +253,23 @@ router.get("/", requireAdmin, async (req, res) => {
       };
     }
 
+    const productRatingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    const sellerRatingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    
+    allReviews.forEach((r) => {
+      if (r.rating >= 1 && r.rating <= 5) {
+        const rating = Math.floor(r.rating);
+        if (r.targetType === "product") {
+          productRatingDistribution[rating]++;
+        } else if (r.targetType === "vendor") {
+          sellerRatingDistribution[rating]++;
+        }
+      }
+    });
+
     const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
     allReviews.forEach((r) => {
-      if (r.rating >= 1 && r.rating <= 5) ratingDistribution[r.rating]++;
+      if (r.rating >= 1 && r.rating <= 5) ratingDistribution[Math.floor(r.rating)]++;
     });
 
     const reviewCounts = {};
@@ -346,6 +360,8 @@ router.get("/", requireAdmin, async (req, res) => {
       topProductsByRevenue,
       products,
       ratingDistribution,
+      productRatingDistribution,
+      sellerRatingDistribution,
       topReviewedProducts,
       totalReviews: allReviews.length,
       productSentiment,

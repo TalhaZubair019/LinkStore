@@ -45,7 +45,7 @@ export function useAdminDashboard() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await fetch("/api/admin/stats");
+      const res = await fetch("/api/admin/stats", { cache: "no-store" });
 
       if (res.ok) {
         const data = await res.json();

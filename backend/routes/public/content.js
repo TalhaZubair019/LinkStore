@@ -11,10 +11,20 @@ router.get("/", async (req, res) => {
 
     if (section === "products") {
       await connectDB();
-      const { OrderModel } = require("../../lib/models");
+      const { OrderModel, VendorModel } = require("../../lib/models");
       const { search, category, minPrice, maxPrice, vendorId, sort } =
         req.query;
-      const query = { isApproved: true };
+      
+      // Fetch suspended vendor IDs to exclude their products
+      const suspendedVendors = await VendorModel.find({ 
+        "vendorProfile.status": "suspended" 
+      }).select("id").lean();
+      const suspendedIds = suspendedVendors.map(v => v.id);
+
+      const query = { 
+        isApproved: true,
+        vendorId: { $nin: suspendedIds }
+      };
 
       if (search) {
         query.$or = [

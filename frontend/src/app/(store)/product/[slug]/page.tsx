@@ -72,7 +72,9 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchProductAndReviews = async () => {
       try {
-        const response = await fetch("/api/public/content?section=products");
+        const response = await fetch("/api/public/content?section=products", {
+          cache: "no-store",
+        });
         const data = await response.json();
 
         const foundProduct = data.products.find(
@@ -84,6 +86,7 @@ export default function ProductPage() {
         if (foundProduct) {
           const reviewsResponse = await fetch(
             `/api/public/reviews?productId=${foundProduct.id}`,
+            { cache: "no-store" },
           );
           if (reviewsResponse.ok) {
             const fetchedReviews = await reviewsResponse.json();

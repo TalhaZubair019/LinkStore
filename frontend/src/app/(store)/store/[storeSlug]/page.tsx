@@ -128,7 +128,9 @@ export default function VendorStorePage() {
     const fetchStoreData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/public/stores/${storeSlug}`);
+        const res = await fetch(`/api/public/stores/${storeSlug}`, {
+          cache: "no-store",
+        });
         if (!res.ok) {
           if (res.status === 404) setError("Store not found");
           else setError("Failed to load store data");

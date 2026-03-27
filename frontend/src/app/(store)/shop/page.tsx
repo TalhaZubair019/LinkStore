@@ -60,9 +60,13 @@ export default function ShopPage() {
       if (!params.has("section")) params.set("section", "products");
 
       const [productsRes, categoriesRes, vendorsRes] = await Promise.all([
-        fetch(`/api/public/content?${params.toString()}`),
-        fetch("/api/public/content?section=categories&all=true"),
-        fetch("/api/public/stores/list/all").catch(() => null),
+        fetch(`/api/public/content?${params.toString()}`, { cache: "no-store" }),
+        fetch("/api/public/content?section=categories&all=true", {
+          cache: "no-store",
+        }),
+        fetch("/api/public/stores/list/all", { cache: "no-store" }).catch(
+          () => null,
+        ),
       ]);
 
       if (productsRes.ok) {

@@ -3,15 +3,21 @@ import { Star } from "lucide-react";
 import { DashboardStats } from "@/app/(admin)/admin/types";
 
 interface ReviewRatingChartProps {
-  stats: DashboardStats;
+  title?: string;
+  distribution: Record<string, number>;
+  color?: string;
 }
 
-const ReviewRatingChart = ({ stats }: ReviewRatingChartProps) => {
-  const totalReviews = Object.values(stats.ratingDistribution || {}).reduce(
+const ReviewRatingChart = ({
+  title = "Review Rating Distribution",
+  distribution,
+  color = "yellow-400",
+}: ReviewRatingChartProps) => {
+  const totalReviews = Object.values(distribution || {}).reduce(
     (a: number, b: number) => a + b,
     0,
   );
-  const totalStars = Object.entries(stats.ratingDistribution || {}).reduce(
+  const totalStars = Object.entries(distribution || {}).reduce(
     (acc: number, [stars, count]: [string, number]) =>
       acc + Number(stars) * count,
     0,
@@ -19,14 +25,14 @@ const ReviewRatingChart = ({ stats }: ReviewRatingChartProps) => {
   const averageRating = totalReviews > 0 ? totalStars / totalReviews : 0;
 
   return (
-    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500">
+    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500 h-full flex flex-col justify-between">
       <h3 className="font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-        Review Rating Distribution
-        <div className="h-2 w-2 bg-yellow-400 rounded-full animate-pulse shadow-lg shadow-yellow-200" />
+        {title}
+        <div className={`h-2 w-2 bg-${color} rounded-full animate-pulse shadow-lg shadow-${color.split("-")[0]}-200`} />
       </h3>
       <div className="space-y-4">
         {[5, 4, 3, 2, 1].map((rating) => {
-          const count = stats.ratingDistribution?.[rating] || 0;
+          const count = distribution?.[rating] || 0;
           const percentage = totalReviews ? (count / totalReviews) * 100 : 0;
 
           return (
@@ -37,7 +43,7 @@ const ReviewRatingChart = ({ stats }: ReviewRatingChartProps) => {
               </span>
               <div className="flex-1 h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-yellow-400 rounded-full transition-all duration-1000 ease-out"
+                  className={`h-full bg-${color} rounded-full transition-all duration-1000 ease-out`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>

@@ -170,6 +170,42 @@ router.patch("/:id/approve-vendor", requireSuperAdmin, async (req, res) => {
       entityId: req.params.id,
       details: `Approved vendor application for "${vendor.vendorProfile.storeName}" (User: ${vendor.name})`,
     });
+    // Send Approval Email
+    try {
+      const { transporter } = require("../../lib/mailer");
+      const approvalHtml = `
+        <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #7c3aed; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
+          </div>
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="display: inline-block; padding: 8px 16px; background: #ecfdf5; color: #059669; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase;">Application Approved</div>
+          </div>
+          <h2 style="color: #1e293b; font-size: 22px; font-weight: 800; margin-bottom: 16px;">Congratulations!</h2>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">Dear ${vendor.name}, we are thrilled to welcome you to the LinkStore community. Your application for <strong>"${vendor.vendorProfile.storeName}"</strong> has been approved!</p>
+          
+          <div style="background: #f8fafc; padding: 24px; border-radius: 20px; border: 1px solid #f1f5f9; margin-bottom: 32px; text-align: center;">
+            <p style="color: #1e293b; font-weight: 700; margin-bottom: 16px;">You can now access your Vendor Dashboard:</p>
+            <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/vendor" style="background: #7c3aed; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 14px; font-weight: 700; display: inline-block;">Go to Dashboard</a>
+          </div>
+          
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 32px;">We look forward to seeing your products on our marketplace. If you have any questions about getting started, our support team is here to help.</p>
+          
+          <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Marketplace. All rights reserved.</p>
+        </div>
+      `;
+
+      await transporter.sendMail({
+        from: `"LinkStore Team" <${process.env.EMAIL_USER}>`,
+        to: vendor.email,
+        subject: `Welcome to LinkStore! Your store "${vendor.vendorProfile.storeName}" is approved`,
+        html: approvalHtml,
+      });
+    } catch (mailError) {
+      console.error("Error sending approval email:", mailError);
+    }
+
     return res.json({
       message: "Vendor application approved successfully",
       user: vendor,
@@ -179,6 +215,8 @@ router.patch("/:id/approve-vendor", requireSuperAdmin, async (req, res) => {
   }
 });
 
+const { transporter } = require("../../lib/mailer");
+
 router.patch("/:id/reject-vendor", requireSuperAdmin, async (req, res) => {
   try {
     await connectDB();
@@ -186,13 +224,48 @@ router.patch("/:id/reject-vendor", requireSuperAdmin, async (req, res) => {
     const vendor = await VendorModel.findOne({ id: req.params.id });
     const target = user || vendor;
     if (!target) return res.status(404).json({ message: "User not found" });
+
+    const storeName = target.vendorProfile?.storeName || "your store";
     target.vendorProfile.status = "rejected";
     await target.save();
+
+    // Send Rejection Email
+    try {
+      const rejectionHtml = `
+        <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #7c3aed; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
+          </div>
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="display: inline-block; padding: 8px 16px; background: #fff1f2; color: #e11d48; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase;">Application Update</div>
+          </div>
+          <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; margin-bottom: 16px;">Update on your Vendor Application</h2>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">Dear ${target.name},</p>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">Thank you for your interest in joining the LinkStore marketplace. After carefully reviewing your application for <strong>"${storeName}"</strong>, we regret to inform you that we cannot approve your application at this time.</p>
+          <div style="background: #f8fafc; padding: 24px; border-radius: 16px; margin-bottom: 32px; border: 1px solid #f1f5f9;">
+            <p style="color: #64748b; margin: 0; font-size: 14px; font-weight: 500; line-height: 1.5;">We appreciate the effort you put into your application. While this decision is final for now, you are welcome to continue using LinkStore as a regular customer.</p>
+          </div>
+          <p style="color: #94a3b8; line-height: 1.6; margin-bottom: 32px; font-size: 13px;">If you have any questions, feel free to contact our support team.</p>
+          <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Marketplace. All rights reserved.</p>
+        </div>
+      `;
+
+      await transporter.sendMail({
+        from: `"LinkStore Team" <${process.env.EMAIL_USER}>`,
+        to: target.email,
+        subject: `Update regarding your application for ${storeName}`,
+        html: rejectionHtml,
+      });
+    } catch (mailError) {
+      console.error("Error sending rejection email:", mailError);
+    }
+
     await logActivity(req, {
       action: "update",
       entity: "user",
       entityId: req.params.id,
-      details: `Rejected vendor application for "${target.vendorProfile.storeName}" (User: ${target.name})`,
+      details: `Rejected vendor application for "${storeName}" (User: ${target.name})`,
     });
     return res.json({ message: "Vendor application rejected" });
   } catch (error) {
@@ -214,6 +287,38 @@ router.patch("/:id/suspend-vendor", requireSuperAdmin, async (req, res) => {
       entityId: req.params.id,
       details: `Suspended vendor account for "${vendor.vendorProfile.storeName}" (User: ${vendor.name})`,
     });
+    // Send Suspension Email
+    try {
+      const suspensionHtml = `
+        <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #fecaca; border-radius: 24px; background: #ffffff;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #e11d48; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
+          </div>
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="display: inline-block; padding: 8px 16px; background: #fff1f2; color: #e11d48; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase;">Account Suspended</div>
+          </div>
+          <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; margin-bottom: 16px;">Important notice regarding your store</h2>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">Dear ${vendor.name},</p>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">This is to inform you that your vendor account for <strong>"${vendor.vendorProfile.storeName}"</strong> has been suspended due to a policy violation or maintenance requirement.</p>
+          <div style="background: #fef2f2; padding: 24px; border-radius: 16px; margin-bottom: 32px; border: 1px solid #fee2e2;">
+            <p style="color: #991b1b; margin: 0; font-size: 14px; font-weight: 600;">While suspended, your products are hidden from the storefront and you cannot access vendor features.</p>
+          </div>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 32px;">If you believe this is an error or would like to appeal, please contact our vendor support team immediately.</p>
+          <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Trust & Safety.</p>
+        </div>
+      `;
+
+      await transporter.sendMail({
+        from: `"LinkStore Support" <${process.env.EMAIL_USER}>`,
+        to: vendor.email,
+        subject: `⚠️ Important notice: Your store "${vendor.vendorProfile.storeName}" has been suspended`,
+        html: suspensionHtml,
+      });
+    } catch (mailError) {
+      console.error("Error sending suspension email:", mailError);
+    }
+
     return res.json({ message: "Vendor account suspended" });
   } catch (error) {
     return res.status(500).json({ message: "Internal Error" });
@@ -235,6 +340,38 @@ router.patch("/:id/unsuspend-vendor", requireSuperAdmin, async (req, res) => {
       entityId: req.params.id,
       details: `Unsuspended vendor account for "${vendor.vendorProfile.storeName}" (User: ${vendor.name})`,
     });
+    // Send Unsuspension Email
+    try {
+      const unsuspensionHtml = `
+        <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #7c3aed; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
+          </div>
+          <div style="text-align: center; margin-bottom: 32px;">
+            <div style="display: inline-block; padding: 8px 16px; background: #ecfdf5; color: #059669; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase;">Account Restored</div>
+          </div>
+          <h2 style="color: #1e293b; font-size: 20px; font-weight: 700; margin-bottom: 16px;">Welcome back!</h2>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">Dear ${vendor.name},</p>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">We are pleased to inform you that your vendor account for <strong>"${vendor.vendorProfile.storeName}"</strong> has been unsuspended and fully restored.</p>
+          <div style="background: #f0fdf4; padding: 24px; border-radius: 16px; margin-bottom: 32px; border: 1px solid #dcfce7;">
+            <p style="color: #166534; margin: 0; font-size: 14px; font-weight: 600;">Your products are now visible again, and your dashboard access is restored.</p>
+          </div>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 32px;">Thank you for your patience. You can resume your business operations immediately.</p>
+          <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Marketplace.</p>
+        </div>
+      `;
+
+      await transporter.sendMail({
+        from: `"LinkStore Team" <${process.env.EMAIL_USER}>`,
+        to: vendor.email,
+        subject: `✅ Good news: Your store "${vendor.vendorProfile.storeName}" has been restored`,
+        html: unsuspensionHtml,
+      });
+    } catch (mailError) {
+      console.error("Error sending unsuspension email:", mailError);
+    }
+
     return res.json({ message: "Vendor account unsuspended successfully" });
   } catch (error) {
     return res.status(500).json({ message: "Internal Error" });

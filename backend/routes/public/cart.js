@@ -20,8 +20,17 @@ router.post("/validate-cart", async (req, res) => {
     }
 
     await connectDB();
+    const { ProductModel, VendorModel } = require("../../lib/models");
+    
+    // Fetch suspended vendor IDs
+    const suspendedVendors = await VendorModel.find({ 
+      "vendorProfile.status": "suspended" 
+    }).select("id").lean();
+    const suspendedIds = suspendedVendors.map(v => v.id);
+
     const products = await ProductModel.find({
       id: { $in: productIds.map((id) => Number(id)) },
+      vendorId: { $nin: suspendedIds }
     }).lean();
     return res.json(products);
   } catch (error) {

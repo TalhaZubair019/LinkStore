@@ -76,8 +76,8 @@ export function useVendorDashboard() {
   const fetchStats = useCallback(async () => {
     try {
       const [res, whRes] = await Promise.all([
-        fetch("/api/vendor/stats"),
-        fetch("/api/vendor/warehouses"),
+        fetch("/api/vendor/stats", { cache: "no-store" }),
+        fetch("/api/vendor/warehouses", { cache: "no-store" }),
       ]);
 
       if (res.ok && whRes.ok) {
@@ -171,7 +171,7 @@ export function useVendorDashboard() {
   const fetchRevenueData = async (startDate: string, endDate: string) => {
     setRevenueLoading(true);
     try {
-      const res = await fetch(`/api/vendor/stats?startDate=${startDate}&endDate=${endDate}`);
+      const res = await fetch(`/api/vendor/stats?startDate=${startDate}&endDate=${endDate}`, { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setFilteredRevenueData(data.revenueData);
@@ -186,7 +186,7 @@ export function useVendorDashboard() {
   const fetchAovData = async (startDate: string, endDate: string) => {
     setAovLoading(true);
     try {
-      const res = await fetch(`/api/vendor/stats?startDate=${startDate}&endDate=${endDate}`);
+      const res = await fetch(`/api/vendor/stats?startDate=${startDate}&endDate=${endDate}`, { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setFilteredAovData(data.revenueData);

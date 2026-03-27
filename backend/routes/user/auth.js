@@ -135,17 +135,22 @@ router.post("/signup", async (req, res) => {
         to: email,
         subject: "Verify your email - LinkStore",
         html: `
-          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-            <h2 style="color: #8B5CF6; text-align: center;">Welcome to LinkStore!</h2>
-            <p>Hello ${name},</p>
-            <p>Thank you for signing up. Please use the following One-Time Password (OTP) to verify your email address and complete your registration:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #8B5CF6; background: #F3F4F6; padding: 10px 20px; border-radius: 8px;">${otp}</span>
+          <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <h1 style="color: #7c3aed; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
             </div>
-            <p>This code will expire in 1 minute.</p>
-            <p>If you didn't request this, you can safely ignore this email.</p>
-            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-            <p style="font-size: 12px; color: #666; text-align: center;">Best regards,<br />The LinkStore Team</p>
+            <div style="text-align: center;">
+              <h2 style="color: #1e293b; font-size: 24px; font-weight: 700; margin-bottom: 12px;">Welcome to LinkStore!</h2>
+              <p style="color: #64748b; line-height: 1.6; margin-bottom: 32px;">Hello ${name}, thank you for joining us. Please use the verification code below to complete your registration:</p>
+              
+              <div style="background: #f8fafc; padding: 24px; border-radius: 20px; border: 1px dashed #cbd5e1; margin-bottom: 32px; display: inline-block;">
+                <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #7c3aed; font-family: monospace;">${otp}</span>
+              </div>
+              
+              <p style="color: #94a3b8; font-size: 14px; margin-bottom: 32px;">This code will expire in 1 minute for your security.</p>
+            </div>
+            <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+            <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Marketplace. All rights reserved.</p>
           </div>
         `,
       });
@@ -272,16 +277,22 @@ router.post("/forgot-password", async (req, res) => {
       to: email,
       subject: "Password Reset Request - LinkStore",
       html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; rounded: 8px;">
-          <h2 style="color: #8B5CF6;">Password Reset</h2>
-          <p>Hello ${user.name || "there"},</p>
-          <p>We received a request to reset your password. Click below to set a new password:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetLink}" style="background-color: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 50px; font-weight: bold;">Reset Password</a>
+        <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #7c3aed; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
           </div>
-          <p>This link expires in 15 minutes.</p>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #666;">Best regards,<br />The LinkStore Team</p>
+          <h2 style="color: #1e293b; font-size: 22px; font-weight: 700; margin-bottom: 16px;">Reset Your Password</h2>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">Hello ${user.name || "there"},</p>
+          <p style="color: #64748b; line-height: 1.6; margin-bottom: 32px;">We received a request to reset your password. Click the button below to choose a new secure password:</p>
+          
+          <div style="text-align: center; margin-bottom: 32px;">
+            <a href="${resetLink}" style="background-color: #7c3aed; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 16px; font-weight: 700; display: inline-block; box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.25);">Reset Password</a>
+          </div>
+          
+          <p style="color: #94a3b8; font-size: 14px; margin-bottom: 32px;">For your security, this link will expire in 15 minutes. If you did not request this reset, you can safely ignore this email.</p>
+          
+          <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Marketplace. All rights reserved.</p>
         </div>
       `,
     });
@@ -414,16 +425,22 @@ router.post("/resend-otp", async (req, res) => {
       to: email,
       subject: "Your new verification code - LinkStore",
       html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
-          <h2 style="color: #8B5CF6; text-align: center;">New Verification Code</h2>
-          <p>Hello ${user.name},</p>
-          <p>You requested a new verification code. Please use the code below to verify your email:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #8B5CF6; background: #F3F4F6; padding: 10px 20px; border-radius: 8px;">${otp}</span>
+        <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <h1 style="color: #7c3aed; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
           </div>
-          <p>This code will expire in 1 minute.</p>
-          <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-          <p style="font-size: 12px; color: #666; text-align: center;">Best regards,<br />The LinkStore Team</p>
+          <div style="text-align: center;">
+            <h2 style="color: #1e293b; font-size: 24px; font-weight: 700; margin-bottom: 12px;">New Verification Code</h2>
+            <p style="color: #64748b; line-height: 1.6; margin-bottom: 32px;">Hello ${user.name}, your new verification code is ready. Please use it to verify your account promptly:</p>
+            
+            <div style="background: #f8fafc; padding: 24px; border-radius: 20px; border: 1px dashed #cbd5e1; margin-bottom: 32px; display: inline-block;">
+              <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #7c3aed; font-family: monospace;">${otp}</span>
+            </div>
+            
+            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 32px;">This code will expire in 60 seconds.</p>
+          </div>
+          <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
+          <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Marketplace. All rights reserved.</p>
         </div>
       `,
     });
