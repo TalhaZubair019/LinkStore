@@ -307,6 +307,18 @@ router.patch("/:id", requireVendor, async (req, res) => {
           (item) => item.vendorId === req.user.id,
         );
 
+        // --- Revert Commission if COD ---
+        if (finalOrder.customer?.paymentMethod === "cod") {
+          const vTotal = vendorItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
+          const commission = Math.round(vTotal * 0.1 * 100) / 100;
+          const { VendorModel } = require("../../lib/models");
+          await VendorModel.findOneAndUpdate(
+            { id: req.user.id },
+            { $inc: { "vendorProfile.outstandingCommission": -commission } }
+          );
+        }
+
+        // --- Restock Inventory ---
         for (const item of vendorItems) {
           if (
             item.fulfilledFromWarehouse &&

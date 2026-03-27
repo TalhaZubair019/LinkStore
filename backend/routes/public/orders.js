@@ -50,7 +50,7 @@ router.post("/place-order", async (req, res) => {
     if (token) {
       try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        userId = decoded.id;
+        effectiveUserId = decoded.id;
       } catch (_) {}
     }
 
