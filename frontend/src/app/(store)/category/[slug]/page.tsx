@@ -271,6 +271,7 @@ export default function CategoryPage() {
                   <option>Default Sorting</option>
                   <option>Popularity</option>
                   <option>Newest First</option>
+                  <option>Oldest First</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>
                 </select>
@@ -281,18 +282,39 @@ export default function CategoryPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-8">
               {[...categoryProducts]
                 .sort((a: any, b: any) => {
-                  const priceA = parseFloat(a.price.replace(/[^0-9.]/g, ""));
-                  const priceB = parseFloat(b.price.replace(/[^0-9.]/g, ""));
-                  if (sortBy === "Price: Low to High") return priceA - priceB;
-                  if (sortBy === "Price: High to Low") return priceB - priceA;
-                  if (sortBy === "Newest First")
-                    return (b.id || 0) - (a.id || 0);
-                  if (sortBy === "Popularity")
-                    return (b.salesCount || 0) - (a.salesCount || 0);
-                  return (a.id || 0) - (b.id || 0);
+                  const parsePrice = (price: any) => {
+                    if (typeof price === "number") return price;
+                    if (typeof price !== "string") return 0;
+                    const parsed = parseFloat(price.replace(/[^0-9.]/g, ""));
+                    return isNaN(parsed) ? 0 : parsed;
+                  };
+                  const priceA = parsePrice(a.price);
+                  const priceB = parsePrice(b.price);
+
+                  if (sortBy === "Price: Low to High") {
+                    const diff = priceA - priceB;
+                    if (diff !== 0) return diff;
+                  }
+                  if (sortBy === "Price: High to Low") {
+                    const diff = priceB - priceA;
+                    if (diff !== 0) return diff;
+                  }
+                  if (sortBy === "Newest First") {
+                    const diff = (b.id || 0) - (a.id || 0);
+                    if (diff !== 0) return diff;
+                  }
+                  if (sortBy === "Oldest First") {
+                    const diff = (a.id || 0) - (b.id || 0);
+                    if (diff !== 0) return diff;
+                  }
+                  if (sortBy === "Popularity") {
+                    const diff = (b.salesCount || 0) - (a.salesCount || 0);
+                    if (diff !== 0) return diff;
+                  }
+                  return String(a.id).localeCompare(String(b.id));
                 })
                 .map((product) => (
                   <SimpleProductCard

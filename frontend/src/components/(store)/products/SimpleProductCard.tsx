@@ -78,14 +78,14 @@ export default function SimpleProductCard({
           e.stopPropagation();
           onToggleWishlist();
         }}
-        className={`absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-md transition-all duration-300 ${
+        className={`absolute top-4 right-4 z-20 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-md transition-all duration-300 ${
           showFilled
             ? "bg-red-500 text-white"
             : "bg-white/80 dark:bg-slate-800/80 text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500"
         }`}
         title={showFilled ? "Remove from wishlist" : "Add to wishlist"}
       >
-        <Heart size={18} fill={showFilled ? "currentColor" : "none"} />
+        <Heart size={14} className="sm:w-4.5 sm:h-4.5" fill={showFilled ? "currentColor" : "none"} />
       </button>
 
       {/* Quick View Button */}
@@ -96,14 +96,14 @@ export default function SimpleProductCard({
             e.stopPropagation();
             onQuickView();
           }}
-          className="absolute top-16 right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-md bg-white/80 dark:bg-slate-800/80 text-slate-400 hover:bg-purple-600 dark:hover:bg-purple-500 hover:text-white transition-all duration-300 opacity-100 lg:opacity-0 group-hover:opacity-100 translate-x-0 lg:translate-x-4 group-hover:translate-x-0"
+          className="absolute top-4 left-4 z-20 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full shadow-lg backdrop-blur-md bg-white/80 dark:bg-slate-800/80 text-slate-400 hover:bg-purple-600 dark:hover:bg-purple-500 hover:text-white transition-all duration-300 opacity-100 lg:opacity-0 group-hover:opacity-100 translate-x-0 lg:translate-x-4 group-hover:translate-x-0"
           title="Quick View"
         >
-          <Eye size={18} />
+          <Eye size={16} className="sm:w-4.5 sm:h-4.5" />
         </button>
       )}
 
-      <div className="relative h-80 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center p-8 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors duration-500">
+      <div className="relative h-48 sm:h-80 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center p-4 sm:p-8 group-hover:bg-slate-100 dark:group-hover:bg-slate-800 transition-colors duration-500">
         <div className="relative w-full h-full block">
           <Image
             src={product.image}
@@ -160,28 +160,28 @@ export default function SimpleProductCard({
             <button
               onClick={handleCartClick}
               disabled={addingToCart}
-              className="flex items-center gap-3 px-8 py-3.5 bg-linear-to-r from-purple-600 to-indigo-600 text-white text-xs font-black rounded-full shadow-2xl hover:shadow-purple-500/40 hover:scale-110 transition-all disabled:opacity-80 active:scale-95 uppercase tracking-widest"
+              className="flex items-center gap-2 sm:gap-3 px-4 sm:px-8 py-2.5 sm:py-3.5 bg-linear-to-r from-purple-600 to-indigo-600 text-white text-[10px] sm:text-xs font-black rounded-full shadow-2xl hover:shadow-purple-500/40 hover:scale-110 transition-all disabled:opacity-80 active:scale-95 uppercase tracking-wider sm:tracking-widest"
             >
               {addingToCart ? (
                 <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                <ShoppingBag size={16} fill="currentColor" />
+                <ShoppingBag size={14} className="sm:w-4 sm:h-4" fill="currentColor" />
               )}
-              {addingToCart ? "Adding..." : "Add to cart"}
+              {addingToCart ? "..." : <span className="inline">Add to cart</span>}
             </button>
           )}
         </div>
       </div>
 
       {/* Info Section */}
-      <div className="p-6 text-center bg-white dark:bg-slate-900 transition-colors flex-1 flex flex-col justify-center">
+      <div className="p-3 sm:p-6 text-center bg-white dark:bg-slate-900 transition-colors flex-1 flex flex-col justify-center">
         {/* Badges */}
-        <div className="flex flex-wrap justify-center gap-2 mb-3">
+        <div className="flex flex-wrap justify-center gap-1 sm:gap-2 mb-2 sm:mb-3">
           {(product.badges || (product.badge ? [product.badge] : [])).map(
             (badge: string, idx: number) => (
               <span
                 key={idx}
-                className="px-2.5 py-0.5 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-wider rounded-full border border-slate-100 dark:border-slate-800"
+                className="px-1.5 sm:px-2.5 py-0.5 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-[8px] sm:text-[10px] font-black uppercase tracking-wider rounded-full border border-slate-100 dark:border-slate-800"
               >
                 {badge}
               </span>
@@ -190,18 +190,18 @@ export default function SimpleProductCard({
         </div>
         
         {/* Rating */}
-        <div className="flex items-center justify-center gap-1.5 mb-2.5">
-          <Star size={12} className={product.averageRating && product.averageRating > 0 ? "fill-yellow-400 text-yellow-400" : "text-slate-300 dark:text-slate-600"} />
-          <span className="text-[10px] text-slate-500 font-bold tracking-tight">
-            {product.averageRating && product.averageRating > 0 ? `${product.averageRating} (${product.totalReviews || 0})` : "No reviews yet"}
+        <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-1.5 sm:mb-2.5">
+          <Star size={10} className={product.averageRating && product.averageRating > 0 ? "fill-yellow-400 text-yellow-400" : "text-slate-300 dark:text-slate-600"} />
+          <span className="text-[8px] sm:text-[10px] text-slate-500 font-bold tracking-tight">
+            {product.averageRating && product.averageRating > 0 ? `${product.averageRating} (${product.totalReviews || 0})` : "No reviews"}
           </span>
         </div>
 
-        <h3 className="font-bold text-slate-800 dark:text-white text-base mb-2 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors tracking-tight">
+        <h3 className="font-bold text-slate-800 dark:text-white text-xs sm:text-base mb-1 sm:mb-2 truncate group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors tracking-tight">
           {product.title}
         </h3>
-        <div className="flex items-center justify-center gap-3">
-          <span className="text-sm font-black text-purple-600 dark:text-purple-400">
+        <div className="flex items-center justify-center gap-2 sm:gap-3">
+          <span className="text-xs sm:text-sm font-black text-purple-600 dark:text-purple-400">
             {product.price}
           </span>
           {product.oldPrice && (

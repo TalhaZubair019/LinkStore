@@ -57,7 +57,10 @@ const transporter = {
     }
 
     const result = await response.json();
-    console.log("Email sent via Brevo:", result.messageId);
+    console.log(
+      `[Mailer] Email sent via Brevo to ${options.to}:`,
+      result.messageId,
+    );
     return result;
   },
 };

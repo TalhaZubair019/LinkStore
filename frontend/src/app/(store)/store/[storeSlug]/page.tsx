@@ -158,16 +158,31 @@ export default function VendorStorePage() {
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
-      const parsePrice = (price: any) =>
-        typeof price === "string"
-          ? parseFloat(price.replace(/[^0-9.]/g, ""))
-          : price || 0;
-      if (sortBy === "price-asc")
-        return parsePrice(a.price) - parsePrice(b.price);
-      if (sortBy === "price-desc")
-        return parsePrice(b.price) - parsePrice(a.price);
-      if (sortBy === "newest") return (b.id || 0) - (a.id || 0);
-      return 0;
+      const parsePrice = (price: any) => {
+        if (typeof price === "number") return price;
+        if (typeof price !== "string") return 0;
+        const parsed = parseFloat(price.replace(/[^0-9.]/g, ""));
+        return isNaN(parsed) ? 0 : parsed;
+      };
+
+      if (sortBy === "price-asc") {
+        const diff = parsePrice(a.price) - parsePrice(b.price);
+        if (diff !== 0) return diff;
+      }
+      if (sortBy === "price-desc") {
+        const diff = parsePrice(b.price) - parsePrice(a.price);
+        if (diff !== 0) return diff;
+      }
+      if (sortBy === "newest") {
+        const diff = (b.id || 0) - (a.id || 0);
+        if (diff !== 0) return diff;
+      }
+      if (sortBy === "oldest") {
+        const diff = (a.id || 0) - (b.id || 0);
+        if (diff !== 0) return diff;
+      }
+      // Stable sort fallback
+      return String(a.id).localeCompare(String(b.id));
     });
 
   if (loading) {
@@ -315,6 +330,7 @@ export default function VendorStorePage() {
                     className="appearance-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-6 py-2.5 pr-10 rounded-xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white"
                   >
                     <option value="newest">Sorted By Latest</option>
+                    <option value="oldest">Sorted By Oldest</option>
                     <option value="price-asc">Price: Low To High</option>
                     <option value="price-desc">Price: High - Low</option>
                   </select>
@@ -362,47 +378,30 @@ export default function VendorStorePage() {
                   ))}
                 </ul>
               </div>
-              <div className="grow">
-                <AnimatePresence mode="wait">
+                <div className="grow">
                   {filteredProducts.length > 0 ? (
-                    <motion.div
-                      variants={containerVariants}
-                      initial="hidden"
-                      animate="show"
-                      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
-                    >
+                    <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
                       {filteredProducts.map((product) => (
-                        <motion.div
-                          key={product.id}
-                          variants={itemVariants}
-                          layoutId={product.id.toString()}
-                        >
-                          <div className="h-full flex flex-col">
-                            <SimpleProductCard
-                              product={product}
-                              isWishlisted={wishlistItems.some(
-                                (item) => item.id === product.id,
-                              )}
-                              isInCart={cartItems.some(
-                                (item: any) => item.id === product.id,
-                              )}
-                              onAddToCart={(p: any) => handleAddToCart(p)}
-                              onToggleWishlist={() =>
-                                handleToggleWishlist(product)
-                              }
-                              onQuickView={() => setQuickViewProduct(product)}
-                            />
-                          </div>
-                        </motion.div>
+                        <div key={product.id} className="h-full">
+                          <SimpleProductCard
+                            product={product}
+                            isWishlisted={wishlistItems.some(
+                              (item) => item.id === product.id,
+                            )}
+                            isInCart={cartItems.some(
+                              (item: any) => item.id === product.id,
+                            )}
+                            onAddToCart={(p: any) => handleAddToCart(p)}
+                            onToggleWishlist={() =>
+                              handleToggleWishlist(product)
+                            }
+                            onQuickView={() => setQuickViewProduct(product)}
+                          />
+                        </div>
                       ))}
-                    </motion.div>
+                    </div>
                   ) : (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="py-24 text-center bg-white dark:bg-zinc-900 rounded-4xl border border-slate-200 dark:border-white/10"
-                    >
+                    <div className="py-24 text-center bg-white dark:bg-zinc-900 rounded-4xl border border-slate-200 dark:border-white/10">
                       <Search
                         size={40}
                         className="mx-auto mb-4 text-slate-300 dark:text-zinc-700"
@@ -422,10 +421,9 @@ export default function VendorStorePage() {
                       >
                         Clear Filters
                       </button>
-                    </motion.div>
+                    </div>
                   )}
-                </AnimatePresence>
-              </div>
+                </div>
             </div>
           </div>
         </div>

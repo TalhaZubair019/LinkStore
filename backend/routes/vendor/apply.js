@@ -1,6 +1,6 @@
 const express = require("express");
 const { connectDB } = require("../../lib/db");
-const { UserModel } = require("../../lib/models");
+const { UserModel, AdminModel } = require("../../lib/models");
 const { requireAuth } = require("../../middleware/auth");
 const { logActivity } = require("../../lib/activityLog");
 const { transporter } = require("../../lib/mailer");
@@ -57,7 +57,8 @@ router.post("/", requireAuth, async (req, res) => {
     });
 
     try {
-      const adminEmail = process.env.EMAIL_USER;
+      const admins = await AdminModel.find({ adminRole: "super_admin" }).lean();
+      const adminEmails = admins.length > 0 ? admins.map(a => a.email) : [process.env.EMAIL_USER];
       const appHtml = `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
           <h2 style="color: #8B5CF6;">New Vendor Application</h2>
@@ -75,8 +76,8 @@ router.post("/", requireAuth, async (req, res) => {
       `;
 
       await transporter.sendMail({
-        from: `"LinkStore Marketplace" <${process.env.EMAIL_USER}>`,
-        to: adminEmail,
+        from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+        to: adminEmails,
         subject: `🔔 New Vendor Application: ${storeName}`,
         html: appHtml,
       });

@@ -77,6 +77,38 @@ router.patch("/:id", requireVendor, async (req, res) => {
         .json({ message: "Product not found or unauthorized" });
 
     const { vendorId, ...safeUpdateData } = req.body;
+    const warehouseInventory = safeUpdateData.warehouseInventory;
+
+    // Capacity Check
+    if (Array.isArray(warehouseInventory)) {
+      for (const wInv of warehouseInventory) {
+        if (!wInv.warehouseName) continue;
+
+        const warehouse = await WarehouseModel.findOne({ 
+          name: wInv.warehouseName, 
+          vendorId: req.user.id 
+        });
+
+        if (warehouse && warehouse.capacity > 0) {
+          const usageAgg = await ProductModel.aggregate([
+            { $match: { vendorId: req.user.id, id: { $ne: Number(req.params.id) } } },
+            { $unwind: "$warehouseInventory" },
+            { $match: { "warehouseInventory.warehouseName": wInv.warehouseName } },
+            { $group: { _id: null, totalUsage: { $sum: "$warehouseInventory.quantity" } } }
+          ]);
+
+          const otherProductsUsage = usageAgg[0]?.totalUsage || 0;
+          const newUsageForThisProduct = Number(wInv.quantity) || 0;
+          const totalProjected = otherProductsUsage + newUsageForThisProduct;
+
+          if (totalProjected > warehouse.capacity) {
+            return res.status(400).json({ 
+              message: `Warehouse "${wInv.warehouseName}" capacity exceeded! Projected usage: ${totalProjected}/${warehouse.capacity}.` 
+            });
+          }
+        }
+      }
+    }
 
     const updated = await ProductModel.findOneAndUpdate(
       { id: Number(req.params.id), vendorId: req.user.id },
@@ -163,6 +195,38 @@ router.patch("/:id/inventory", requireVendor, async (req, res) => {
       (acc, curr) => acc + (curr.quantity || 0),
       0,
     );
+
+    // Capacity Check
+    if (Array.isArray(warehouseInventory)) {
+      for (const wInv of warehouseInventory) {
+        if (!wInv.warehouseName) continue;
+
+        const warehouse = await WarehouseModel.findOne({ 
+          name: wInv.warehouseName, 
+          vendorId: req.user.id 
+        });
+
+        if (warehouse && warehouse.capacity > 0) {
+          // Calculate usage from OTHER products
+          const usageAgg = await ProductModel.aggregate([
+            { $match: { vendorId: req.user.id, id: { $ne: Number(req.params.id) } } },
+            { $unwind: "$warehouseInventory" },
+            { $match: { "warehouseInventory.warehouseName": wInv.warehouseName } },
+            { $group: { _id: null, totalUsage: { $sum: "$warehouseInventory.quantity" } } }
+          ]);
+
+          const otherProductsUsage = usageAgg[0]?.totalUsage || 0;
+          const newUsageForThisProduct = Number(wInv.quantity) || 0;
+          const totalProjected = otherProductsUsage + newUsageForThisProduct;
+
+          if (totalProjected > warehouse.capacity) {
+            return res.status(400).json({ 
+              message: `Warehouse "${wInv.warehouseName}" capacity exceeded! Projected usage: ${totalProjected}/${warehouse.capacity}.` 
+            });
+          }
+        }
+      }
+    }
 
     const updated = await ProductModel.findOneAndUpdate(
       { id: Number(req.params.id), vendorId: req.user.id },

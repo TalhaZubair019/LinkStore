@@ -172,8 +172,26 @@ router.post("/bulk-assign", requireVendor, async (req, res) => {
     const { warehouseName, location, products } = req.body;
     const vendorId = req.user.id;
 
-    if (!warehouseName || !location || !Array.isArray(products)) {
-      return res.status(400).json({ message: "Invalid payload" });
+    const warehouse = await WarehouseModel.findOne({ name: warehouseName, vendorId });
+    if (!warehouse) {
+      return res.status(404).json({ message: "Warehouse not found" });
+    }
+
+    if (warehouse.capacity > 0) {
+      const usageAgg = await ProductModel.aggregate([
+        { $match: { vendorId: vendorId } },
+        { $unwind: "$warehouseInventory" },
+        { $match: { "warehouseInventory.warehouseName": warehouseName } },
+        { $group: { _id: null, totalUsage: { $sum: "$warehouseInventory.quantity" } } }
+      ]);
+      const currentUsage = usageAgg[0]?.totalUsage || 0;
+      const newItemsQty = products.reduce((acc, p) => acc + (Number(p.quantity) || 0), 0);
+
+      if (currentUsage + newItemsQty > warehouse.capacity) {
+        return res.status(400).json({ 
+          message: `Warehouse capacity exceeded! Current usage: ${currentUsage}/${warehouse.capacity}, adding ${newItemsQty} units would exceed limit.` 
+        });
+      }
     }
 
     let updatedCount = 0;

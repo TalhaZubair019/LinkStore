@@ -115,9 +115,15 @@ export default function WarehouseAssignModal({
       <div className="relative bg-white dark:bg-slate-900 rounded-3xl w-full max-w-3xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200 border border-white dark:border-slate-800 transition-colors">
         <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/30 transition-colors">
           <div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-white transition-colors">
-              Assign Products to {warehouseName}
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-white transition-colors">
+                Assign Products to {warehouseName}
+              </h2>
+              {/* Usage Badge */}
+              <div className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                Capacity Check Enabled
+              </div>
+            </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide flex items-center gap-1.5 mt-0.5 transition-colors">
               <span className="w-1.5 h-1.5 rounded-full bg-purple-500 transition-colors" />{" "}
               {location}

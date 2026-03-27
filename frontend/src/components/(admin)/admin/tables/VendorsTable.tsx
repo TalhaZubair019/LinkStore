@@ -54,7 +54,6 @@ const VendorsTable = ({
             <tr>
               <th className="px-8 py-5">Vendor / Store</th>
               <th className="px-8 py-5">Contact</th>
-              <th className="px-8 py-5">Commission</th>
               <th className="px-8 py-5">Applied Date</th>
               <th className="px-8 py-5 text-right">Actions</th>
             </tr>
@@ -62,7 +61,7 @@ const VendorsTable = ({
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {vendors.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-8 py-20 text-center">
+                <td colSpan={4} className="px-8 py-20 text-center">
                   <div className="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
                     <Store size={48} className="mb-4 opacity-20" />
                     <p className="text-lg font-medium italic">No {viewMode} vendors found.</p>
@@ -100,14 +99,6 @@ const VendorsTable = ({
                     </div>
                   </td>
                   <td className="px-8 py-5">
-                    <div className="flex flex-col">
-                      <span className={`text-sm font-bold ${v.vendorProfile?.outstandingCommission ? 'text-rose-500' : 'text-emerald-500'}`}>
-                        ${(v.vendorProfile?.outstandingCommission || 0).toLocaleString()}
-                      </span>
-                      <span className="text-[10px] text-slate-400 uppercase font-bold tracking-tighter">Outstanding</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5">
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                       <Calendar size={14} />
                       <span>{v.createdAt ? new Date(v.createdAt).toLocaleDateString() : 'N/A'}</span>
@@ -134,19 +125,6 @@ const VendorsTable = ({
                         </>
                       ) : (
                         <div className="flex items-center gap-2">
-                          {viewMode === "active" && (v.vendorProfile?.outstandingCommission || 0) > 0 && (
-                            <button
-                              onClick={() => {
-                                if (window.confirm(`Clear debt of $${v.vendorProfile?.outstandingCommission} for ${v.vendorProfile?.storeName}?`)) {
-                                  onClearDebt?.(v.id);
-                                }
-                              }}
-                              disabled={isLoading}
-                              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50"
-                            >
-                              <ShieldCheck size={16} /> Clear Debt
-                            </button>
-                          )}
                           {viewMode === "active" && (
                             <button
                               onClick={() => setSuspendConfirm(v)}
@@ -210,12 +188,6 @@ const VendorsTable = ({
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col items-end">
-                  <span className={`text-sm font-bold ${v.vendorProfile?.outstandingCommission ? 'text-rose-500' : 'text-emerald-500'}`}>
-                    ${(v.vendorProfile?.outstandingCommission || 0).toLocaleString()}
-                  </span>
-                  <span className="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">Outstanding</span>
-                </div>
               </div>
 
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
@@ -249,19 +221,6 @@ const VendorsTable = ({
                   </>
                 ) : (
                   <div className="flex flex-wrap items-center gap-2 w-full">
-                    {viewMode === "active" && (v.vendorProfile?.outstandingCommission || 0) > 0 && (
-                      <button
-                        onClick={() => {
-                          if (window.confirm(`Clear debt of $${v.vendorProfile?.outstandingCommission} for ${v.vendorProfile?.storeName}?`)) {
-                            onClearDebt?.(v.id);
-                          }
-                        }}
-                        disabled={isLoading}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50"
-                      >
-                        <ShieldCheck size={14} /> Clear Debt
-                      </button>
-                    )}
                     {viewMode === "active" && (
                       <button
                         onClick={() => setSuspendConfirm(v)}

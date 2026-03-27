@@ -67,7 +67,10 @@ router.post("/notify-admin", requireVendor, async (req, res) => {
     const vendor = await VendorModel.findOne({ id: vendorId }).lean();
     if (!vendor) return res.status(404).json({ message: "Vendor not found" });
 
-    const adminEmail = process.env.EMAIL_USER;
+    const { AdminModel } = require("../../lib/models");
+    const admins = await AdminModel.find({ adminRole: "super_admin" }).lean();
+    const adminEmails = admins.length > 0 ? admins.map(a => a.email) : [process.env.EMAIL_USER];
+
     const paymentHtml = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px;">
         <h2 style="color: #6366f1;">Commission Payment Notification</h2>
@@ -86,8 +89,8 @@ router.post("/notify-admin", requireVendor, async (req, res) => {
     `;
 
     await transporter.sendMail({
-      from: `"LinkStore Billing" <${process.env.EMAIL_USER}>`,
-      to: adminEmail,
+      from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+      to: adminEmails,
       subject: `💰 Commission Payment Alert: ${vendor.vendorProfile.storeName}`,
       html: paymentHtml,
     });

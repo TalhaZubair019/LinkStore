@@ -14,7 +14,7 @@ const BANNERS = [
     subtitle:
       "Precision engineering meets unparalleled performance in our latest collection.",
     buttonText: "Experience Now",
-    color: "from-blue-600 to-indigo-950",
+    color: "from-purple-600 to-indigo-950",
   },
   {
     id: 2,
@@ -64,7 +64,7 @@ export default function MarketplaceHero() {
     setCurrentSlide((prev) => (prev - 1 + BANNERS.length) % BANNERS.length);
 
   return (
-    <section className="relative w-full bg-white dark:bg-slate-950 pt-20 pb-8 transition-colors duration-300">
+    <section className="relative w-full bg-white dark:bg-slate-950 pt-32 pb-8 transition-colors duration-300">
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="relative h-[300px] md:h-[450px] lg:h-[500px] w-full rounded-2xl overflow-hidden shadow-2xl group">
           <AnimatePresence mode="wait">
@@ -101,7 +101,7 @@ export default function MarketplaceHero() {
                     {BANNERS[currentSlide].subtitle}
                   </p>
                   <div className="flex gap-6">
-                    <button className="group bg-blue-600 text-white hover:bg-blue-500 px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-all transform hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-3">
+                    <button className="group bg-purple-600 text-white hover:bg-purple-500 px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] transition-all transform hover:scale-105 active:scale-95 shadow-2xl flex items-center gap-3">
                       {BANNERS[currentSlide].buttonText}{" "}
                       <ArrowRight
                         size={16}
@@ -139,7 +139,7 @@ export default function MarketplaceHero() {
                 onClick={() => setCurrentSlide(idx)}
                 className={`h-1.5 rounded-full transition-all duration-700 ${
                   currentSlide === idx
-                    ? "bg-blue-500 w-12"
+                    ? "bg-purple-500 w-12"
                     : "bg-white/30 w-4 hover:bg-white/50"
                 }`}
               />

@@ -90,25 +90,39 @@ export default function ShopPage() {
 
   const sortedProducts = useMemo(() => {
     let prods = [...products];
+    const parsePrice = (price: any) => {
+      if (typeof price === "number") return price;
+      if (typeof price !== "string") return 0;
+      const parsed = parseFloat(price.replace(/[^0-9.]/g, ""));
+      return isNaN(parsed) ? 0 : parsed;
+    };
+
     switch (sortBy) {
       case "Sort By Price: Low To High":
         return prods.sort((a, b) => {
-          const priceA = parseFloat(String(a.price).replace(/[^0-9.]/g, ""));
-          const priceB = parseFloat(String(b.price).replace(/[^0-9.]/g, ""));
-          return priceA - priceB;
+          const diff = parsePrice(a.price) - parsePrice(b.price);
+          return diff !== 0 ? diff : String(a.id).localeCompare(String(b.id));
         });
       case "Sort By Price: High To Low":
         return prods.sort((a, b) => {
-          const priceA = parseFloat(String(a.price).replace(/[^0-9.]/g, ""));
-          const priceB = parseFloat(String(b.price).replace(/[^0-9.]/g, ""));
-          return priceB - priceA;
+          const diff = parsePrice(b.price) - parsePrice(a.price);
+          return diff !== 0 ? diff : String(a.id).localeCompare(String(b.id));
+        });
+      case "Sort By Oldest":
+        return prods.sort((a: any, b: any) => {
+          const diff = (a.id || 0) - (b.id || 0);
+          return diff !== 0 ? diff : String(a.id).localeCompare(String(b.id));
         });
       case "Sort By Latest":
-        return prods.sort((a: any, b: any) => (b.id || 0) - (a.id || 0));
+        return prods.sort((a: any, b: any) => {
+          const diff = (b.id || 0) - (a.id || 0);
+          return diff !== 0 ? diff : String(a.id).localeCompare(String(b.id));
+        });
       case "Sort By Popularity":
-        return prods.sort(
-          (a: any, b: any) => (b.salesCount || 0) - (a.salesCount || 0),
-        );
+        return prods.sort((a: any, b: any) => {
+          const diff = (b.salesCount || 0) - (a.salesCount || 0);
+          return diff !== 0 ? diff : String(a.id).localeCompare(String(b.id));
+        });
       default:
         return prods;
     }
@@ -239,6 +253,7 @@ export default function ShopPage() {
                     "Default Sorting",
                     "Sort By Popularity",
                     "Sort By Latest",
+                    "Sort By Oldest",
                     "Sort By Price: Low To High",
                     "Sort By Price: High To Low",
                   ].map((opt) => (
@@ -265,7 +280,7 @@ export default function ShopPage() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-8">
                   {currentProducts.map((product: any) => (
                     <SimpleProductCard
                       key={product.id}

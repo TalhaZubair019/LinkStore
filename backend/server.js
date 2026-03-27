@@ -32,6 +32,7 @@ cron.schedule("0 * * * *", async () => {
         ).toFixed(2);
 
         await transporter.sendMail({
+          from: `"LinkStore" <${process.env.EMAIL_USER}>`,
           to: email,
           subject: "Action Required: Your Hourly COD Commission Invoice",
           html: `

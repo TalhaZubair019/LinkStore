@@ -129,7 +129,7 @@ router.post("/place-order", async (req, res) => {
 
           transporter
             .sendMail({
-              from: `"LinkStore Alerts" <${process.env.EMAIL_USER}>`,
+              from: `"LinkStore" <${process.env.EMAIL_USER}>`,
               to: recipientEmail,
               subject: `⚠️ Low Stock Alert: ${product.title}`,
               html: alertHtml,
@@ -409,7 +409,7 @@ router.post("/place-order", async (req, res) => {
           if (vendor && vendor.email) {
             transporter
               .sendMail({
-                from: `"LinkStore Marketplace" <${process.env.EMAIL_USER}>`,
+                from: `"LinkStore" <${process.env.EMAIL_USER}>`,
                 to: vendor.email,
                 subject: `New Order #${orderId} - Fulfill Items`,
                 html: generateEmailHtml(vendorItems, true),

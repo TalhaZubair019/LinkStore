@@ -12,7 +12,8 @@ router.get("/", async (req, res) => {
     if (section === "products") {
       await connectDB();
       const { OrderModel } = require("../../lib/models");
-      const { search, category, minPrice, maxPrice, vendorId } = req.query;
+      const { search, category, minPrice, maxPrice, vendorId, sort } =
+        req.query;
       const query = { isApproved: true };
 
       if (search) {
@@ -29,8 +30,24 @@ router.get("/", async (req, res) => {
       if (vendorId) {
         query.vendorId = vendorId;
       }
+
+      let sortQuery = { id: -1 };
+      if (
+        sort === "Sort By Oldest" ||
+        sort === "oldest" ||
+        sort === "Oldest First"
+      ) {
+        sortQuery = { id: 1 };
+      } else if (
+        sort === "Sort By Latest" ||
+        sort === "newest" ||
+        sort === "Newest First"
+      ) {
+        sortQuery = { id: -1 };
+      }
+
       const [shopProducts, orders] = await Promise.all([
-        ProductModel.find(query).sort({ id: -1 }).lean(),
+        ProductModel.find(query).sort(sortQuery).lean(),
         OrderModel.find({}).lean(),
       ]);
       let filteredProducts = shopProducts;
