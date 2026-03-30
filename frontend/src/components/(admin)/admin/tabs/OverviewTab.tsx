@@ -103,14 +103,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         {!isAdminView && (
           <>
             <FinancialStatCard
-              title="Platform Commission"
-              amount={
-                stats.totalPlatformCommission ??
-                stats.totalRevenue - (stats.totalEarnings ?? 0)
-              }
-              subtitle="Gross Revenue"
-              subAmount={stats.totalRevenue}
+              title="Pending Commission"
+              amount={stats.outstandingCommission ?? 0}
+              subtitle="Paid"
+              subAmount={stats.totalCommissionPaid ?? 0}
               type="commission"
+              extraStats={[
+                { label: "Revenue", amount: stats.totalRevenue },
+              ]}
             />
           </>
         )}

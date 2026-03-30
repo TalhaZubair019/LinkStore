@@ -70,6 +70,8 @@ router.get("/", requireVendor, async (req, res) => {
         0,
       );
 
+    const totalPlatformCommission = Math.max(0, totalRevenue - totalEarnings);
+
     const grossRevenue = vendorOrders.reduce(
       (acc, o) => acc + (o.vendorTotal || 0),
       0,
@@ -321,6 +323,7 @@ router.get("/", requireVendor, async (req, res) => {
       cancelledOrders: vendorOrders.filter((o) => o.status === "Cancelled").length,
       totalRevenue,
       totalEarnings: Math.round(totalEarnings * 100) / 100,
+      totalPlatformCommission: Math.round(totalPlatformCommission * 100) / 100,
       grossRevenue,
       cancelledRevenue,
       averageOrderValue,

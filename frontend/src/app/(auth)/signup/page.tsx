@@ -14,8 +14,11 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "@/redux/slices/authSlice";
+import { initializeCart } from "@/redux/slices/cartSlice";
+import { initializeWishlist } from "@/redux/slices/wishlistSlice";
+import { GoogleLogin } from "@react-oauth/google";
 import { motion } from "framer-motion";
 
 export default function SignupPage() {
@@ -38,6 +41,7 @@ export default function SignupPage() {
   const router = useRouter();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
+  const { cartItems: localCartItems } = useSelector((state: any) => state.cart);
   const redirect = searchParams.get("redirect");
   const urlEmail = searchParams.get("email");
   const isNotVerified = searchParams.get("notVerified") === "true";
@@ -184,6 +188,76 @@ export default function SignupPage() {
     }
   };
 
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken: credentialResponse.credential }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Google signup failed");
+
+      if (data.user.wishlist && Array.isArray(data.user.wishlist)) {
+        dispatch(initializeWishlist(data.user.wishlist));
+      } else {
+        dispatch(initializeWishlist([]));
+      }
+
+      let mergedCart = [...(data.user.cart || [])];
+      localCartItems.forEach((localItem: any) => {
+        const existingItemIndex = mergedCart.findIndex(
+          (item: any) => item.id === localItem.id,
+        );
+        if (existingItemIndex > -1) {
+          mergedCart[existingItemIndex] = {
+            ...mergedCart[existingItemIndex],
+            quantity:
+              mergedCart[existingItemIndex].quantity + localItem.quantity,
+          };
+        } else {
+          mergedCart.push(localItem);
+        }
+      });
+
+      const totalQty = mergedCart.reduce(
+        (acc: number, item: any) => acc + (item.quantity || 1),
+        0,
+      );
+      const totalAmt = mergedCart.reduce(
+        (acc: number, item: any) => acc + item.price * (item.quantity || 1),
+        0,
+      );
+
+      dispatch(
+        initializeCart({
+          cartItems: mergedCart,
+          totalQuantity: totalQty,
+          totalAmount: totalAmt,
+        }),
+      );
+
+      dispatch(loginSuccess({ user: data.user, token: data.token }));
+
+      if (redirect) {
+        router.push(redirect);
+      } else if (data.user.isAdmin) {
+        router.push("/admin/dashboard");
+      } else if (data.user.isVendor && data.user.vendorProfile?.status === "suspended") {
+        router.push("/vendor/suspended");
+      } else {
+        router.push("/");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen bg-white dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-200 transition-colors">
       <PageHeader
@@ -209,13 +283,13 @@ export default function SignupPage() {
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                     className="w-20 h-20 bg-linear-to-tr from-purple-600 to-indigo-600 text-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-purple-200 dark:shadow-purple-900/40 relative group cursor-pointer"
-                    onClick={() => {
-                      setIsVerifying(false);
-                      setOtp("");
-                      setTimeLeft(60);
-                      setIsExpired(false);
-                      setError("");
-                    }}
+                      onClick={() => {
+                        setIsVerifying(false);
+                        setOtp("");
+                        setTimeLeft(60);
+                        setIsExpired(false);
+                        setError("");
+                      }}
                   >
                     <div className="absolute inset-0 bg-white rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
                     <KeyRound size={36} className="relative z-10" />
@@ -363,8 +437,8 @@ export default function SignupPage() {
                       <button
                         type="button"
                         onClick={handleResendOTP}
-                        disabled={resendLoading || !isExpired}
-                        className="group flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors disabled:opacity-50"
+                        disabled={resendLoading || timeLeft > 0}
+                        className="group flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {resendLoading ? (
                           <RefreshCw className="animate-spin h-4 w-4" />
@@ -507,7 +581,22 @@ export default function SignupPage() {
                     </div>
                   </div>
 
-                  <div className="pt-4">
+                  <div className="pt-4 flex flex-col items-center gap-4">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => setError("Google Sign-In failed")}
+                      useOneTap
+                      theme="filled_blue"
+                      shape="rectangular"
+                      width="100%"
+                    />
+                    
+                    <div className="relative w-full flex items-center gap-4 my-2">
+                      <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Or create account with email</span>
+                      <div className="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
+                    </div>
+
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}

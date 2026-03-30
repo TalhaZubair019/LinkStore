@@ -1,6 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { connectDB } = require("../../lib/db");
 const { UserModel, AdminModel, VendorModel } = require("../../lib/models");
 const {
@@ -437,7 +439,7 @@ router.post("/resend-otp", async (req, res) => {
               <span style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #7c3aed; font-family: monospace;">${otp}</span>
             </div>
             
-            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 32px;">This code will expire in 60 seconds.</p>
+            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 32px;">This code will expire in 1 minute for your security.</p>
           </div>
           <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 32px 0;" />
           <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">&copy; ${new Date().getFullYear()} LinkStore Marketplace. All rights reserved.</p>
@@ -451,5 +453,86 @@ router.post("/resend-otp", async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
-
-module.exports = router;
+ 
+ router.post("/google", async (req, res) => {
+   try {
+     const { idToken } = req.body;
+     const ticket = await client.verifyIdToken({
+       idToken,
+       audience: process.env.GOOGLE_CLIENT_ID,
+     });
+     const payload = ticket.getPayload();
+     const { email, name, sub: googleId } = payload;
+ 
+     await connectDB();
+ 
+     const [adminUser, regularUser, vendorUser] = await Promise.all([
+       AdminModel.findOne({ email }).lean(),
+       UserModel.findOne({ email }).lean(),
+       VendorModel.findOne({ email }).lean(),
+     ]);
+ 
+     let user = adminUser || vendorUser || regularUser;
+     let isNewUser = false;
+ 
+     if (!user) {
+       const dummyPassword = await bcrypt.hash(
+         Math.random().toString(36).slice(-10),
+         10,
+       );
+       user = await UserModel.create({
+         id: Date.now().toString(),
+         name,
+         email,
+         password: dummyPassword,
+         cart: [],
+         wishlist: [],
+         savedCards: [],
+         isVerified: true,
+       });
+       user = user.toObject();
+       isNewUser = true;
+     }
+ 
+     const isAdmin = !!adminUser || user.email === ADMIN_EMAIL;
+     const isVendor = !!vendorUser;
+     const adminRole = adminUser
+       ? user.email === ADMIN_EMAIL
+         ? "super_admin"
+         : "admin"
+       : null;
+ 
+     const token = jwt.sign(
+       {
+         id: user.id,
+         email: user.email,
+         name: user.name,
+         isAdmin,
+         isVendor,
+         adminRole,
+       },
+       JWT_SECRET,
+       { expiresIn: "7d" },
+     );
+ 
+     res.cookie("token", token, {
+       httpOnly: true,
+       path: "/",
+       secure: process.env.NODE_ENV === "production",
+       maxAge: 7 * 24 * 3600 * 1000,
+       sameSite: "lax",
+     });
+ 
+     const { password: _, ...userWithoutPassword } = user;
+     return res.json({
+       token,
+       user: { ...userWithoutPassword, isAdmin, isVendor, adminRole },
+       isNewUser,
+     });
+   } catch (error) {
+     console.error("Google auth error:", error);
+     return res.status(500).json({ message: "Google authentication failed" });
+   }
+ });
+ 
+ module.exports = router;

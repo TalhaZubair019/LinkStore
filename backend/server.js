@@ -6,7 +6,7 @@ const cookieParser = require("cookie-parser");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, ".env") });
 
 process.on("uncaughtException", (err) => {
   console.error("FATAL: Uncaught Exception:", err);

@@ -1,12 +1,19 @@
 import React from "react";
 import { DollarSign, PieChart, TrendingUp } from "lucide-react";
 
+export interface ExtraStat {
+  label: string;
+  amount: number;
+  icon?: React.ReactNode;
+}
+
 interface FinancialStatCardProps {
   title: string;
   amount: number;
-  subtitle: string;
-  subAmount: number;
+  subtitle?: string;
+  subAmount?: number;
   type: "commission" | "earnings";
+  extraStats?: ExtraStat[];
 }
 
 const FinancialStatCard = ({
@@ -15,6 +22,7 @@ const FinancialStatCard = ({
   subtitle,
   subAmount,
   type,
+  extraStats = [],
 }: FinancialStatCardProps) => {
   const isCommission = type === "commission";
   const gradientClass = isCommission 
@@ -48,25 +56,63 @@ const FinancialStatCard = ({
         
         <div className="relative z-10 my-4 border-t border-slate-100 dark:border-slate-800" />
         
-        <div className="relative z-10 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 flex-1 text-nowrap">
-            <div className={`shrink-0 p-1.5 rounded-lg ${isCommission ? "bg-emerald-50 dark:bg-emerald-500/10" : "bg-blue-50 dark:bg-blue-500/10"}`}>
-              <TrendingUp size={15} className={isCommission ? "text-emerald-500" : "text-blue-500"} />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5">
-                {subtitle}
-              </p>
-              <p className="text-lg font-black text-slate-700 dark:text-slate-200 leading-none transition-colors">
-                ${subAmount.toLocaleString()}
-              </p>
-            </div>
+        <div className="relative z-10 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-1">
+            {(subtitle !== undefined && subAmount !== undefined) && (
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className={`shrink-0 p-1.5 rounded-lg ${isCommission ? "bg-emerald-50 dark:bg-emerald-500/10" : "bg-blue-50 dark:bg-blue-500/10"}`}>
+                  <TrendingUp size={15} className={isCommission ? "text-emerald-500" : "text-blue-500"} />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5 truncate">
+                    {subtitle}
+                  </p>
+                  <p className="text-lg font-black text-slate-700 dark:text-slate-200 leading-none transition-colors">
+                    ${subAmount.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {(subtitle !== undefined && extraStats.length > 0) && (
+              <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 shrink-0" />
+            )}
+
+            {extraStats.map((stat, idx) => (
+              <React.Fragment key={idx}>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className={`shrink-0 p-1.5 rounded-lg ${isCommission ? "bg-emerald-50 dark:bg-emerald-500/10" : "bg-blue-50 dark:bg-blue-500/10"}`}>
+                    {stat.icon || <TrendingUp size={14} className={isCommission ? "text-emerald-500" : "text-blue-500"} />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-none mb-0.5 truncate">
+                      {stat.label}
+                    </p>
+                    <p className="text-lg font-black text-slate-700 dark:text-slate-200 leading-none">
+                      ${stat.amount.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+                {idx < extraStats.length - 1 && (
+                  <div className="w-px h-8 bg-slate-100 dark:bg-slate-800 shrink-0" />
+                )}
+              </React.Fragment>
+            ))}
           </div>
+
           <div className="shrink-0 text-right">
             <span className={`inline-block text-[10px] font-bold px-2.5 py-1 rounded-full ${isCommission ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"}`}>
-              {isCommission ? "10% Platform Cut" : "90% Net Earnings"}
+              {isCommission ? "10% Cut" : "90% Earnings"}
             </span>
           </div>
+        </div>
+
+        {/* Decorative Bottom Bar */}
+        <div className="relative z-10 mt-4 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div
+            className={`h-full bg-linear-to-r ${isCommission ? "from-emerald-500 to-teal-600" : "from-blue-600 to-indigo-700"} rounded-full transition-all duration-1000 ease-out group-hover:brightness-110`}
+            style={{ width: "100%" }}
+          />
         </div>
       </div>
     </div>

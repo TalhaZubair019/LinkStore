@@ -70,6 +70,7 @@ export interface DashboardStats {
   netRevenue?: number;
   totalEarnings?: number;
   outstandingCommission?: number;
+  totalCommissionPaid?: number;
   categoryPerformance?: {
     topSeller: { label: string; value: number };
     mostPopular: { label: string; value: number };

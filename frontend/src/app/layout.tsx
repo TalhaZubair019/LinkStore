@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AuthInitializer from "@/components/(auth)/auth/AuthInitializer";
 import ScrollToTop from "@/components/layout/ScrollToTop";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,18 +28,20 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <ReduxProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <AuthInitializer />
-            <ScrollToTop />
-            <Navbar />
-            {children}
-            <Footer />
-          </ThemeProvider>
+          <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <AuthInitializer />
+              <ScrollToTop />
+              <Navbar />
+              {children}
+              <Footer />
+            </ThemeProvider>
+          </GoogleOAuthProvider>
         </ReduxProvider>
       </body>
     </html>
