@@ -25,8 +25,8 @@ const { VendorModel } = require("./lib/models");
 const { transporter } = require("./lib/mailer");
 const { connectDB } = require("./lib/db");
 
-cron.schedule("0 * * * *", async () => {
-  console.log("Running Hourly COD Commission Billing Cron Job...");
+cron.schedule("0 0 * * *", async () => {
+  console.log("Running Daily COD Commission Billing Cron Job...");
   try {
     await connectDB();
     const vendorsWithDebt = await VendorModel.find({
@@ -43,12 +43,12 @@ cron.schedule("0 * * * *", async () => {
         await transporter.sendMail({
           from: `"LinkStore" <${process.env.EMAIL_USER}>`,
           to: email,
-          subject: "Action Required: Your Hourly COD Commission Invoice",
+          subject: "Action Required: Your Daily COD Commission Invoice",
           html: `
             <div style="font-family: sans-serif; color: #333; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-              <h2 style="color: #0f172a;">Hourly Commission Invoice</h2>
+              <h2 style="color: #0f172a;">Daily Commission Invoice</h2>
               <p>Hello <strong>${vendor.vendorProfile.storeName || vendor.name}</strong>,</p>
-              <p>This is an automated notification regarding your outstanding Cash on Delivery (COD) commissions for the past hour.</p>
+              <p>This is an automated notification regarding your outstanding Cash on Delivery (COD) commissions for the past 24 hours.</p>
               <div style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; margin: 25px 0; text-align: center;">
                 <span style="color: #64748b; font-size: 13px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.05em;">Outstanding Balance</span>
                 <h1 style="margin: 10px 0; color: #2563eb; font-size: 36px;">$${amount}</h1>
