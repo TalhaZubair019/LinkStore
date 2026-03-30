@@ -33,7 +33,7 @@ export default function SignupPage() {
   const otpInputRef = React.useRef<HTMLInputElement>(null);
   const [verifyingLoading, setVerifyingLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(300);
+  const [timeLeft, setTimeLeft] = useState(60);
   const [isExpired, setIsExpired] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -175,7 +175,7 @@ export default function SignupPage() {
 
       setSuccessMessage("A new verification code has been sent to your email.");
       setOtp("");
-      setTimeLeft(300);
+      setTimeLeft(60);
       setIsExpired(false);
     } catch (err: any) {
       setError(err.message);
@@ -212,7 +212,7 @@ export default function SignupPage() {
                     onClick={() => {
                       setIsVerifying(false);
                       setOtp("");
-                      setTimeLeft(300);
+                      setTimeLeft(60);
                       setIsExpired(false);
                       setError("");
                     }}
@@ -363,7 +363,7 @@ export default function SignupPage() {
                       <button
                         type="button"
                         onClick={handleResendOTP}
-                        disabled={resendLoading}
+                        disabled={resendLoading || !isExpired}
                         className="group flex items-center gap-2 text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors disabled:opacity-50"
                       >
                         {resendLoading ? (
@@ -383,7 +383,7 @@ export default function SignupPage() {
                         onClick={() => {
                           setIsVerifying(false);
                           setOtp("");
-                          setTimeLeft(300);
+                          setTimeLeft(60);
                           setIsExpired(false);
                           setError("");
                         }}
