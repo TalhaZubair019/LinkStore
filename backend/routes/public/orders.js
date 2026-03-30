@@ -250,12 +250,23 @@ router.post("/place-order", async (req, res) => {
       for (const [vId, vTotal] of Object.entries(vendorSums)) {
         const commission = Math.round(vTotal * 0.1 * 100) / 100;
         try {
-          await VendorModel.findOneAndUpdate(
-            { id: vId },
-            { $inc: { "vendorProfile.outstandingCommission": commission } },
-          );
+          const vendor = await VendorModel.findOne({ id: vId }).lean();
+          const update = {
+            $inc: { "vendorProfile.outstandingCommission": commission },
+          };
+
+          if (!vendor?.vendorProfile?.commissionDeadline) {
+            const deadline = new Date();
+            deadline.setHours(deadline.getHours() + 48);
+            update.$set = { "vendorProfile.commissionDeadline": deadline };
+          }
+
+          await VendorModel.findOneAndUpdate({ id: vId }, update);
         } catch (err) {
-          console.error(`[Commission] Failed to update debt for vendor ${vId}:`, err);
+          console.error(
+            `[Commission] Failed to update debt for vendor ${vId}:`,
+            err,
+          );
         }
       }
     }

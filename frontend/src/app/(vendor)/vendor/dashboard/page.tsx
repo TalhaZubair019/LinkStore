@@ -20,6 +20,38 @@ import { useVendorDashboard } from "@/hooks/vendor/useVendorDashboard";
 export default function VendorDashboard() {
   const d = useVendorDashboard();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [timeLeft, setTimeLeft] = React.useState<string>("");
+
+  React.useEffect(() => {
+    if (!d.stats?.commissionDeadline) return;
+
+    const calculateTimeLeft = () => {
+      const deadline = new Date(d.stats!.commissionDeadline!);
+      const now = new Date();
+      const difference = deadline.getTime() - now.getTime();
+
+      if (difference <= 0) {
+        setTimeLeft("overdue");
+        return;
+      }
+
+      const totalMinutes = Math.floor(difference / (1000 * 60));
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+
+      if (hours >= 24) {
+        const days = Math.floor(hours / 24);
+        const remainingHours = hours % 24;
+        setTimeLeft(`${days}d ${remainingHours}h ${minutes}m`);
+      } else {
+        setTimeLeft(`${hours}h ${minutes}m`);
+      }
+    };
+
+    calculateTimeLeft();
+    const timer = setInterval(calculateTimeLeft, 60000);
+    return () => clearInterval(timer);
+  }, [d.stats?.commissionDeadline]);
 
   React.useEffect(() => {
     if (d.user?.isVendor) {
@@ -137,17 +169,20 @@ export default function VendorDashboard() {
                         {d.stats?.outstandingCommission?.toLocaleString() ||
                           "0"}
                       </span>
-                      . Please settle this within 48 hours to avoid store
-                      suspension.
+                      . Please settle this within{" "}
+                      <span className="font-bold text-rose-600 underline decoration-rose-500/30 underline-offset-4">
+                        {timeLeft || "48 hours"}
+                      </span>{" "}
+                      to avoid store suspension.
                     </p>
                   </div>
                 </div>
                 <button
-                  disabled={d.isNotifyingPayment}
+                  disabled={d.isProcessingStripe}
                   onClick={d.handlePayNow}
                   className="px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-bold text-sm hover:scale-105 active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/10 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {d.isNotifyingPayment ? "Notifying..." : "Pay Now"}
+                  {d.isProcessingStripe ? "Redirecting..." : "Pay Now"}
                 </button>
               </div>
             </div>
@@ -276,9 +311,7 @@ export default function VendorDashboard() {
               stats={d.stats}
               isAdminView={false}
               onStripePay={d.handleStripeCommissionPayment}
-              onNotifyAdmin={d.handlePayNow}
               isProcessingStripe={d.isProcessingStripe}
-              isNotifyingAdmin={d.isNotifyingPayment}
             />
           )}
           {d.activeTab === "settings" && <SettingsTabContent user={d.user} />}

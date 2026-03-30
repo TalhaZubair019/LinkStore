@@ -89,6 +89,7 @@ const vendorSchema = new mongoose.Schema(
       totalReviews: { type: Number, default: 0 },
       outstandingCommission: { type: Number, default: 0 },
       totalCommissionPaid: { type: Number, default: 0 },
+      commissionDeadline: { type: Date, default: null },
     },
   },
   { timestamps: true },

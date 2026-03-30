@@ -27,7 +27,10 @@ router.post("/clear-commission-debt", requireSuperAdmin, async (req, res) => {
     const vendor = await VendorModel.findOneAndUpdate(
       { id: vendorId },
       {
-        $set: { "vendorProfile.outstandingCommission": 0 },
+        $set: { 
+          "vendorProfile.outstandingCommission": 0,
+          "vendorProfile.commissionDeadline": null,
+        },
         $inc: { "vendorProfile.totalCommissionPaid": amountCleared },
       },
       { new: true },

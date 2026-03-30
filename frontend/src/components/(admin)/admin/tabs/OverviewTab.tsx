@@ -101,13 +101,18 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           />
         )}
         {!isAdminView && (
-          <FinancialStatCard
-            title="Net Earnings"
-            amount={stats.totalEarnings ?? 0}
-            subtitle="Total Sales"
-            subAmount={stats.totalRevenue}
-            type="earnings"
-          />
+          <>
+            <FinancialStatCard
+              title="Platform Commission"
+              amount={
+                stats.totalPlatformCommission ??
+                stats.totalRevenue - (stats.totalEarnings ?? 0)
+              }
+              subtitle="Gross Revenue"
+              subAmount={stats.totalRevenue}
+              type="commission"
+            />
+          </>
         )}
         {isAdminView && (
           <UsersStatCard
@@ -136,23 +141,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         )}
       </div>
 
-      {isAdminView && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
-          <ReviewRatingChart
-            title="Product Rating Distribution"
-            distribution={
-              stats.productRatingDistribution || stats.ratingDistribution
-            }
-            color="yellow-400"
-          />
-          <ReviewRatingChart
-            title="Seller Rating Distribution"
-            distribution={stats.sellerRatingDistribution || {}}
-            color="purple-500"
-          />
-        </div>
-      )}
-
       {!isAdminView && (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -173,25 +161,6 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <OrderStatusChart stats={stats} />
-            <CategorySalesChart stats={stats} />
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ReviewRatingChart
-              title="Product Rating Distribution"
-              distribution={
-                stats.productRatingDistribution || stats.ratingDistribution
-              }
-              color="yellow-400"
-            />
-            <ReviewRatingChart
-              title="Seller Rating Distribution"
-              distribution={stats.sellerRatingDistribution || {}}
-              color="purple-500"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <OrderVelocityChart stats={stats} />
             <AverageOrderValueChart
               stats={stats}
               filteredAovData={filteredAovData!}
@@ -207,7 +176,22 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               aovLoading={aovLoading!}
             />
           </div>
-
+          <CategorySalesChart stats={stats} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ReviewRatingChart
+              title="Product Rating Distribution"
+              distribution={
+                stats.productRatingDistribution || stats.ratingDistribution
+              }
+              color="yellow-400"
+            />
+            <ReviewRatingChart
+              title="Seller Rating Distribution"
+              distribution={stats.sellerRatingDistribution || {}}
+              color="purple-500"
+            />
+          </div>
+          <OrderVelocityChart stats={stats} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <TopReviewedProducts stats={stats} />
             <ProductSalesChart stats={stats} />

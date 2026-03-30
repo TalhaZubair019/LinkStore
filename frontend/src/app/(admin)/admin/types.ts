@@ -108,4 +108,5 @@ export interface DashboardStats {
   pendingVendors?: number;
   statusCounts?: Record<string, number>;
   aovData?: { date: string; revenue: number; aov: number; orderCount: number }[];
+  commissionDeadline?: string | null;
 }

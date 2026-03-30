@@ -18,9 +18,7 @@ interface CommissionTabContentProps {
   isAdminView?: boolean;
   onClearDebt?: (vendorId: string) => void;
   onStripePay?: () => void;
-  onNotifyAdmin?: () => void;
   isProcessingStripe?: boolean;
-  isNotifyingAdmin?: boolean;
 }
 
 const CommissionTabContent: React.FC<CommissionTabContentProps> = ({
@@ -28,9 +26,7 @@ const CommissionTabContent: React.FC<CommissionTabContentProps> = ({
   isAdminView = false,
   onClearDebt,
   onStripePay,
-  onNotifyAdmin,
   isProcessingStripe = false,
-  isNotifyingAdmin = false,
 }) => {
   if (isAdminView) {
     const commissionStats = stats?.commissionStats || [];
@@ -158,16 +154,6 @@ const CommissionTabContent: React.FC<CommissionTabContentProps> = ({
                 >
                   {isProcessingStripe ? <Loader2 className="animate-spin" size={18} /> : <CreditCard size={18} />}
                   Pay with Card
-                </button>
-              )}
-              {outstanding > 0 && onNotifyAdmin && (
-                <button
-                  onClick={onNotifyAdmin}
-                  disabled={isNotifyingAdmin}
-                  className="px-6 py-3 bg-rose-600/20 text-white border border-rose-400/30 rounded-xl font-bold text-sm hover:bg-rose-600/40 transition-all flex items-center gap-2 disabled:opacity-50"
-                >
-                  {isNotifyingAdmin ? <Loader2 className="animate-spin" size={18} /> : <Clock size={18} />}
-                  Notify Admin
                 </button>
               )}
             </div>

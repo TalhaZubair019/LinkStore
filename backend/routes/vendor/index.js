@@ -11,5 +11,6 @@ router.use("/reviews", require("./reviews"));
 router.use("/categories", require("./categories"));
 router.use("/ai-description", require("./ai-description"));
 router.use("/payments", require("./payments"));
+router.use("/verify-payment", require("./verify-payment"));
 
 module.exports = router;

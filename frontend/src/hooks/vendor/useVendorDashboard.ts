@@ -308,36 +308,8 @@ export function useVendorDashboard() {
     }
   };
 
-  const [isNotifyingPayment, setIsNotifyingPayment] = useState(false);
   const handlePayNow = async () => {
-    if (!stats?.outstandingCommission || stats.outstandingCommission <= 0) {
-      showToast("You have no outstanding commission to pay.", "error");
-      return;
-    }
-
-    setIsNotifyingPayment(true);
-    try {
-      const res = await fetch("/api/vendor/payments/notify-admin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          amount: stats.outstandingCommission,
-          method: "Vendor Initiated (Dashboard)",
-          reference: "Payment notification sent via dashboard button."
-        }),
-      });
-
-      if (res.ok) {
-        showToast("Payment notification sent to admin. They will verify and clear your debt soon.", "success");
-      } else {
-        const data = await res.json();
-        showToast(data.message || "Failed to notify admin.", "error");
-      }
-    } catch {
-      showToast("Error sending payment notification.", "error");
-    } finally {
-      setIsNotifyingPayment(false);
-    }
+    await handleStripeCommissionPayment();
   };
   
   const handleStripeCommissionPayment = async () => {
@@ -479,7 +451,6 @@ export function useVendorDashboard() {
     handleDeleteCategory,
     handleDeleteWarehouse,
     handlePayNow,
-    isNotifyingPayment,
     handleStripeCommissionPayment,
     isProcessingStripe,
     ITEMS_PER_PAGE,

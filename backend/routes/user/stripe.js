@@ -124,7 +124,10 @@ router.post(
             await VendorModel.findOneAndUpdate(
               { id: vendorId },
               {
-                $set: { "vendorProfile.outstandingCommission": 0 },
+                $set: { 
+                  "vendorProfile.outstandingCommission": 0,
+                  "vendorProfile.commissionDeadline": null,
+                },
                 $inc: { "vendorProfile.totalCommissionPaid": amountCleared },
               },
             );

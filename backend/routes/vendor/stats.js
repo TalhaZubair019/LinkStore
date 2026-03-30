@@ -360,6 +360,7 @@ router.get("/", requireVendor, async (req, res) => {
       categories,
       outstandingCommission: vendorDoc?.vendorProfile?.outstandingCommission || 0,
       totalCommissionPaid: vendorDoc?.vendorProfile?.totalCommissionPaid || 0,
+      commissionDeadline: vendorDoc?.vendorProfile?.commissionDeadline || null,
     });
   } catch (error) {
     console.error("Vendor stats error:", error);
