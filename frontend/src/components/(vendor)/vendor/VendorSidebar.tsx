@@ -3,7 +3,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/Store";
-import { LayoutDashboard, Package, MessageSquare, ClipboardList, Tag, Building2, Boxes, Shield, UserIcon, ChevronLeft, LogOut, Settings, DollarSign } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  MessageSquare,
+  ClipboardList,
+  Tag,
+  Building2,
+  Boxes,
+  Shield,
+  UserIcon,
+  ChevronLeft,
+  LogOut,
+  Settings,
+  DollarSign,
+} from "lucide-react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { logout } from "@/redux/slices/authSlice";
@@ -19,21 +33,25 @@ interface VendorSidebarProps {
   onClose?: () => void;
 }
 
-const NavButton = ({ active, onClick, icon, label }: any) => (
+const NavButton = ({ active, onClick, icon, label, count }: any) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold transition-all mb-1 relative group rounded-xl ${
+    className={`w-full flex items-center justify-between px-4 py-3 text-sm font-semibold transition-all mb-1 relative group rounded-xl ${
       active
         ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20"
         : "text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-slate-100 dark:hover:bg-slate-800/50"
     }`}
   >
-    <span
-      className={`${active ? "text-white" : "group-hover:scale-110 transition-transform"}`}
-    >
-      {React.cloneElement(icon, { size: 20 })}
-    </span>
-    <span className="truncate transition-opacity duration-300 font-medium">{label}</span>
+    <div className="flex items-center gap-3 truncate">
+      <span
+        className={`${active ? "text-white" : "group-hover:scale-110 transition-transform"}`}
+      >
+        {React.cloneElement(icon, { size: 20 })}
+      </span>
+      <span className="truncate transition-opacity duration-300 font-medium">
+        {label} {count !== undefined && count > 0 ? `(${count})` : ""}
+      </span>
+    </div>
   </button>
 );
 
@@ -49,8 +67,8 @@ export default function VendorSidebar({
   const { user: reduxUser } = useSelector((state: RootState) => state.auth);
 
   const user = initialUser || reduxUser;
-
   const activeTab = initialActiveTab || "overview";
+  const stats = initialStats || {};
 
   const dispatch = useDispatch();
   const router = useRouter();
@@ -74,7 +92,7 @@ export default function VendorSidebar({
 
   return (
     <>
-      {/* Mobile Backdrop */}
+      {}
       {isOpen && (
         <div
           className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
@@ -128,6 +146,7 @@ export default function VendorSidebar({
             }}
             icon={<Package />}
             label="Products"
+            count={stats.products?.length || stats.totalProducts}
           />
           <NavButton
             active={activeTab === "reviews"}
@@ -137,6 +156,11 @@ export default function VendorSidebar({
             }}
             icon={<MessageSquare />}
             label="Product Reviews"
+            count={
+              (stats.reviews || []).filter(
+                (r: any) => r.targetType === "product",
+              ).length
+            }
           />
           <NavButton
             active={activeTab === "store_reviews"}
@@ -146,6 +170,7 @@ export default function VendorSidebar({
             }}
             icon={<Shield />}
             label="Store Reviews"
+            count={stats.storeReviews?.length}
           />
           <NavButton
             active={activeTab === "orders"}
@@ -155,6 +180,7 @@ export default function VendorSidebar({
             }}
             icon={<ClipboardList />}
             label="Orders"
+            count={stats.totalOrders || stats.recentOrders?.length}
           />
           <NavButton
             active={activeTab === "categories"}
@@ -164,6 +190,10 @@ export default function VendorSidebar({
             }}
             icon={<Tag />}
             label="Categories"
+            count={
+              new Set(stats.products?.map((p: any) => p.category)).size ||
+              stats.categories?.length
+            }
           />
           <NavButton
             active={activeTab === "warehouses"}
@@ -173,6 +203,7 @@ export default function VendorSidebar({
             }}
             icon={<Building2 />}
             label="Warehouses"
+            count={stats.warehouses?.length}
           />
           <NavButton
             active={activeTab === "inventory"}
@@ -182,6 +213,10 @@ export default function VendorSidebar({
             }}
             icon={<Boxes />}
             label="Inventory"
+            count={
+              (stats.products || []).filter((p: any) => p.stock < 10).length ||
+              undefined
+            }
           />
           <NavButton
             active={activeTab === "commission"}

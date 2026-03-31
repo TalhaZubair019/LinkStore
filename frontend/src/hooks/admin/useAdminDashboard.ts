@@ -18,7 +18,7 @@ export function useAdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "users" | "admins" | "vendors" | "logs" | "products" | "orders" | "product_reviews" | "store_reviews" | "commission"
+    "overview" | "users" | "admins" | "vendors" | "logs" | "products" | "orders" | "product_reviews" | "store_reviews" | "commission" | "settings"
   >("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -40,6 +40,7 @@ export function useAdminDashboard() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isPromoting, setIsPromoting] = useState(false);
   const [isRevoking, setIsRevoking] = useState(false);
+  const [isProcessingVendor, setIsProcessingVendor] = useState<{ id: string; action: "approve" | "reject" } | null>(null);
 
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
@@ -67,7 +68,7 @@ export function useAdminDashboard() {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");
       const page = params.get("page");
-      const validTabs = ["overview", "users", "admins", "vendors", "logs", "products", "orders", "product_reviews", "store_reviews", "commission"];
+      const validTabs = ["overview", "users", "admins", "vendors", "logs", "products", "orders", "product_reviews", "store_reviews", "commission", "settings"];
 
       if (tab && validTabs.includes(tab)) {
         setActiveTab(tab as any);
@@ -211,6 +212,7 @@ export function useAdminDashboard() {
   };
 
   const handleApproveVendor = async (userId: string) => {
+    setIsProcessingVendor({ id: userId, action: "approve" });
     try {
       const res = await fetch(`/api/admin/users/${userId}/approve-vendor`, {
         method: "PATCH",
@@ -224,10 +226,13 @@ export function useAdminDashboard() {
       }
     } catch {
       showToast("Error approving vendor.", "error");
+    } finally {
+      setIsProcessingVendor(null);
     }
   };
 
   const handleRejectVendor = async (userId: string) => {
+    setIsProcessingVendor({ id: userId, action: "reject" });
     try {
       const res = await fetch(`/api/admin/users/${userId}/reject-vendor`, {
         method: "PATCH",
@@ -241,6 +246,8 @@ export function useAdminDashboard() {
       }
     } catch {
       showToast("Error rejecting application.", "error");
+    } finally {
+      setIsProcessingVendor(null);
     }
   };
 
@@ -335,6 +342,7 @@ export function useAdminDashboard() {
     isDeleting,
     isPromoting,
     isRevoking,
+    isProcessingVendor,
     toast,
     setToast,
     fetchStats,

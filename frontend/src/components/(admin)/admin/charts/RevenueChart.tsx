@@ -34,12 +34,25 @@ const RevenueChart = ({
   revenueLoading,
 }: RevenueChartProps) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
 
   useEffect(() => {
     if (filteredRevenueData.length <= 10 && chartContainerRef.current) {
       chartContainerRef.current.scrollLeft = 0;
     }
+    setActiveIndex(null);
   }, [filteredRevenueData]);
+
+  // Click away to clear active tooltip
+  useEffect(() => {
+    const handleClickAway = (e: MouseEvent) => {
+      if (chartContainerRef.current && !chartContainerRef.current.contains(e.target as Node)) {
+        setActiveIndex(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickAway);
+    return () => document.removeEventListener("mousedown", handleClickAway);
+  }, []);
 
   return (
     <div className="lg:col-span-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500">
@@ -206,19 +219,20 @@ const RevenueChart = ({
               return (
                 <div
                   key={i}
-                  className="flex-1 flex flex-col items-center gap-2 group h-full justify-end"
+                  className="flex-1 flex flex-col items-center gap-2 group h-full justify-end cursor-pointer"
                   style={{
                     minWidth: isLong ? "28px" : undefined,
                   }}
+                  onClick={() => setActiveIndex(activeIndex === i ? null : i)}
                 >
                   <div className="w-full bg-slate-50/50 dark:bg-slate-800/50 rounded-t-lg relative flex items-end h-[85%] border-b border-slate-100 dark:border-slate-800">
                     <div
-                      className="w-full bg-linear-to-t from-purple-600 to-blue-500 rounded-t-lg transition-all duration-300 ease-out group-hover:scale-x-105 group-hover:brightness-110 shadow-lg group-hover:shadow-purple-200/50"
+                      className={`w-full bg-linear-to-t from-purple-600 to-blue-500 rounded-t-lg transition-all duration-300 ease-out group-hover:scale-x-105 group-hover:brightness-110 shadow-lg group-hover:shadow-purple-200/50 ${activeIndex === i ? "brightness-125 scale-x-105 shadow-purple-200/50" : ""}`}
                       style={{
                         height: height === "0%" ? "5%" : height,
                       }}
                     ></div>
-                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-30 group-hover:-translate-y-1">
+                    <div className={`absolute -top-12 left-1/2 -translate-x-1/2 transition-all duration-300 pointer-events-none z-30 ${activeIndex === i ? "opacity-100 -translate-y-1" : "opacity-0 group-hover:opacity-100 group-hover:-translate-y-1"}`}>
                       <div className="bg-slate-900/95 backdrop-blur-md text-white text-[10px] sm:text-xs py-2 px-3 rounded-xl font-bold whitespace-nowrap shadow-2xl border border-white/10 flex flex-col items-center gap-0.5">
                         <span className="text-slate-400 text-[10px] font-medium leading-none mb-0.5">
                           {new Date(d.date).toLocaleDateString(

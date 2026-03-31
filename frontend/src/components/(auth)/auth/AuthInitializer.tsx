@@ -148,8 +148,8 @@ function AuthInitializer() {
     return () => clearTimeout(timeoutId);
   }, [cart.cartItems, wishlist.items, auth.isAuthenticated, isLoaded]);
 
-  // Role-based dashboard entry is now handled by middleware.ts for the home page.
-  // We remove the client-side enforcement here to allow Admins/Vendors to visit the storefront freely.
+  
+  
 
   const handleDismiss = async (type: "promotion" | "demotion" | "deleted" | "vendorApproval" | "suspension" | "unsuspension") => {
     if (type !== "deleted") {

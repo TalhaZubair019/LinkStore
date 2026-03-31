@@ -13,6 +13,7 @@ interface VendorsTabContentProps {
   onSuspend: (id: string) => void;
   onUnsuspend: (id: string) => void;
   onClearDebt: (id: string) => void;
+  isProcessingVendor: { id: string; action: "approve" | "reject" } | null;
 }
 
 const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
@@ -21,7 +22,8 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
   onReject,
   onSuspend,
   onUnsuspend,
-  onClearDebt
+  onClearDebt,
+  isProcessingVendor
 }) => {
   const [viewMode, setViewMode] = useState<"pending" | "active" | "suspended">("pending");
   const [search, setSearch] = useState("");
@@ -42,7 +44,7 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Header & Controls */}
+      {}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm w-full md:w-fit overflow-x-auto scrollbar-hide">
           <button
@@ -108,6 +110,7 @@ const VendorsTabContent: React.FC<VendorsTabContentProps> = ({
             onSuspend={onSuspend}
             onUnsuspend={onUnsuspend}
             onClearDebt={onClearDebt}
+            processingVendorId={isProcessingVendor}
           />
         </motion.div>
       </AnimatePresence>

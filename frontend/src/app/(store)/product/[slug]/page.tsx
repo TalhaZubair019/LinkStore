@@ -37,6 +37,7 @@ interface Product {
   vendorId?: string;
   vendorStoreName?: string;
   vendorStoreSlug?: string;
+  vendorStoreLogo?: string;
 }
 
 export default function ProductPage() {
@@ -454,9 +455,21 @@ export default function ProductPage() {
                   <div className="pt-6 border-t border-gray-100 dark:border-slate-800">
                     <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
-                          {product.vendorStoreName[0].toUpperCase()}
-                        </div>
+                        {product.vendorStoreLogo ? (
+                          <div className="w-10 h-10 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 relative bg-white">
+                            <Image
+                              src={product.vendorStoreLogo}
+                              alt={product.vendorStoreName || "Vendor"}
+                              fill
+                              className="object-contain"
+                              unoptimized
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
+                            {product.vendorStoreName?.[0].toUpperCase() || "V"}
+                          </div>
+                        )}
                         <div>
                           <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold">
                             Sold by

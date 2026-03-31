@@ -14,6 +14,7 @@ import ProductsTabContent from "@/components/(admin)/admin/tabs/ProductsTabConte
 import OrdersTabContent from "@/components/(admin)/admin/tabs/OrdersTabContent";
 import ReviewsTabContent from "@/components/(admin)/admin/tabs/ReviewsTabContent";
 import CommissionTabContent from "@/components/(admin)/admin/tabs/CommissionTabContent";
+import SettingsTabContent from "@/components/(admin)/admin/tabs/SettingsTabContent";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 import { useAdminDashboard } from "@/hooks/admin/useAdminDashboard";
@@ -185,6 +186,7 @@ export default function AdminDashboard() {
               onSuspend={d.handleSuspendVendor}
               onUnsuspend={d.handleUnsuspendVendor}
               onClearDebt={d.handleClearCommissionDebt}
+              isProcessingVendor={d.isProcessingVendor}
             />
           )}
           {d.activeTab === "logs" && d.user?.adminRole === "super_admin" && (
@@ -249,6 +251,13 @@ export default function AdminDashboard() {
               stats={d.stats}
               isAdminView={true}
               onClearDebt={d.handleClearCommissionDebt}
+            />
+          )}
+          {d.activeTab === "settings" && (
+            <SettingsTabContent
+              user={d.user}
+              fetchStats={d.fetchStats}
+              showToast={d.showToast}
             />
           )}
         </main>

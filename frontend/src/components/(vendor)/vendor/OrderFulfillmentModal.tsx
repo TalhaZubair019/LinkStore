@@ -104,7 +104,7 @@ export default function OrderFulfillmentModal({ order, onClose, onUpdate }: Orde
 
         <div className="p-6 sm:p-8 md:p-10 space-y-10">
           <div className="grid md:grid-cols-2 gap-10">
-            {/* Left Column: Customer & Shipping */}
+            {}
             <div className="space-y-8">
               <section>
                 <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
@@ -144,7 +144,7 @@ export default function OrderFulfillmentModal({ order, onClose, onUpdate }: Orde
               </section>
             </div>
 
-            {/* Right Column: Status & Summary */}
+            {}
             <div className="space-y-8">
               <section>
                 <div className="flex items-center gap-2 mb-4 text-purple-600 dark:text-purple-400">

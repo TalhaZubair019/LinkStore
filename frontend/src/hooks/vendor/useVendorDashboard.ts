@@ -58,6 +58,7 @@ export function useVendorDashboard() {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [selectedProductForInventory, setSelectedProductForInventory] = useState<any>(null);
   const [isProcessingStripe, setIsProcessingStripe] = useState(false);
+  const [isProcessingWallet, setIsProcessingWallet] = useState(false);
 
   const [revenueFilter, setRevenueFilter] = useState<"week" | "month" | "current-month" | "custom">("week");
   const [showRevenueDropdown, setShowRevenueDropdown] = useState(false);
@@ -130,12 +131,10 @@ export function useVendorDashboard() {
   useEffect(() => {
     if (!user?.isVendor) return;
     const interval = setInterval(() => {
-      if (activeTab !== "warehouses" && activeTab !== "overview") {
-        fetchStats();
-      }
+      fetchStats();
     }, 15000);
     return () => clearInterval(interval);
-  }, [user, activeTab, fetchStats]);
+  }, [user, fetchStats]);
 
   useEffect(() => {
     setSearchTerm("");
@@ -311,7 +310,7 @@ export function useVendorDashboard() {
   const handlePayNow = async () => {
     await handleStripeCommissionPayment();
   };
-  
+
   const handleStripeCommissionPayment = async () => {
     if (!stats?.outstandingCommission || stats.outstandingCommission <= 0) {
       showToast("You have no outstanding commission to pay.", "error");
@@ -334,6 +333,33 @@ export function useVendorDashboard() {
       showToast("An error occurred while starting Stripe payment.", "error");
     } finally {
       setIsProcessingStripe(false);
+    }
+  };
+
+  const handleWalletTopup = async (amount: number) => {
+    if (!amount || amount < 1) {
+      showToast("Please enter a valid amount (min $1).", "error");
+      return;
+    }
+
+    setIsProcessingWallet(true);
+    try {
+      const res = await fetch("/api/vendor/payments/create-wallet-topup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showToast(data.message || "Failed to initiate top-up", "error");
+      }
+    } catch (error) {
+      console.error("Wallet top-up error:", error);
+      showToast("An error occurred while starting top-up.", "error");
+    } finally {
+      setIsProcessingWallet(false);
     }
   };
 
@@ -452,7 +478,9 @@ export function useVendorDashboard() {
     handleDeleteWarehouse,
     handlePayNow,
     handleStripeCommissionPayment,
+    handleWalletTopup,
     isProcessingStripe,
+    isProcessingWallet,
     ITEMS_PER_PAGE,
   };
 }

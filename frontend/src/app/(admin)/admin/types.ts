@@ -49,11 +49,13 @@ export interface UserData {
   isAdmin?: boolean;
   adminRole?: "super_admin" | "admin" | null;
   isVendor?: boolean;
+  walletBalance?: number;
   vendorProfile?: {
     storeName: string;
     storeSlug: string;
     storeDescription: string;
     outstandingCommission?: number;
+    walletBalance?: number;
     status: "pending" | "approved" | "rejected" | "suspended" | "";
   };
 }
@@ -71,6 +73,7 @@ export interface DashboardStats {
   totalEarnings?: number;
   outstandingCommission?: number;
   totalCommissionPaid?: number;
+  walletBalance?: number;
   categoryPerformance?: {
     topSeller: { label: string; value: number };
     mostPopular: { label: string; value: number };

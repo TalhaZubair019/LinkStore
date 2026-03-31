@@ -725,7 +725,7 @@ export default function AdminReviewList({
           </div>
         )}
 
-        {/* Pagination UI */}
+        {}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-6 py-6 border-t dark:border-gray-800 bg-slate-50/30 dark:bg-slate-900/30">
             <p className="text-sm text-slate-500 dark:text-gray-400">

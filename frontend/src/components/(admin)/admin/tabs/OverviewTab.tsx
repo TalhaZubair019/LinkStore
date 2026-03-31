@@ -1,7 +1,6 @@
 "use client";
 
 import React, { Dispatch, SetStateAction } from "react";
-import { Store, Users } from "lucide-react";
 import RevenueStatCard from "@/components/(admin)/admin/ui/RevenueStatCard";
 import OrdersStatCard from "@/components/(admin)/admin/ui/OrdersStatCard";
 import UsersStatCard from "@/components/(admin)/admin/ui/UsersStatCard";
@@ -14,7 +13,6 @@ import AverageOrderValueChart from "@/components/(admin)/admin/charts/AverageOrd
 import TopReviewedProducts from "@/components/(admin)/admin/charts/TopReviewedProducts";
 import ProductSalesChart from "@/components/(admin)/admin/charts/ProductSalesChart";
 import CategorySalesChart from "@/components/(admin)/admin/charts/CategorySalesChart";
-import CategoryInventoryChart from "@/components/(admin)/admin/charts/CategoryInventoryChart";
 import SentimentChart from "@/components/(admin)/admin/charts/SentimentChart";
 import WarehouseStockChart from "@/components/(admin)/admin/charts/WarehouseStockChart";
 import { DashboardStats } from "@/app/(admin)/admin/types";
@@ -108,9 +106,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               subtitle="Paid"
               subAmount={stats.totalCommissionPaid ?? 0}
               type="commission"
-              extraStats={[
-                { label: "Revenue", amount: stats.totalRevenue },
-              ]}
+              extraStats={[{ label: "Revenue", amount: stats.totalRevenue }]}
             />
           </>
         )}
@@ -191,14 +187,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               color="purple-500"
             />
           </div>
-          <OrderVelocityChart stats={stats} />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TopReviewedProducts stats={stats} />
             <ProductSalesChart stats={stats} />
+            <TopReviewedProducts stats={stats} />
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <OrderVelocityChart stats={stats} />
             <SentimentChart stats={stats} />
-            <CategoryInventoryChart stats={stats} />
           </div>
           <WarehouseStockChart stats={stats} />
         </>

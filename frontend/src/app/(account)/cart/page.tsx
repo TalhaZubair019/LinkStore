@@ -69,8 +69,8 @@ export default function CartPage() {
           const validProducts = await response.json();
           setProductsCache(validProducts);
           let stockAdjusted = false;
-          const outOfStockItems: string[] = [];
-          const limitedStockItems: string[] = [];
+          const removedItems: any[] = [];
+          const adjustedItems: any[] = [];
 
           for (const cartItem of cartItems) {
             const dbRef = validProducts.find(
@@ -78,21 +78,27 @@ export default function CartPage() {
             );
 
             if (!dbRef || dbRef.stockQuantity <= 0) {
-              outOfStockItems.push(cartItem.name);
+              removedItems.push(cartItem.name);
               stockAdjusted = true;
             } else if (dbRef.stockQuantity < cartItem.quantity) {
-              limitedStockItems.push(cartItem.name);
+              adjustedItems.push({
+                name: cartItem.name,
+                stock: dbRef.stockQuantity,
+              });
               stockAdjusted = true;
             }
           }
 
           if (stockAdjusted) {
             let msg = "";
-            if (outOfStockItems.length > 0) {
-              msg += `"${outOfStockItems.join(", ")}" is out of stock and has been removed. `;
+            if (removedItems.length > 0) {
+              msg += `"${removedItems.join(", ")}" was removed because it's out of stock. `;
             }
-            if (limitedStockItems.length > 0) {
-              msg += `Quantity for "${limitedStockItems.join(", ")}" was adjusted based on available stock.`;
+            if (adjustedItems.length > 0) {
+              const details = adjustedItems
+                .map((item) => `"${item.name}" (limited to ${item.stock})`)
+                .join(", ");
+              msg += `Quantity for ${details} was adjusted to match available stock.`;
             }
 
             setToast({

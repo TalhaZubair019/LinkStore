@@ -311,7 +311,9 @@ export default function VendorDashboard() {
               stats={d.stats}
               isAdminView={false}
               onStripePay={d.handleStripeCommissionPayment}
+              onWalletTopup={d.handleWalletTopup}
               isProcessingStripe={d.isProcessingStripe}
+              isProcessingWallet={d.isProcessingWallet}
             />
           )}
           {d.activeTab === "settings" && <SettingsTabContent user={d.user} />}

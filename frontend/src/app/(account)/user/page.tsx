@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/redux/Store";
 import DashboardHeader from "@/components/(admin)/admin/layout/DashboardHeader";
-import { loginSuccess, logout } from "@/redux/slices/authSlice";
+import { loginSuccess, logout, updateUser } from "@/redux/slices/authSlice";
 import { addToCart } from "@/redux/slices/cartSlice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -97,6 +97,7 @@ function AccountContent() {
     stateCode: "",
     province: "",
     postcode: "",
+    avatar: "",
   });
 
   const [countries] = useState(Country.getAllCountries());
@@ -138,14 +139,16 @@ function AccountContent() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchOrders();
+      fetchUserProfile();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
     const interval = setInterval(() => {
       fetchOrders();
-    }, 10000);
+      fetchUserProfile();
+    }, 15000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
@@ -161,9 +164,24 @@ function AccountContent() {
         stateCode: user.stateCode || "",
         province: user.province || "",
         postcode: user.postcode || "",
+        avatar: user.avatar || "",
       });
     }
   }, [user]);
+
+  const fetchUserProfile = async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.user) {
+          dispatch(updateUser(data.user));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to refresh user profile data");
+    }
+  };
 
   const fetchOrders = async () => {
     try {
@@ -218,7 +236,7 @@ function AccountContent() {
     setActiveTab(tab);
     setSelectedOrder(null);
     setIsSidebarOpen(false);
-    router.push(`/user?tab=${tab}`);
+    router.replace(`/user?tab=${tab}`);
   };
 
   const handleLogout = async () => {

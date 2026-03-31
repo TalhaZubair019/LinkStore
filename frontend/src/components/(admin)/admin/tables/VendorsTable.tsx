@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Check, X, Store, Mail, Calendar, ExternalLink, ShieldCheck, ShieldAlert, Shield } from "lucide-react";
+import { Check, X, Store, Mail, Calendar, ExternalLink, ShieldCheck, ShieldAlert, Shield, Loader2 } from "lucide-react";
 import { UserData } from "@/app/(admin)/admin/types";
 import DeleteConfirmationModal from "@/components/(admin)/admin/modals/DeleteConfirmationModal";
 
@@ -15,6 +15,7 @@ interface VendorsTableProps {
   onUnsuspend?: (id: string) => void;
   onClearDebt?: (id: string) => void;
   isLoading?: boolean;
+  processingVendorId?: { id: string; action: "approve" | "reject" } | null;
 }
 
 const VendorsTable = ({
@@ -25,7 +26,8 @@ const VendorsTable = ({
   onSuspend,
   onUnsuspend,
   onClearDebt,
-  isLoading
+  isLoading,
+  processingVendorId
 }: VendorsTableProps) => {
   const [suspendConfirm, setSuspendConfirm] = React.useState<UserData | null>(null);
   const [unsuspendConfirm, setUnsuspendConfirm] = React.useState<UserData | null>(null);
@@ -47,7 +49,7 @@ const VendorsTable = ({
         </div>
       </div>
 
-      {/* Desktop Table View */}
+      {}
       <div className="hidden md:block overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
         <table className="w-full text-left border-collapse">
           <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase font-bold tracking-wider">
@@ -110,17 +112,31 @@ const VendorsTable = ({
                         <>
                           <button
                             onClick={() => onApprove(v.id)}
-                            disabled={isLoading}
-                            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+                            disabled={isLoading || processingVendorId?.id === v.id}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 min-w-[100px] justify-center"
                           >
-                            <Check size={16} /> Approve
+                            {processingVendorId?.id === v.id &&
+                            processingVendorId.action === "approve" ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <>
+                                <Check size={16} /> Approve
+                              </>
+                            )}
                           </button>
                           <button
                             onClick={() => onReject?.(v.id)}
-                            disabled={isLoading}
-                            className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-rose-500/20 disabled:opacity-50"
+                            disabled={isLoading || processingVendorId?.id === v.id}
+                            className="flex items-center gap-2 px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-rose-500/20 disabled:opacity-50 min-w-[90px] justify-center"
                           >
-                            <X size={16} /> Reject
+                            {processingVendorId?.id === v.id &&
+                            processingVendorId.action === "reject" ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <>
+                                <X size={16} /> Reject
+                              </>
+                            )}
                           </button>
                         </>
                       ) : (
@@ -161,7 +177,7 @@ const VendorsTable = ({
         </table>
       </div>
 
-      {/* Mobile Card View */}
+      {}
       <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
         {vendors.length === 0 ? (
           <div className="px-6 py-16 text-center">
@@ -206,17 +222,31 @@ const VendorsTable = ({
                   <>
                     <button
                       onClick={() => onApprove(v.id)}
-                      disabled={isLoading}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50"
+                      disabled={isLoading || processingVendorId?.id === v.id}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50 min-h-[40px]"
                     >
-                      <Check size={14} /> Approve
+                      {processingVendorId?.id === v.id &&
+                      processingVendorId.action === "approve" ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <>
+                          <Check size={14} /> Approve
+                        </>
+                      )}
                     </button>
                     <button
                       onClick={() => onReject?.(v.id)}
-                      disabled={isLoading}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-500 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50"
+                      disabled={isLoading || processingVendorId?.id === v.id}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-500 text-white rounded-xl text-[11px] font-bold shadow-sm disabled:opacity-50 min-h-[40px]"
                     >
-                      <X size={14} /> Reject
+                      {processingVendorId?.id === v.id &&
+                      processingVendorId.action === "reject" ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <>
+                          <X size={14} /> Reject
+                        </>
+                      )}
                     </button>
                   </>
                 ) : (
@@ -253,7 +283,7 @@ const VendorsTable = ({
         )}
       </div>
 
-      {/* Suspend Modal */}
+      {}
       <DeleteConfirmationModal
         isOpen={!!suspendConfirm}
         onClose={() => setSuspendConfirm(null)}
@@ -279,7 +309,7 @@ const VendorsTable = ({
         icon={<ShieldAlert size={32} />}
       />
 
-      {/* Unsuspend Modal */}
+      {}
       <DeleteConfirmationModal
         isOpen={!!unsuspendConfirm}
         onClose={() => setUnsuspendConfirm(null)}

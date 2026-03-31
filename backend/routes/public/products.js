@@ -17,13 +17,13 @@ router.get("/:slug", async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Check if vendor is suspended
+    
     const vendor = await VendorModel.findOne({ id: product.vendorId }).lean();
     if (vendor?.vendorProfile?.status === "suspended") {
        return res.status(404).json({ message: "Product not available" });
     }
 
-    // Fetch suspended vendor IDs for related products
+    
     const suspendedVendors = await VendorModel.find({ 
       "vendorProfile.status": "suspended" 
     }).select("id").lean();

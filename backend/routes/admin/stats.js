@@ -27,7 +27,12 @@ router.get("/", requireAdmin, async (req, res) => {
         ReviewModel.find({}).lean(),
         CategoryModel.find({}).sort({ name: 1 }).lean(),
       ]);
-    const allUsers = [...users, ...admins, ...vendors];
+    const allUsersMap = new Map();
+    [...users, ...admins, ...vendors].forEach((u) => {
+      const existing = allUsersMap.get(u.id) || {};
+      allUsersMap.set(u.id, { ...existing, ...u });
+    });
+    const allUsers = Array.from(allUsersMap.values());
 
     const totalRevenue = orders
       .filter((o) => o.status !== "Cancelled")
@@ -328,20 +333,21 @@ router.get("/", requireAdmin, async (req, res) => {
         : 0;
 
     const totalAdmins = admins.length;
-    const totalVendors = vendors.length;
     const pendingVendors = users.filter(
       (u) => u.vendorProfile?.status === "pending",
     ).length;
+    const totalVendors = vendors.length + pendingVendors;
 
     const commissionStats = vendors.map((v) => ({
       vendorId: v.id,
       storeName: v.vendorProfile?.storeName || v.name || "Unknown Store",
       outstandingCommission: v.vendorProfile?.outstandingCommission || 0,
       totalCommissionPaid: v.vendorProfile?.totalCommissionPaid || 0,
+      walletBalance: v.vendorProfile?.walletBalance || 0,
     }));
 
     return res.json({
-      totalUsers: users.length + admins.length + vendors.length,
+      totalUsers: allUsers.length,
       totalAdmins,
       totalVendors,
       pendingVendors,

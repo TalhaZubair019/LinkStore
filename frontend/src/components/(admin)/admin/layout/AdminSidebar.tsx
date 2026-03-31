@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   Star,
   DollarSign,
+  Settings,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -32,7 +33,8 @@ interface AdminSidebarProps {
     | "orders"
     | "product_reviews"
     | "store_reviews"
-    | "commission";
+    | "commission"
+    | "settings";
   setActiveTab: React.Dispatch<
     React.SetStateAction<
       | "overview"
@@ -45,6 +47,7 @@ interface AdminSidebarProps {
       | "product_reviews"
       | "store_reviews"
       | "commission"
+      | "settings"
     >
   >;
   stats: any;
@@ -204,6 +207,12 @@ const AdminSidebar = ({
               label="Activity Logs"
             />
           )}
+          <NavButton
+            active={activeTab === "settings"}
+            onClick={() => setActiveTab("settings")}
+            icon={<Settings />}
+            label="Settings"
+          />
         </nav>
 
         <div className="p-4 border-t border-slate-100 dark:border-slate-800/50 mt-auto">

@@ -129,22 +129,36 @@ export default function CheckoutPage() {
             const activeProductIds = data.products.map((p: any) =>
               String(p.id),
             );
-            const removedItems = cartItems.filter((item: any) => {
+            const removedItems: any[] = [];
+            const adjustedItems: any[] = [];
+
+            cartItems.forEach((item: any) => {
               const p = data.products.find(
                 (prod: any) => String(prod.id) === String(item.id),
               );
-              return !p || p.stockQuantity <= 0;
+              if (!p || p.stockQuantity <= 0) {
+                removedItems.push(item.name);
+              } else if (item.quantity > p.stockQuantity) {
+                adjustedItems.push({
+                  name: item.name,
+                  stock: p.stockQuantity,
+                });
+              }
             });
 
-            if (removedItems.length > 0) {
-              const names = removedItems
-                .map((i: any) => `"${i.name || i.title || "Unknown Item"}"`)
-                .join(", ");
+            if (removedItems.length > 0 || adjustedItems.length > 0) {
+              let msg = "";
+              if (removedItems.length > 0) {
+                msg += `"${removedItems.join(", ")}" was removed because it's no longer available. `;
+              }
+              if (adjustedItems.length > 0) {
+                const details = adjustedItems
+                  .map((item) => `"${item.name}" (limited to ${item.stock})`)
+                  .join(", ");
+                msg += `Quantity for ${details} was adjusted to match available stock.`;
+              }
               dispatch(syncCart(data.products));
-              showToast(
-                `${names} were removed from your cart as they are no longer available.`,
-                "remove",
-              );
+              showToast(msg.trim(), "remove");
             } else {
               dispatch(syncCart(data.products));
             }

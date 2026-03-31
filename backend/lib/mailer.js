@@ -1,9 +1,6 @@
 const nodemailer = require("nodemailer");
 
-/**
- * Initialize Nodemailer with Gmail SMTP.
- * Note: Requires a "Gmail App Password" (set in EMAIL_PASS).
- */
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -12,6 +9,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Maintains compatibility with existing code structure
-// Example call: await transporter.sendMail(options)
+
+
 module.exports = { transporter };

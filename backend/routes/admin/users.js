@@ -170,7 +170,7 @@ router.patch("/:id/approve-vendor", requireSuperAdmin, async (req, res) => {
       entityId: req.params.id,
       details: `Approved vendor application for "${vendor.vendorProfile.storeName}" (User: ${vendor.name})`,
     });
-    // Send Approval Email
+    
     try {
       const { transporter } = require("../../lib/mailer");
       const approvalHtml = `
@@ -226,10 +226,29 @@ router.patch("/:id/reject-vendor", requireSuperAdmin, async (req, res) => {
     if (!target) return res.status(404).json({ message: "User not found" });
 
     const storeName = target.vendorProfile?.storeName || "your store";
-    target.vendorProfile.status = "rejected";
-    await target.save();
+    
+    
+    await UserModel.findOneAndUpdate(
+      { id: req.params.id },
+      { 
+        $set: { 
+          "vendorProfile.status": "rejected",
+          "vendorApplicationPending": false
+        } 
+      }
+    );
 
-    // Send Rejection Email
+    
+    await VendorModel.findOneAndUpdate(
+      { id: req.params.id },
+      { 
+        $set: { 
+          "vendorProfile.status": "rejected"
+        } 
+      }
+    );
+
+    
     try {
       const rejectionHtml = `
         <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">
@@ -287,7 +306,7 @@ router.patch("/:id/suspend-vendor", requireSuperAdmin, async (req, res) => {
       entityId: req.params.id,
       details: `Suspended vendor account for "${vendor.vendorProfile.storeName}" (User: ${vendor.name})`,
     });
-    // Send Suspension Email
+    
     try {
       const suspensionHtml = `
         <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #fecaca; border-radius: 24px; background: #ffffff;">
@@ -340,7 +359,7 @@ router.patch("/:id/unsuspend-vendor", requireSuperAdmin, async (req, res) => {
       entityId: req.params.id,
       details: `Unsuspended vendor account for "${vendor.vendorProfile.storeName}" (User: ${vendor.name})`,
     });
-    // Send Unsuspension Email
+    
     try {
       const unsuspensionHtml = `
         <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #f1f5f9; border-radius: 24px; background: #ffffff;">

@@ -197,7 +197,7 @@ export default function JustForYou() {
               </div>
 
               <div className="p-1 sm:p-5 flex flex-col flex-1">
-                {/* Badges */}
+                {}
                 <div className="flex flex-wrap gap-2 mb-3">
                   {[
                     ...(product.badges ||

@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { 
-  CreditCard, 
-  CheckCircle2, 
-  AlertCircle, 
+import { useEffect, useState, useRef } from "react";
+import {
+  CreditCard,
+  CheckCircle2,
+  AlertCircle,
   ArrowRight,
   Loader2,
   Store,
-  ExternalLink
+  ExternalLink,
+  Camera,
 } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface SettingsTabContentProps {
   user: any;
@@ -20,6 +20,14 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
   const [loading, setLoading] = useState(true);
   const [stripeStatus, setStripeStatus] = useState<any>(null);
   const [onboarding, setOnboarding] = useState(false);
+  const [isUploading, setIsUploading] = useState<"logo" | null>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const [profileForm, setProfileForm] = useState({
+    storeName: user?.vendorProfile?.storeName || "",
+    storeDescription: user?.vendorProfile?.storeDescription || "",
+    logo: user?.vendorProfile?.logo || "",
+  });
 
   const fetchStripeStatus = async () => {
     try {
@@ -38,10 +46,69 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
     fetchStripeStatus();
   }, []);
 
+  const handleImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "logo",
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(type);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload?folder=vendor", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setProfileForm((prev) => ({ ...prev, [type]: data.url }));
+      } else {
+        alert(data.message || "Upload failed");
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+      alert("Error uploading image");
+    } finally {
+      setIsUploading(null);
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      const res = await fetch("/api/auth/me", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vendorProfile: {
+            ...user.vendorProfile,
+            storeName: profileForm.storeName,
+            storeDescription: profileForm.storeDescription,
+            logo: profileForm.logo,
+          },
+        }),
+      });
+      if (res.ok) {
+        alert("Profile updated successfully!");
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        alert(data.message || "Failed to update profile");
+      }
+    } catch (err) {
+      console.error("Save profile error:", err);
+      alert("Error saving profile");
+    }
+  };
+
   const handleOnboard = async () => {
     try {
       setOnboarding(true);
-      const res = await fetch("/api/vendor/payouts/onboard", { method: "POST" });
+      const res = await fetch("/api/vendor/payouts/onboard", {
+        method: "POST",
+      });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
@@ -59,15 +126,19 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
   return (
     <div className="max-w-4xl mx-auto space-y-12 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid gap-8">
-        {/* Stripe Connect Section */}
+        {}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-10 shadow-sm transition-all">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
               <CreditCard size={28} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Financials & Payouts</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Powered by Stripe Connect</p>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                Financials & Payouts
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                Powered by Stripe Connect
+              </p>
             </div>
           </div>
 
@@ -80,22 +151,32 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
             ) : stripeStatus?.stripeOnboardingComplete ? (
               <div className="space-y-6">
                 <div className="flex items-start gap-4 p-5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 rounded-2xl">
-                  <CheckCircle2 className="text-emerald-500 shrink-0 mt-0.5" size={24} />
+                  <CheckCircle2
+                    className="text-emerald-500 shrink-0 mt-0.5"
+                    size={24}
+                  />
                   <div>
-                    <h3 className="font-bold text-emerald-900 dark:text-emerald-400">Account Connected & Active</h3>
+                    <h3 className="font-bold text-emerald-900 dark:text-emerald-400">
+                      Account Connected & Active
+                    </h3>
                     <p className="text-sm text-emerald-700 dark:text-emerald-500/80 mt-1">
-                      Your Stripe Express account is fully verified. Payouts for orders will be automatically processed.
+                      Your Stripe Express account is fully verified. Payouts for
+                      orders will be automatically processed.
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="pt-4 flex flex-wrap gap-4">
-                  <button 
+                  <button
                     onClick={handleOnboard}
                     disabled={onboarding}
                     className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm disabled:opacity-50"
                   >
-                    {onboarding ? <Loader2 size={18} className="animate-spin" /> : <ExternalLink size={18} />}
+                    {onboarding ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <ExternalLink size={18} />
+                    )}
                     Stripe Dashboard
                   </button>
                 </div>
@@ -103,21 +184,31 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
             ) : (
               <div className="space-y-8">
                 <div className="flex items-start gap-4 p-5 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-2xl">
-                  <AlertCircle className="text-amber-500 shrink-0 mt-0.5" size={24} />
+                  <AlertCircle
+                    className="text-amber-500 shrink-0 mt-0.5"
+                    size={24}
+                  />
                   <div>
-                    <h3 className="font-bold text-amber-900 dark:text-amber-400">Onboarding Required</h3>
+                    <h3 className="font-bold text-amber-900 dark:text-amber-400">
+                      Onboarding Required
+                    </h3>
                     <p className="text-sm text-amber-700 dark:text-amber-500/80 mt-1">
-                      To receive payouts from your sales, you must connect your bank account via Stripe. This is a secure one-time setup.
+                      To receive payouts from your sales, you must connect your
+                      bank account via Stripe. This is a secure one-time setup.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-2">
                   <div className="space-y-1">
-                    <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">Automated Payouts</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Earnings are sent automatically (10% platform fee applies)</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      Automated Payouts
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      Earnings are sent automatically (10% platform fee applies)
+                    </p>
                   </div>
-                  <button 
+                  <button
                     onClick={handleOnboard}
                     disabled={onboarding}
                     className="group relative inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-xl shadow-indigo-500/20 active:scale-95 disabled:opacity-50"
@@ -127,7 +218,10 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
                     ) : (
                       <>
                         Connect with Stripe
-                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight
+                          size={20}
+                          className="group-hover:translate-x-1 transition-transform"
+                        />
                       </>
                     )}
                   </button>
@@ -137,35 +231,91 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
           </div>
         </section>
 
-        {/* Store Profile Section */}
+        {}
         <section className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 md:p-10 shadow-sm transition-all">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-14 h-14 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
               <Store size={28} />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Store Profile</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Identity and branding</p>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                Store Profile
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                Identity and branding
+              </p>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-10">
+            {/* Logo Upload */}
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Logo */}
+              <div className="space-y-4">
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-4">
+                  Store Logo
+                </label>
+                <div
+                  onClick={() => logoInputRef.current?.click()}
+                  className="w-32 h-32 rounded-3xl bg-slate-50 dark:bg-slate-800 border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center relative overflow-hidden cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 group transition-all"
+                >
+                  {profileForm.logo ? (
+                    <img
+                      src={profileForm.logo}
+                      alt="Logo"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Camera
+                      size={32}
+                      className="text-slate-300 dark:text-slate-600 group-hover:scale-110 transition-transform"
+                    />
+                  )}
+                  {isUploading === "logo" && (
+                    <div className="absolute inset-0 bg-white/60 dark:bg-slate-900/60 flex items-center justify-center">
+                      <Loader2
+                        size={24}
+                        className="animate-spin text-blue-600"
+                      />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                </div>
+                <input
+                  type="file"
+                  ref={logoInputRef}
+                  onChange={(e) => handleImageUpload(e, "logo")}
+                  className="hidden"
+                  accept="image/*"
+                />
+              </div>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-4">Store Name</label>
-                <input 
-                  type="text" 
-                  defaultValue={user?.vendorProfile?.storeName}
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-4">
+                  Store Name
+                </label>
+                <input
+                  type="text"
+                  value={profileForm.storeName}
+                  onChange={(e) =>
+                    setProfileForm({ ...profileForm, storeName: e.target.value })
+                  }
                   className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800 outline-none focus:ring-4 ring-blue-500/10 focus:border-blue-500/50 transition-all font-bold text-slate-700 dark:text-slate-200"
                   placeholder="e.g. My Awesome Shop"
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-4">Store Slug</label>
+                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-4">
+                  Store Slug
+                </label>
                 <div className="relative">
-                  <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-medium">/store/</span>
-                  <input 
-                    type="text" 
+                  <span className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
+                    /store/
+                  </span>
+                  <input
+                    type="text"
                     defaultValue={user?.vendorProfile?.storeSlug}
                     readOnly
                     className="w-full pl-22 pr-6 py-4 bg-slate-100 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed font-bold"
@@ -175,9 +325,17 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-4">Store Description</label>
-              <textarea 
-                defaultValue={user?.vendorProfile?.storeDescription}
+              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-4">
+                Store Description
+              </label>
+              <textarea
+                value={profileForm.storeDescription}
+                onChange={(e) =>
+                  setProfileForm({
+                    ...profileForm,
+                    storeDescription: e.target.value,
+                  })
+                }
                 rows={4}
                 className="w-full px-6 py-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-800 outline-none focus:ring-4 ring-blue-500/10 focus:border-blue-500/50 transition-all font-bold text-slate-700 dark:text-slate-200 resize-none"
                 placeholder="Tell customers about your shop..."
@@ -185,7 +343,10 @@ export default function SettingsTabContent({ user }: SettingsTabContentProps) {
             </div>
 
             <div className="pt-4">
-              <button className="px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5">
+              <button
+                onClick={handleSaveProfile}
+                className="px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-2xl font-black hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5"
+              >
                 Save Profile
               </button>
             </div>

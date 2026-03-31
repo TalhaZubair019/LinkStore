@@ -26,7 +26,7 @@ function ProductCard({
       whileHover={hideActions ? {} : { y: -8, transition: { duration: 0.2 } }}
       className={`relative min-w-70 md:min-w-75 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-4xl p-6 shadow-lg transition-all duration-300 snap-center group overflow-hidden ${hideActions ? "" : "hover:bg-[#F9FAFF] dark:hover:bg-slate-800/50 hover:shadow-2xl"}`}
     >
-      {/* 1. Side Action Buttons (Direct child of motion.div, not inside Link) */}
+      {}
       {!hideActions && (
         <div className="absolute top-4 right-4 z-30 flex flex-col gap-3 opacity-100 lg:opacity-0 translate-x-0 lg:translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out delay-75">
           <button
@@ -56,7 +56,7 @@ function ProductCard({
         </div>
       )}
 
-      {/* 2. Main Clickable Content (Wrapped in Link if not in preview mode) */}
+      {}
       {hideActions ? (
         <div className="cursor-default">
           <div className="mb-4">
@@ -89,7 +89,7 @@ function ProductCard({
       ) : (
         <Link href={`/product/${encodeURIComponent(slug)}`} className="block">
           <div className="mb-4">
-            {/* Badges */}
+            {}
             <div className="flex flex-wrap gap-2 mb-3">
               {(product.badges || (product.badge ? [product.badge] : [])).map(
                 (badge: string, idx: number) => (
@@ -139,7 +139,7 @@ function ProductCard({
         </Link>
       )}
 
-      {/* 3. Bottom Add to Cart Button (Sibling to Link, z-indexed above it) */}
+      {}
       {!isOutOfStock && !hideActions && (
         <div className="absolute bottom-0 left-0 w-full h-20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out z-20">
           <button

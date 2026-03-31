@@ -23,7 +23,7 @@ export default function VendorSuspendedPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans">
-      {/* Decorative Background Elements */}
+      {}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
         <div className="absolute -top-[10%] -right-[5%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full" />
         <div className="absolute -bottom-[10%] -left-[5%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
@@ -35,7 +35,7 @@ export default function VendorSuspendedPage() {
         className="w-full max-w-2xl bg-white dark:bg-slate-900/50 backdrop-blur-xl border border-slate-100 dark:border-slate-800 rounded-[3rem] p-8 md:p-16 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.1)] relative z-10"
       >
         <div className="flex flex-col items-center text-center">
-          {/* Icon Showcase */}
+          {}
           <div className="relative mb-10">
             <div className="w-24 h-24 rounded-3xl bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-500 shadow-inner rotate-3">
               <ShieldAlert size={48} strokeWidth={1.5} />
@@ -54,7 +54,7 @@ export default function VendorSuspendedPage() {
             Your vendor access has been temporarily restricted. This action was taken to ensure the safety and integrity of our marketplace community.
           </p>
 
-          {/* Info Grid */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-12">
             <div className="p-6 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800/50 flex flex-col items-start gap-3 transition-colors hover:bg-white dark:hover:bg-slate-800 text-left group">
               <ShieldQuestion size={20} className="text-purple-600 transition-transform group-hover:scale-110" />
@@ -68,7 +68,7 @@ export default function VendorSuspendedPage() {
             </div>
           </div>
 
-          {/* Action Footer */}
+          {}
           <div className="w-full">
             <button
               onClick={handleLogout}

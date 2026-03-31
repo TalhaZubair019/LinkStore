@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
       const { search, category, minPrice, maxPrice, vendorId, sort } =
         req.query;
       
-      // Fetch suspended vendor IDs to exclude their products
+      
       const suspendedVendors = await VendorModel.find({ 
         "vendorProfile.status": "suspended" 
       }).select("id").lean();
@@ -83,10 +83,20 @@ router.get("/", async (req, res) => {
         });
       });
 
-      const uniqueProducts = filteredProducts.map((p) => {
-        const salesCount = salesData[p.title] || 0;
-        return { ...p, salesCount };
-      });
+      const uniqueProducts = await Promise.all(
+        filteredProducts.map(async (p) => {
+          const salesCount = salesData[p.title] || 0;
+          // Dynamically fetch vendor logo to ensures it is always fresh
+          const vendor = await VendorModel.findOne({ id: p.vendorId })
+            .select("vendorProfile.logo")
+            .lean();
+          return {
+            ...p,
+            salesCount,
+            vendorStoreLogo: vendor?.vendorProfile?.logo || null,
+          };
+        }),
+      );
 
       return res.json({ products: uniqueProducts });
     }

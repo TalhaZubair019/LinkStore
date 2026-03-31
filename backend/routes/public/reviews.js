@@ -105,7 +105,7 @@ router.post("/", async (req, res) => {
       date: new Date().toLocaleDateString(),
     });
 
-    // Update product stats
+    
     const allProductReviews = await ReviewModel.find({
       productId: Number(productId),
       targetType: "product",

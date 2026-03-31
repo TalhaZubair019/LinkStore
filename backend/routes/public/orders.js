@@ -56,7 +56,7 @@ router.post("/place-order", async (req, res) => {
 
     const productIds = items.map((i) => i.id);
     const dbProducts = await ProductModel.find({ id: { $in: productIds } });
-    
+
     const fulfillmentDetails = [];
     const bulkUpdateOps = [];
 
@@ -96,26 +96,27 @@ router.post("/place-order", async (req, res) => {
         (acc, curr) => acc + curr.quantity,
         0,
       );
-      
+
       bulkUpdateOps.push({
         updateOne: {
           filter: { id: item.id },
           update: {
             $set: { warehouseInventory: updatedInventory },
             $inc: { stockQuantity: -item.quantity },
-          }
-        }
+          },
+        },
       });
 
-      // Handle Low Stock Alert (Async)
       if (newTotalStock <= (product.lowStockThreshold || 5)) {
         console.log(
           `[ALERT] Product ${product.title} (ID: ${product.id}) is low on stock: ${newTotalStock} remaining.`,
         );
-        VendorModel.findOne({ id: product.vendorId }).lean().then(vendor => {
-          const recipientEmail = vendor?.email || process.env.EMAIL_USER;
+        VendorModel.findOne({ id: product.vendorId })
+          .lean()
+          .then((vendor) => {
+            const recipientEmail = vendor?.email || process.env.EMAIL_USER;
 
-          const alertHtml = `
+            const alertHtml = `
             <div style="font-family: 'Inter', -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 1px solid #fee2e2; border-radius: 24px; background: #ffffff;">
               <div style="text-align: center; margin-bottom: 32px;">
                 <h1 style="color: #e11d48; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.025em;">LinkStore</h1>
@@ -124,6 +125,9 @@ router.post("/place-order", async (req, res) => {
               <p style="color: #64748b; line-height: 1.6; margin-bottom: 24px;">Your product <strong>"${product.title}"</strong> has reached its low stock threshold. Please restock soon to ensure uninterrupted sales.</p>
               
               <div style="background: #fff1f2; padding: 24px; border-radius: 16px; margin-bottom: 32px; border: 1px solid #fecaca;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                  ${product.image ? `<img src="${ensureAbsoluteUrl(product.image)}" style="width: 80px; height: 80px; border-radius: 12px; object-fit: contain; background: white; border: 1px solid #fecaca;" alt="${product.title}">` : ""}
+                </div>
                 <table style="width: 100%; border-collapse: collapse;">
                   <tr>
                     <td style="padding: 8px 0; font-size: 14px; color: #991b1b; font-weight: 600;">Remaining Quantity:</td>
@@ -141,15 +145,18 @@ router.post("/place-order", async (req, res) => {
             </div>
           `;
 
-          transporter
-            .sendMail({
-              from: `"LinkStore" <${process.env.EMAIL_USER}>`,
-              to: recipientEmail,
-              subject: `⚠️ Low Stock Alert: ${product.title}`,
-              html: alertHtml,
-            })
-            .catch((e) => console.error("Alert email error:", e));
-        }).catch(e => console.error("Failed to fetch vendor for low stock alert:", e));
+            transporter
+              .sendMail({
+                from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+                to: recipientEmail,
+                subject: `⚠️ Low Stock Alert: ${product.title}`,
+                html: alertHtml,
+              })
+              .catch((e) => console.error("Alert email error:", e));
+          })
+          .catch((e) =>
+            console.error("Failed to fetch vendor for low stock alert:", e),
+          );
       }
 
       fulfillmentDetails.push({
@@ -185,10 +192,14 @@ router.post("/place-order", async (req, res) => {
       status: "Pending",
     }));
 
-    const selectedTotal = Math.round(itemsWithFulfillment.reduce(
-      (acc, item) => acc + (Number(item.price) || 0) * (Number(item.quantity) || 1),
-      0,
-    ) * 100) / 100;
+    const selectedTotal =
+      Math.round(
+        itemsWithFulfillment.reduce(
+          (acc, item) =>
+            acc + (Number(item.price) || 0) * (Number(item.quantity) || 1),
+          0,
+        ) * 100,
+      ) / 100;
 
     const orderId = Date.now().toString();
     const platformFee = Math.round(selectedTotal * 0.1 * 100) / 100;
@@ -221,12 +232,9 @@ router.post("/place-order", async (req, res) => {
 
     await connectDB();
     await OrderModel.create(newOrder);
-    
-    // Return response immediately to prevent proxy timeouts
+
     res.json({ message: "Order placed successfully!", orderId });
 
-    // --- EVERYTHING BELOW RUNS IN BACKGROUND ---
-    
     if (effectiveUserId !== "guest") {
       try {
         await Promise.all([
@@ -234,7 +242,9 @@ router.post("/place-order", async (req, res) => {
           AdminModel.findOneAndUpdate({ id: effectiveUserId }, { cart: [] }),
           VendorModel.findOneAndUpdate({ id: effectiveUserId }, { cart: [] }),
         ]);
-      } catch (err) { console.error("Failed to clear cart:", err); }
+      } catch (err) {
+        console.error("Failed to clear cart:", err);
+      }
     }
 
     if (customer.paymentMethod === "cod") {
@@ -280,6 +290,16 @@ router.post("/place-order", async (req, res) => {
         return acc;
       }, {});
 
+      const ensureAbsoluteUrl = (url) => {
+        if (!url) return "";
+        if (url.startsWith("http://") || url.startsWith("https://")) return url;
+        const appUrl = (
+          process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+        ).replace(/\/$/, "");
+        const path = url.startsWith("/") ? url : `/${url}`;
+        return `${appUrl}${path}`;
+      };
+
       const generateEmailHtml = (orderItems, isVendor = false) => `
         <!DOCTYPE html>
         <html lang="en">
@@ -298,13 +318,10 @@ router.post("/place-order", async (req, res) => {
             .status-badge { display: inline-block; padding: 8px 16px; background: #f5f3ff; color: #7c3aed; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 32px; }
             .section { margin-bottom: 32px; }
             .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
-            .info-grid { width: 100%; border-collapse: collapse; }
-            .info-grid td { padding-bottom: 16px; vertical-align: top; width: 50%; }
-            .label { font-size: 11px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; display: block; text-transform: uppercase; }
-            .value { font-size: 14px; color: #1e293b; font-weight: 700; line-height: 1.5; }
-            .items-table { width: 100%; border-collapse: collapse; }
-            .items-table td { padding: 16px 0; border-bottom: 1px solid #f8fafc; }
+            .order-card { background: #f8fafc; border-radius: 24px; padding: 32px; margin-bottom: 32px; border: 1px solid #f1f5f9; text-align: center; }
+            .btn { background: #4f46e5; color: #ffffff !important; padding: 14px 28px; border-radius: 99px; text-decoration: none; font-size: 14px; font-weight: 700; display: inline-block; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2); }
             .product-name { font-size: 14px; font-weight: 700; color: #1e293b; display: block; margin-bottom: 2px; }
+            .product-image { width: 56px; height: 56px; border-radius: 12px; object-fit: contain; background: #f8fafc; border: 1px solid #f1f5f9; }
             .product-qty { font-size: 12px; color: #64748b; font-weight: 600; }
             .price { font-size: 14px; font-weight: 800; color: #1e293b; text-align: right; }
             .summary-box { background: #f8fafc; border-radius: 20px; padding: 24px; margin-top: 16px; border: 1px solid #f1f5f9; }
@@ -326,32 +343,21 @@ router.post("/place-order", async (req, res) => {
                   <div class="status-badge">${isVendor ? "Action Required" : "Confirmed"}</div>
                 </div>
 
-                <div class="section">
-                  <div class="section-title">Order Details</div>
-                  <table class="info-grid">
-                    <tr>
-                      <td>
-                        <span class="label">Order Number</span>
-                        <span class="value">#${orderId}</span>
-                      </td>
-                      <td>
-                        <span class="label">Placement Date</span>
-                        <span class="value">${newOrder.date}</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <span class="label">Payment</span>
-                        <span class="value">${customer.paymentMethod?.toUpperCase()}</span>
-                      </td>
-                      ${!isVendor ? `
-                      <td>
-                        <span class="label">Contact Email</span>
-                        <span class="value">${customer.email}</span>
-                      </td>
-                      ` : ""}
-                    </tr>
-                  </table>
+                <div class="order-card">
+                  <div style="margin-bottom: 24px;">
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Order Number</span>
+                    <div style="font-size: 24px; font-weight: 900; color: #1e293b; margin-top: 4px;">#${orderId}</div>
+                  </div>
+                  <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                    <div style="text-align: left; background: white; padding: 12px 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                      <span style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Placement Date</span>
+                      <div style="font-size: 13px; font-weight: 700; color: #1e293b;">${newOrder.date.split("T")[0]}</div>
+                    </div>
+                    <div style="text-align: left; background: white; padding: 12px 20px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                      <span style="font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Payment</span>
+                      <div style="font-size: 13px; font-weight: 700; color: #1e293b;">${customer.paymentMethod?.toUpperCase()}</div>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="section">
@@ -370,19 +376,25 @@ router.post("/place-order", async (req, res) => {
                   <div class="section-title">${isVendor ? "Items to Fulfill" : "Order Summary"}</div>
                   <table class="items-table">
                     <tbody>
-                      ${orderItems.map((i) => {
-                        const price = Number(i.price) || 0;
-                        const qty = Number(i.quantity) || 1;
-                        return `
+                      ${orderItems
+                        .map((i) => {
+                          const price = Number(i.price) || 0;
+                          const qty = Number(i.quantity) || 1;
+                          const imageUrl = ensureAbsoluteUrl(i.image);
+                          return `
                           <tr>
+                            <td style="width: 56px; padding-right: 16px;">
+                              ${imageUrl ? `<img src="${imageUrl}" class="product-image" alt="${i.name}">` : `<div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8;">No Img</div>`}
+                            </td>
                             <td>
                               <span class="product-name">${i.name || "Product"}</span>
-                              <span class="product-qty">${qty} unit${qty > 1 ? 's' : ''} × $${price.toFixed(2)}</span>
+                              <span class="product-qty">${qty} unit${qty > 1 ? "s" : ""} × $${price.toFixed(2)}</span>
                             </td>
                             <td class="price">$${(price * qty).toFixed(2)}</td>
                           </tr>
                         `;
-                      }).join("")}
+                        })
+                        .join("")}
                     </tbody>
                   </table>
 
@@ -391,7 +403,9 @@ router.post("/place-order", async (req, res) => {
                       <span>${isVendor ? "Vendor Total" : "Order Total"}</span>
                       <span>$${orderItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0).toFixed(2)}</span>
                     </div>
-                    ${isVendor ? `
+                    ${
+                      isVendor
+                        ? `
                       <div class="summary-row" style="margin-top: 12px; color: #e11d48; font-size: 12px;">
                         <span>Commission (10%)</span>
                         <span>-$${(orderItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0) * 0.1).toFixed(2)}</span>
@@ -400,7 +414,9 @@ router.post("/place-order", async (req, res) => {
                         <span>Your Earnings</span>
                         <span>$${(orderItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0) * 0.9).toFixed(2)}</span>
                       </div>
-                    ` : ""}
+                    `
+                        : ""
+                    }
                   </div>
                 </div>
               </div>
@@ -413,15 +429,18 @@ router.post("/place-order", async (req, res) => {
         </body>
         </html>`;
 
-      transporter.sendMail({
-        from: `"LinkStore" <${process.env.EMAIL_USER}>`,
-        to: customer.email,
-        subject: `Order Confirmation #${orderId}`,
-        html: generateEmailHtml(itemsWithFulfillment, false),
-      }).catch((e) => console.error("Customer email error:", e));
+      transporter
+        .sendMail({
+          from: `"LinkStore" <${process.env.EMAIL_USER}>`,
+          to: customer.email,
+          subject: `Order Confirmation #${orderId}`,
+          html: generateEmailHtml(itemsWithFulfillment, false),
+        })
+        .catch((e) => console.error("Customer email error:", e));
 
       for (const [vendorId, vendorItems] of Object.entries(itemsByVendor)) {
-        VendorModel.findOne({ id: vendorId }).lean()
+        VendorModel.findOne({ id: vendorId })
+          .lean()
           .then((vendor) => {
             if (vendor && vendor.email) {
               return transporter.sendMail({
@@ -437,7 +456,7 @@ router.post("/place-order", async (req, res) => {
     } catch (e) {
       console.error("Critical error generating email HTML:", e);
     }
-    return; // Already responded
+    return;
   } catch (error) {
     console.error("Place order failed:", error);
     return res.status(500).json({ error: "Failed to place order." });

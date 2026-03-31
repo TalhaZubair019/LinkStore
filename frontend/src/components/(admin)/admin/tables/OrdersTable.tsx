@@ -298,7 +298,7 @@ const OrdersTable = ({
           </div>
         )}
       </div>
-      {/* Mobile Card View */}
+      {}
       <div className="lg:hidden divide-y divide-slate-100 dark:divide-slate-800">
         {paginatedOrders?.length === 0 ? (
           <div className="px-6 py-10 text-center text-slate-500 italic">
@@ -329,11 +329,6 @@ const OrdersTable = ({
                     $
                     {typeof o.total === "number" ? o.total.toFixed(2) : o.total}
                   </div>
-                  {isAdminView && (
-                    <div className="text-[10px] font-bold text-rose-500 mt-1">
-                      Com: ${(o.platformFee || 0).toFixed(2)}
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -409,24 +404,24 @@ const OrdersTable = ({
                               handleStatusChange(o.id, e.target.value);
                             }
                           }}
-                          className={`w-full text-xs font-bold py-2 border rounded-xl px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+                          className={`w-full text-xs font-bold py-2 border rounded-xl px-3 focus:outline-none transition-all ring-offset-1 focus:ring-2 appearance-none cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 bg-slate-50 dark:bg-slate-800 ${
                             displayStatus === "Pending"
-                              ? "bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800 focus:ring-amber-500/20"
+                              ? "text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800 focus:ring-amber-500/20"
                               : displayStatus === "Processing"
-                                ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
+                                ? "text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
                                 : displayStatus === "Accepted"
-                                  ? "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 focus:ring-blue-500/20"
+                                  ? "text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 focus:ring-blue-500/20"
                                   : displayStatus === "Shipped"
-                                    ? "bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 focus:ring-indigo-500/20"
+                                    ? "text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800 focus:ring-indigo-500/20"
                                     : displayStatus === "Arrived in Country"
-                                      ? "bg-violet-50 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800 focus:ring-violet-500/20"
+                                      ? "text-violet-600 dark:text-violet-400 border-violet-200 dark:border-violet-800 focus:ring-violet-500/20"
                                       : displayStatus === "Arrived in City"
-                                        ? "bg-pink-50 dark:bg-pink-900/40 text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800 focus:ring-pink-500/20"
+                                        ? "text-pink-600 dark:text-pink-400 border-pink-200 dark:border-pink-800 focus:ring-pink-500/20"
                                         : displayStatus === "Out for Delivery"
-                                          ? "bg-orange-50 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
+                                          ? "text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-800 focus:ring-orange-500/20"
                                           : displayStatus === "Delivered"
-                                            ? "bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
-                                            : "bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
+                                            ? "text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800 focus:ring-emerald-500/20"
+                                            : "text-red-600 dark:text-red-400 border-red-200 dark:border-red-800 focus:ring-red-500/20"
                           } ${updatingOrderId === o.id ? "animate-pulse" : ""}`}
                         >
                           <option value={displayStatus}>{displayStatus}</option>
@@ -487,7 +482,6 @@ const OrdersTable = ({
               {isAdminView && <th className="px-8 py-4">Vendor</th>}
               <th className="px-8 py-4">Customer</th>
               <th className="px-8 py-4">Total</th>
-              {isAdminView && <th className="px-8 py-4">Commission</th>}
               <th className="px-8 py-4">Status</th>
               <th className="px-8 py-4 text-right">Action</th>
             </tr>
@@ -538,11 +532,6 @@ const OrdersTable = ({
                 <td className="px-8 py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">
                   ${typeof o.total === "number" ? o.total.toFixed(2) : o.total}
                 </td>
-                {isAdminView && (
-                  <td className="px-8 py-5 font-bold text-sm text-rose-600 dark:text-rose-400 whitespace-nowrap">
-                    ${(o.platformFee || 0).toFixed(2)}
-                  </td>
-                )}
                 <td className="px-8 py-5">
                   <div className="relative group min-w-[140px]">
                     {isAdminView ? (

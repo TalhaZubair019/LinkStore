@@ -132,6 +132,10 @@ export default function ActivityLogsTable() {
   const [filterAction, setFilterAction] = useState("all");
   const [filterAdmin, setFilterAdmin] = useState("all");
   const [filterVendor, setFilterVendor] = useState("all");
+  const [filterUser, setFilterUser] = useState("all");
+  const [availableUsers, setAvailableUsers] = useState<
+    { id: string; name: string; email: string }[]
+  >([]);
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
   const LIMIT = 15;
 
@@ -146,6 +150,7 @@ export default function ActivityLogsTable() {
       if (filterAction !== "all") params.set("action", filterAction);
       if (filterAdmin !== "all") params.set("adminId", filterAdmin);
       if (filterVendor !== "all") params.set("adminId", filterVendor);
+      if (filterUser !== "all") params.set("userId", filterUser);
 
       const res = await fetch(`/api/admin/logs?${params}`);
       if (res.ok) {
@@ -159,6 +164,9 @@ export default function ActivityLogsTable() {
         if (data.vendors) {
           setAvailableVendors(data.vendors);
         }
+        if (data.users) {
+          setAvailableUsers(data.users);
+        }
       }
     } catch (err) {
       console.error("Failed to fetch logs");
@@ -169,18 +177,18 @@ export default function ActivityLogsTable() {
 
   useEffect(() => {
     fetchLogs();
-  }, [page, filterEntity, filterAction, filterAdmin, filterVendor]);
+  }, [page, filterEntity, filterAction, filterAdmin, filterVendor, filterUser]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       fetchLogs(true);
     }, 10000);
     return () => clearInterval(interval);
-  }, [page, filterEntity, filterAction, filterAdmin, filterVendor]);
+  }, [page, filterEntity, filterAction, filterAdmin, filterVendor, filterUser]);
 
   useEffect(() => {
     setPage(1);
-  }, [filterEntity, filterAction, filterAdmin, filterVendor]);
+  }, [filterEntity, filterAction, filterAdmin, filterVendor, filterUser]);
 
   const toggleExpand = (logId: string) => {
     setExpandedLogs((prev) => ({
@@ -196,6 +204,7 @@ export default function ActivityLogsTable() {
       if (filterAction !== "all") params.set("action", filterAction);
       if (filterAdmin !== "all") params.set("adminId", filterAdmin);
       if (filterVendor !== "all") params.set("adminId", filterVendor);
+      if (filterUser !== "all") params.set("userId", filterUser);
 
       const downloadUrl = `/api/admin/logs/export?${params.toString()}`;
       window.open(downloadUrl, "_blank");
@@ -208,7 +217,8 @@ export default function ActivityLogsTable() {
     filterEntity !== "all" ||
     filterAction !== "all" ||
     filterAdmin !== "all" ||
-    filterVendor !== "all";
+    filterVendor !== "all" ||
+    filterUser !== "all";
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in duration-300 transition-colors">
@@ -225,15 +235,39 @@ export default function ActivityLogsTable() {
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                 Activity Logs
               </h3>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                 {total} total {total === 1 ? "entry" : "entries"}
+                <span className="flex items-center gap-1.5 ml-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="text-[10px] uppercase tracking-wider font-bold opacity-60">
+                    Live
+                  </span>
+                </span>
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border dark:border-slate-700 shadow-xs transition-colors">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            Auto-refreshing
-          </div>
+          <button
+            onClick={handleDownloadCSV}
+            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all shadow-sm shrink-0"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-download"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" x2="12" y1="15" y2="3" />
+            </svg>
+            Download CSV
+          </button>
         </div>
       </div>
       <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 transition-colors">
@@ -276,10 +310,39 @@ export default function ActivityLogsTable() {
               <User size={14} />
             </div>
             <select
+              value={filterUser}
+              onChange={(e) => {
+                setFilterUser(e.target.value);
+                if (e.target.value !== "all") {
+                  setFilterAdmin("all");
+                  setFilterVendor("all");
+                }
+              }}
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
+            >
+              <option value="all">All Users</option>
+              {availableUsers.map(
+                (u: { id: string; name: string; email: string }) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.email})
+                  </option>
+                ),
+              )}
+            </select>
+          </div>
+
+          <div className="relative flex-1 min-w-[200px]">
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+              <User size={14} />
+            </div>
+            <select
               value={filterVendor}
               onChange={(e) => {
                 setFilterVendor(e.target.value);
-                if (e.target.value !== "all") setFilterAdmin("all");
+                if (e.target.value !== "all") {
+                  setFilterAdmin("all");
+                  setFilterUser("all");
+                }
               }}
               className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
             >
@@ -323,6 +386,7 @@ export default function ActivityLogsTable() {
                 setFilterAction("all");
                 setFilterAdmin("all");
                 setFilterVendor("all");
+                setFilterUser("all");
               }}
               className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors shrink-0"
             >
@@ -330,29 +394,6 @@ export default function ActivityLogsTable() {
               Clear
             </button>
           )}
-
-          <button
-            onClick={handleDownloadCSV}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all shadow-xs shrink-0 ml-auto"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-download"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="7 10 12 15 17 10" />
-              <line x1="12" x2="12" y1="15" y2="3" />
-            </svg>
-            Download CSV
-          </button>
         </div>
       </div>
       <div className="divide-y divide-slate-100 dark:divide-slate-800 transition-colors">

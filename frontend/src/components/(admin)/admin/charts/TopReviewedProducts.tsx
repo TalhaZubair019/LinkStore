@@ -8,12 +8,12 @@ interface TopReviewedProductsProps {
 
 const TopReviewedProducts = ({ stats }: TopReviewedProductsProps) => {
   return (
-    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500">
+    <div className="h-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500 flex flex-col">
       <h3 className="font-bold text-slate-800 dark:text-white transition-colors mb-6 flex items-center gap-2">
         Top Reviewed Products
         <div className="h-2 w-2 bg-blue-400 rounded-full animate-pulse shadow-lg shadow-blue-200" />
       </h3>
-      <div className="space-y-4">
+      <div className="space-y-5">
         {stats.topReviewedProducts?.map((product, index) => {
           const maxReviews =
             Math.max(
@@ -23,7 +23,7 @@ const TopReviewedProducts = ({ stats }: TopReviewedProductsProps) => {
 
           return (
             <div key={index} className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden relative shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden relative shrink-0">
                 {product.image ? (
                   <Image
                     src={product.image}

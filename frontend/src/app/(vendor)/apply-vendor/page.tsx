@@ -178,6 +178,20 @@ export default function ApplyVendorPage() {
                 onSubmit={handleSubmit}
                 className="space-y-6"
               >
+                {status === "rejected" && !error && (
+                  <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 flex flex-col gap-2 border border-rose-100 dark:border-rose-900/30">
+                    <div className="flex items-center gap-3">
+                      <AlertCircle size={20} />
+                      <p className="text-sm font-bold">Application Rejected</p>
+                    </div>
+                    <p className="text-xs ml-8 leading-relaxed opacity-80">
+                      Your previous application was rejected. Please check your
+                      email for details before submitting a new one. You can
+                      update your store details below and try again.
+                    </p>
+                  </div>
+                )}
+
                 {error && (
                   <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 flex items-center gap-3 border border-rose-100 dark:border-rose-900/30">
                     <AlertCircle size={20} />

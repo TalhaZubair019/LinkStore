@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
@@ -13,6 +14,7 @@ import {
   ChevronLeft,
   X,
   Clock,
+  AlertCircle,
 } from "lucide-react";
 
 interface UserSidebarProps {
@@ -58,6 +60,8 @@ const UserSidebar = ({
   isOpen = false,
   onClose = () => {},
 }: UserSidebarProps) => {
+  const router = useRouter();
+
   return (
     <>
       {isOpen && (
@@ -74,8 +78,16 @@ const UserSidebar = ({
       >
         <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between h-24">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 min-w-[40px] rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg">
-              {user?.name?.[0]?.toUpperCase() || "U"}
+            <div className="h-10 w-10 min-w-[40px] rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-lg overflow-hidden border border-slate-200 dark:border-slate-800">
+              {user?.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                user?.name?.[0]?.toUpperCase() || "U"
+              )}
             </div>
             <div className="overflow-hidden">
               <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
@@ -142,6 +154,27 @@ const UserSidebar = ({
                 <Clock size={20} />
                 <span>Application Pending</span>
               </div>
+            ) : user?.vendorProfile?.status === "rejected" ? (
+              <Link href="/apply-vendor" className="block outline-none group">
+                <div className="w-full p-4 rounded-2xl bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 transition-all hover:bg-rose-100 dark:hover:bg-rose-900/20">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-rose-500 rounded-lg text-white">
+                      <AlertCircle size={18} />
+                    </div>
+                    <span className="text-sm font-bold text-rose-700 dark:text-rose-400">
+                      Application Rejected
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-rose-600/70 dark:text-rose-400/60 leading-relaxed mb-3">
+                    Your store application was rejected. Please check your email
+                    for details.
+                  </p>
+                  <div className="flex items-center gap-2 text-xs font-bold text-rose-700 dark:text-rose-400 group-hover:translate-x-1 transition-transform">
+                    <span>Re-apply Now</span>
+                    <ChevronLeft size={14} className="rotate-180" />
+                  </div>
+                </div>
+              </Link>
             ) : (
               <Link href="/apply-vendor" className="block outline-none">
                 <div className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-2xl shadow-lg shadow-purple-600/20 transition-all group scale-95 hover:scale-100 origin-left">
@@ -168,8 +201,8 @@ const UserSidebar = ({
                 <span>Switch to Admin View</span>
               </Link>
             )}
-            <Link
-              href="/"
+            <button
+              onClick={() => router.back()}
               className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors w-full group"
               title="Back to Store"
             >
@@ -178,7 +211,7 @@ const UserSidebar = ({
                 className="group-hover:-translate-x-1 transition-transform"
               />
               <span>Back to Store</span>
-            </Link>
+            </button>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 px-3 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg transition-colors w-full group"

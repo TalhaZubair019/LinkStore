@@ -8,12 +8,12 @@ interface SentimentChartProps {
 
 const SentimentChart = ({ stats }: SentimentChartProps) => {
   return (
-    <div className="mt-6 mb-6 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500">
+    <div className="h-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500 flex flex-col">
       <h3 className="font-bold text-slate-800 dark:text-white transition-colors mb-6 flex items-center gap-2">
         Product Review Sentiment
         <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse shadow-lg shadow-green-200" />
       </h3>
-      <div className="space-y-6">
+      <div className="space-y-5">
         {stats.productSentiment?.map((item, index) => {
           const goodPercent = (item.good / item.total) * 100;
           const badPercent = (item.bad / item.total) * 100;
@@ -23,7 +23,7 @@ const SentimentChart = ({ stats }: SentimentChartProps) => {
             <div key={index} className="space-y-2">
               <div className="flex justify-between items-center text-sm">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded bg-slate-100 dark:bg-slate-800 overflow-hidden relative shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden relative shrink-0">
                     {item.image ? (
                       <Image
                         src={item.image}
@@ -46,7 +46,7 @@ const SentimentChart = ({ stats }: SentimentChartProps) => {
                   {item.total} reviews
                 </span>
               </div>
-              <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
                 {goodPercent > 0 && (
                   <div
                     style={{ width: `${goodPercent}%` }}

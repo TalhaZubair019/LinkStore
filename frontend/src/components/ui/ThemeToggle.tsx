@@ -7,7 +7,7 @@ const ThemeToggle = () => {
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    // Check initial theme
+    
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
     const initialTheme =
       savedTheme ||

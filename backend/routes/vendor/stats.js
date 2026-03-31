@@ -363,6 +363,7 @@ router.get("/", requireVendor, async (req, res) => {
       categories,
       outstandingCommission: vendorDoc?.vendorProfile?.outstandingCommission || 0,
       totalCommissionPaid: vendorDoc?.vendorProfile?.totalCommissionPaid || 0,
+      walletBalance: vendorDoc?.vendorProfile?.walletBalance || 0,
       commissionDeadline: vendorDoc?.vendorProfile?.commissionDeadline || null,
     });
   } catch (error) {

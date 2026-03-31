@@ -18,6 +18,7 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+  user,
   activeTab,
   searchTerm,
   setSearchTerm,
@@ -51,6 +52,17 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             </Link>
           )}
           <ThemeToggle />
+          <div className="h-9 w-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold overflow-hidden border border-slate-200 dark:border-slate-800">
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              user?.name?.[0]?.toUpperCase() || "U"
+            )}
+          </div>
         </div>
       </div>
 

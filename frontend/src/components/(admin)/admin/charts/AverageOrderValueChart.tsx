@@ -36,7 +36,22 @@ const AverageOrderValueChart = ({
   setAovCustomEnd,
   aovLoading,
 }: AverageOrderValueChartProps) => {
-  const [hoveredPoint, setHoveredPoint] = React.useState<any | null>(null);
+  const [activePoint, setActivePoint] = React.useState<any | null>(null);
+  const chartContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Click away to clear active tooltip
+  React.useEffect(() => {
+    const handleClickAway = (e: MouseEvent) => {
+      if (
+        chartContainerRef.current &&
+        !chartContainerRef.current.contains(e.target as Node)
+      ) {
+        setActivePoint(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickAway);
+    return () => document.removeEventListener("mousedown", handleClickAway);
+  }, []);
 
   return (
     <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500">
@@ -181,8 +196,9 @@ const AverageOrderValueChart = ({
         <div className="flex flex-col justify-between">
           <div className="relative h-48 w-full">
             <div
+              ref={chartContainerRef}
               className="w-full h-full relative"
-              onMouseLeave={() => setHoveredPoint(null)}
+              onMouseLeave={() => setActivePoint(null)}
             >
               <svg
                 className="w-full h-full"
@@ -255,10 +271,13 @@ const AverageOrderValueChart = ({
                         return (
                           <g
                             key={i}
-                            onMouseEnter={() => setHoveredPoint({ ...d, x, y })}
+                            onMouseEnter={() => setActivePoint({ ...d, x, y })}
+                            onClick={() =>
+                              setActivePoint({ ...d, x, y })
+                            }
                             className="cursor-pointer"
                           >
-                            {hoveredPoint && hoveredPoint.date === d.date && (
+                            {activePoint && activePoint.date === d.date && (
                               <line
                                 x1={x}
                                 y1={0}
@@ -274,7 +293,7 @@ const AverageOrderValueChart = ({
                               cx={x}
                               cy={y}
                               r={
-                                hoveredPoint && hoveredPoint.date === d.date
+                                activePoint && activePoint.date === d.date
                                   ? "6"
                                   : "4"
                               }
@@ -289,23 +308,23 @@ const AverageOrderValueChart = ({
                   );
                 })()}
               </svg>
-              {hoveredPoint && (
+              {activePoint && (
                 <div
                   className="absolute z-50 bg-slate-900/95 backdrop-blur-md text-white text-xs py-2 px-3 rounded-xl font-bold whitespace-nowrap shadow-2xl border border-white/10 flex flex-col items-center gap-0.5 pointer-events-none transform -translate-x-1/2 -translate-y-full animate-in fade-in zoom-in-95 duration-200"
                   style={{
-                    left: `${(hoveredPoint.x / 300) * 100}%`,
-                    top: `calc(${hoveredPoint.y}px - 10px)`,
+                    left: `${(activePoint.x / 300) * 100}%`,
+                    top: `calc(${activePoint.y}px - 10px)`,
                   }}
                 >
                   <span className="text-slate-400 text-[10px] font-medium leading-none mb-0.5">
-                    {new Date(hoveredPoint.date).toLocaleDateString(undefined, {
+                    {new Date(activePoint.date).toLocaleDateString(undefined, {
                       month: "short",
                       day: "numeric",
                     })}
                   </span>
                   <span className="text-amber-400 font-extrabold text-sm">
                     $
-                    {hoveredPoint.value.toLocaleString(undefined, {
+                    {activePoint.value.toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}

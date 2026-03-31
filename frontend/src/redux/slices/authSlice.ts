@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface User {
+  avatar: string;
   id: string;
   email: string;
   name: string;
@@ -25,7 +26,7 @@ export interface User {
     storeDescription?: string;
     logo?: string;
     banner?: string;
-    status: "pending" | "approved" | "suspended";
+    status: "none" | "pending" | "approved" | "suspended" | "rejected";
     stripeAccountId?: string | null;
     stripeOnboardingComplete?: boolean;
   };

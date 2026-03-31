@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -55,6 +55,7 @@ const itemVariants = {
 
 export default function VendorStorePage() {
   const params = useParams();
+  const router = useRouter();
   const storeSlug = params.storeSlug as string;
 
   const dispatch = useDispatch();
@@ -183,7 +184,7 @@ export default function VendorStorePage() {
         const diff = (a.id || 0) - (b.id || 0);
         if (diff !== 0) return diff;
       }
-      // Stable sort fallback
+
       return String(a.id).localeCompare(String(b.id));
     });
 
@@ -242,10 +243,32 @@ export default function VendorStorePage() {
 
   return (
     <div className="min-h-screen bg-[#FCF9F2] dark:bg-[#110F17] transition-colors font-sans pb-32 selection:bg-[#1E2749] selection:text-[#FCF9F2] dark:selection:text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 lg:pt-32 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 mt-10 lg:pt-24 relative z-20">
+        <button
+          onClick={() => router.back()}
+          className="group flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white font-bold text-sm transition-all mb-8"
+        >
+          <ArrowLeft
+            size={18}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          Go Back
+        </button>
         <div className="gap-12 xl:gap-24">
           <div className="shrink-0">
             <div className="xl:sticky top-32 flex flex-col items-start text-left">
+              {logo && (
+                <div className="mb-8 relative w-24 h-24 sm:w-32 sm:h-32">
+                  <div className="absolute -inset-4 bg-white/50 dark:bg-white/5 blur-3xl rounded-full" />
+                  <Image
+                    src={logo}
+                    alt={storeName}
+                    fill
+                    className="object-contain relative z-10"
+                    unoptimized
+                  />
+                </div>
+              )}
               <h1 className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-black text-slate-950 dark:text-white tracking-tighter leading-[0.85] uppercase break-word mb-8">
                 {storeName}
               </h1>
@@ -306,16 +329,6 @@ export default function VendorStorePage() {
                   </span>
                 </div>
               </div>
-              {logo && (
-                <div className="mt-12 relative w-24 h-24 grayscale contrast-125">
-                  <Image
-                    src={logo}
-                    alt={storeName}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
             </div>
           </div>
 
@@ -380,52 +393,50 @@ export default function VendorStorePage() {
                   ))}
                 </ul>
               </div>
-                <div className="grow">
-                  {filteredProducts.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
-                      {filteredProducts.map((product) => (
-                        <div key={product.id} className="h-full">
-                          <SimpleProductCard
-                            product={product}
-                            isWishlisted={wishlistItems.some(
-                              (item) => item.id === product.id,
-                            )}
-                            isInCart={cartItems.some(
-                              (item: any) => item.id === product.id,
-                            )}
-                            onAddToCart={(p: any) => handleAddToCart(p)}
-                            onToggleWishlist={() =>
-                              handleToggleWishlist(product)
-                            }
-                            onQuickView={() => setQuickViewProduct(product)}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-24 text-center bg-white dark:bg-zinc-900 rounded-4xl border border-slate-200 dark:border-white/10">
-                      <Search
-                        size={40}
-                        className="mx-auto mb-4 text-slate-300 dark:text-zinc-700"
-                      />
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                        No items found
-                      </h3>
-                      <p className="text-slate-500 dark:text-zinc-400">
-                        Try adjusting your search or filters.
-                      </p>
-                      <button
-                        onClick={() => {
-                          setSearchQuery("");
-                          setSelectedCategory("All");
-                        }}
-                        className="mt-6 px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl hover:scale-105 transition-transform"
-                      >
-                        Clear Filters
-                      </button>
-                    </div>
-                  )}
-                </div>
+              <div className="grow">
+                {filteredProducts.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
+                    {filteredProducts.map((product) => (
+                      <div key={product.id} className="h-full">
+                        <SimpleProductCard
+                          product={product}
+                          isWishlisted={wishlistItems.some(
+                            (item) => item.id === product.id,
+                          )}
+                          isInCart={cartItems.some(
+                            (item: any) => item.id === product.id,
+                          )}
+                          onAddToCart={(p: any) => handleAddToCart(p)}
+                          onToggleWishlist={() => handleToggleWishlist(product)}
+                          onQuickView={() => setQuickViewProduct(product)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="py-24 text-center bg-white dark:bg-zinc-900 rounded-4xl border border-slate-200 dark:border-white/10">
+                    <Search
+                      size={40}
+                      className="mx-auto mb-4 text-slate-300 dark:text-zinc-700"
+                    />
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
+                      No items found
+                    </h3>
+                    <p className="text-slate-500 dark:text-zinc-400">
+                      Try adjusting your search or filters.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedCategory("All");
+                      }}
+                      className="mt-6 px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl hover:scale-105 transition-transform"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

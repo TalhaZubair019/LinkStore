@@ -119,7 +119,7 @@ export default function WarehouseAssignModal({
               <h2 className="text-lg font-bold text-slate-800 dark:text-white transition-colors">
                 Assign Products to {warehouseName}
               </h2>
-              {/* Usage Badge */}
+              {}
               <div className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400">
                 Capacity Check Enabled
               </div>

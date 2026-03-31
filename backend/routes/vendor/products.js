@@ -79,7 +79,7 @@ router.patch("/:id", requireVendor, async (req, res) => {
     const { vendorId, ...safeUpdateData } = req.body;
     const warehouseInventory = safeUpdateData.warehouseInventory;
 
-    // Capacity Check
+    
     if (Array.isArray(warehouseInventory)) {
       for (const wInv of warehouseInventory) {
         if (!wInv.warehouseName) continue;
@@ -196,7 +196,7 @@ router.patch("/:id/inventory", requireVendor, async (req, res) => {
       0,
     );
 
-    // Capacity Check
+    
     if (Array.isArray(warehouseInventory)) {
       for (const wInv of warehouseInventory) {
         if (!wInv.warehouseName) continue;
@@ -207,7 +207,7 @@ router.patch("/:id/inventory", requireVendor, async (req, res) => {
         });
 
         if (warehouse && warehouse.capacity > 0) {
-          // Calculate usage from OTHER products
+          
           const usageAgg = await ProductModel.aggregate([
             { $match: { vendorId: req.user.id, id: { $ne: Number(req.params.id) } } },
             { $unwind: "$warehouseInventory" },

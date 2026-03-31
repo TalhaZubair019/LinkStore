@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Moon, Sun } from "lucide-react";
-// @ts-ignore
+
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
 

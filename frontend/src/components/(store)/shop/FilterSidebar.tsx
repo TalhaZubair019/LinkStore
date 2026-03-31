@@ -36,7 +36,7 @@ export default function FilterSidebar({ categories, vendors, onClose, activeCate
       }
     });
 
-    // Reset page when filters change
+    
     params.delete("page");
     
     router.replace(`?${params.toString()}`, { scroll: false });
@@ -75,7 +75,7 @@ export default function FilterSidebar({ categories, vendors, onClose, activeCate
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-10 no-scrollbar">
-        {/* Search */}
+        {}
         <section className="space-y-4">
           <label className="text-xs font-black uppercase tracking-widest text-slate-400">Search Products</label>
           <div className="relative group">
@@ -91,7 +91,7 @@ export default function FilterSidebar({ categories, vendors, onClose, activeCate
           </div>
         </section>
 
-        {/* Categories */}
+        {}
         <section className="space-y-4">
           <label className="text-xs font-black uppercase tracking-widest text-slate-400">Categories</label>
           <div className="flex flex-col gap-1">
@@ -101,7 +101,7 @@ export default function FilterSidebar({ categories, vendors, onClose, activeCate
                 onClick={() => {
                   setSelectedCategory(cat);
                   
-                  // Check if we are on a category page
+                  
                   const isCategoryPage = typeof window !== "undefined" && window.location.pathname.startsWith("/category/");
                   
                   if (isCategoryPage) {
@@ -128,7 +128,7 @@ export default function FilterSidebar({ categories, vendors, onClose, activeCate
           </div>
         </section>
 
-        {/* Price Range */}
+        {}
         <section className="space-y-4">
           <label className="text-xs font-black uppercase tracking-widest text-slate-400">Price Range (USD)</label>
           <div className="grid grid-cols-2 gap-3">
@@ -155,7 +155,7 @@ export default function FilterSidebar({ categories, vendors, onClose, activeCate
           </button>
         </section>
 
-        {/* Vendors */}
+        {}
         {vendors.length > 0 && (
           <section className="space-y-4 pb-10">
             <label className="text-xs font-black uppercase tracking-widest text-slate-400">Sellers</label>

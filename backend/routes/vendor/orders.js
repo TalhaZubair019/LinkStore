@@ -139,6 +139,7 @@ function buildEmailHtml(order, status, baseUrl) {
   <title>${content.subject} - LinkStore</title>
   <style>
     body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; background-color: #f8fafc; color: #1e293b; }
+    .product-image { width: 56px; height: 56px; border-radius: 12px; object-fit: contain; background: #f8fafc; border: 1px solid #f1f5f9; }
     .wrapper { width: 100%; padding: 40px 20px; box-sizing: border-box; }
     .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #f1f5f9; }
     .header { background: #ffffff; padding: 48px 40px 32px; text-align: center; }
@@ -148,9 +149,8 @@ function buildEmailHtml(order, status, baseUrl) {
     .status-badge { display: inline-block; padding: 8px 16px; background: #f5f3ff; color: #7c3aed; border-radius: 12px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 32px; }
     .section { margin-bottom: 32px; }
     .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #94a3b8; margin-bottom: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
-    .value { font-size: 14px; color: #1e293b; font-weight: 700; line-height: 1.5; }
-    .order-card { background: #f8fafc; border-radius: 20px; padding: 24px; margin-bottom: 32px; border: 1px solid #f1f5f9; }
-    .btn { background: #7c3aed; color: #ffffff; padding: 16px 32px; border-radius: 16px; text-decoration: none; font-size: 15px; font-weight: 700; display: inline-block; }
+    .order-card { background: #f8fafc; border-radius: 24px; padding: 32px; margin-bottom: 32px; border: 1px solid #f1f5f9; text-align: center; }
+    .btn { background: #4f46e5; color: #ffffff !important; padding: 14px 28px; border-radius: 99px; text-decoration: none; font-size: 14px; font-weight: 700; display: inline-block; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2); }
     .items-table { width: 100%; border-collapse: collapse; }
     .items-table td { padding: 12px 0; border-bottom: 1px solid #f8fafc; }
     .total-row { margin-top: 24px; padding-top: 16px; border-top: 1px dashed #e2e8f0; display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; color: #7c3aed; }
@@ -173,13 +173,11 @@ function buildEmailHtml(order, status, baseUrl) {
         <p style="color: #64748b; line-height: 1.7; font-size: 15px; text-align: center; margin-bottom: 32px;">${content.message}</p>
 
         <div class="order-card">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <span style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Order Number</span>
-              <div style="font-size: 16px; font-weight: 800; color: #1e293b;">#${order.id.slice(-8).toUpperCase()}</div>
-            </div>
-            <a href="${trackUrl}" class="btn" style="padding: 10px 20px; font-size: 13px;">Track Order</a>
+          <div style="margin-bottom: 24px;">
+            <span style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Order Number</span>
+            <div style="font-size: 24px; font-weight: 900; color: #1e293b; margin-top: 4px;">#${order.id.slice(-8).toUpperCase()}</div>
           </div>
+          <a href="${trackUrl}" class="btn">Track Your Order</a>
         </div>
 
         <div class="section">
@@ -191,8 +189,12 @@ function buildEmailHtml(order, status, baseUrl) {
                 const isCancelled = vendorStatus === "Cancelled";
                 const price = Number(i.price) || 0;
                 const qty = Number(i.quantity) || 1;
+                const imageUrl = (i.image) ? (i.image.startsWith('http') ? i.image : `${baseUrl.replace(/\/$/, '')}${i.image.startsWith('/') ? i.image : `/${i.image}`}`) : '';
                 return `
                   <tr>
+                    <td style="width: 56px; padding-right: 16px;">
+                      ${imageUrl ? `<img src="${imageUrl}" class="product-image" alt="${i.name}">` : `<div class="product-image" style="display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8;">No Img</div>`}
+                    </td>
                     <td style="color: ${isCancelled ? '#94a3b8' : '#1e293b'}; font-weight: 700; font-size: 14px; text-decoration: ${isCancelled ? 'line-through' : 'none'};">
                       ${i.name || "Product"}
                       <div style="font-size:12px; font-weight:500; color:#64748b; text-decoration: none;">${qty} × $${price.toFixed(2)}</div>
@@ -307,18 +309,40 @@ router.patch("/:id", requireVendor, async (req, res) => {
           (item) => item.vendorId === req.user.id,
         );
 
-        // --- Revert Commission if COD ---
-        if (finalOrder.customer?.paymentMethod === "cod") {
-          const vTotal = vendorItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-          const commission = Math.round(vTotal * 0.1 * 100) / 100;
-          const { VendorModel } = require("../../lib/models");
+        
+        
+        const vTotal = vendorItems.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
+        const commission = Math.round(vTotal * 0.1 * 100) / 100;
+        const { VendorModel } = require("../../lib/models");
+        const vendor = await VendorModel.findOne({ id: req.user.id });
+        
+        if (vendor) {
+          const currentDebt = vendor.vendorProfile?.outstandingCommission || 0;
+          const refundAmount = commission;
+
+          let debtReduction = 0;
+          let walletCredit = 0;
+
+          if (currentDebt >= refundAmount) {
+            debtReduction = refundAmount;
+          } else {
+            debtReduction = currentDebt;
+            walletCredit = refundAmount - currentDebt;
+          }
+
           await VendorModel.findOneAndUpdate(
             { id: req.user.id },
-            { $inc: { "vendorProfile.outstandingCommission": -commission } }
+            { 
+              $inc: { 
+                "vendorProfile.outstandingCommission": -debtReduction,
+                "vendorProfile.walletBalance": walletCredit,
+                "vendorProfile.totalCommissionPaid": -walletCredit 
+              } 
+            }
           );
         }
 
-        // --- Restock Inventory ---
+        
         for (const item of vendorItems) {
           if (
             item.fulfilledFromWarehouse &&

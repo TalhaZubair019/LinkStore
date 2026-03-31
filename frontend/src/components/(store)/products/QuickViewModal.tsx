@@ -43,7 +43,7 @@ function QuickViewModal({ product, onClose, onAddToCart }: any) {
     <AnimatePresence>
       {product && (
         <div className="fixed inset-0 z-10000 pointer-events-none">
-          {/* Backdrop with intense blur */}
+          {}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -52,7 +52,7 @@ function QuickViewModal({ product, onClose, onAddToCart }: any) {
             className="absolute inset-0 bg-slate-950/40 backdrop-blur-md pointer-events-auto cursor-pointer"
           />
 
-          {/* Right Drawer */}
+          {}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -60,7 +60,7 @@ function QuickViewModal({ product, onClose, onAddToCart }: any) {
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="absolute right-0 top-0 bottom-0 w-full sm:w-[500px] lg:w-[600px] bg-white dark:bg-slate-950 shadow-[-20px_0_60px_rgba(0,0,0,0.3)] pointer-events-auto flex flex-col"
           >
-            {/* Header with Close */}
+            {}
             <div className="flex items-center justify-between p-6 md:p-8 border-b border-slate-100 dark:border-slate-800/50">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
@@ -82,9 +82,9 @@ function QuickViewModal({ product, onClose, onAddToCart }: any) {
               </button>
             </div>
 
-            {/* Scrollable Body */}
+            {}
             <div className="flex-1 overflow-y-auto no-scrollbar scroll-smooth">
-              {/* Main Showcase */}
+              {}
               <div className="relative w-full aspect-square bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-12 overflow-hidden group">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[120px] font-black text-slate-100 dark:text-slate-800/20 select-none pointer-events-none uppercase tracking-tighter opacity-10 leading-none">
                   LinkStore
@@ -110,7 +110,7 @@ function QuickViewModal({ product, onClose, onAddToCart }: any) {
               </div>
 
               <div className="p-8 md:p-12 space-y-10">
-                {/* Title & Brand */}
+                {}
                 <div>
                   <p className="text-purple-600 font-bold text-[10px] uppercase tracking-[0.2em] mb-3">
                     Premium Collection
@@ -175,7 +175,7 @@ function QuickViewModal({ product, onClose, onAddToCart }: any) {
               </div>
             </div>
 
-            {/* Action Bar */}
+            {}
             <div className="p-8 md:p-12 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-slate-100 dark:border-slate-800/50 flex flex-col gap-6">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">

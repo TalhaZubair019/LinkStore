@@ -523,7 +523,7 @@ export default function WarehousesTable({
               "success",
             );
           }}
-          isAdminView={false} // WarehousesTable is currently only for vendors in the vendor dashboard
+          isAdminView={false} 
         />
       )}
     </div>

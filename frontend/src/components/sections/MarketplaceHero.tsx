@@ -117,7 +117,7 @@ export default function MarketplaceHero() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation Arrows */}
+          {}
           <button
             onClick={prevSlide}
             className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 backdrop-blur-xl p-3 rounded-full text-white transition-all opacity-0 group-hover:opacity-100 z-30 border border-white/20"
@@ -131,7 +131,7 @@ export default function MarketplaceHero() {
             <ChevronRight size={32} />
           </button>
 
-          {/* Dots */}
+          {}
           <div className="absolute bottom-10 left-10 flex gap-3 z-30">
             {BANNERS.map((_, idx) => (
               <button

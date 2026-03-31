@@ -24,11 +24,23 @@ const ReviewRatingChart = ({
   );
   const averageRating = totalReviews > 0 ? totalStars / totalReviews : 0;
 
+  const colorClasses: Record<string, string> = {
+    "yellow-400": "bg-yellow-400",
+    "purple-500": "bg-purple-500",
+    "blue-500": "bg-blue-500",
+    "indigo-500": "bg-indigo-500",
+    "teal-400": "bg-teal-400",
+    "emerald-500": "bg-emerald-500",
+  };
+
+  const selectedBgClass = colorClasses[color] || `bg-${color}`;
+  const dotShadowClass = `shadow-${color.split("-")[0]}-500/50`;
+
   return (
     <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-6 rounded-3xl shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500 h-full flex flex-col justify-between">
       <h3 className="font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2">
         {title}
-        <div className={`h-2 w-2 bg-${color} rounded-full animate-pulse shadow-lg shadow-${color.split("-")[0]}-200`} />
+        <div className={`h-2 w-2 ${selectedBgClass} rounded-full animate-pulse shadow-lg ${dotShadowClass}`} />
       </h3>
       <div className="space-y-4">
         {[5, 4, 3, 2, 1].map((rating) => {
@@ -43,7 +55,7 @@ const ReviewRatingChart = ({
               </span>
               <div className="flex-1 h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  className={`h-full bg-${color} rounded-full transition-all duration-1000 ease-out`}
+                  className={`h-full ${selectedBgClass} rounded-full transition-all duration-1000 ease-out`}
                   style={{ width: `${percentage}%` }}
                 />
               </div>

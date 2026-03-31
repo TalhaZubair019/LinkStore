@@ -71,7 +71,7 @@ export default function SimpleProductCard({
       onClick={handleCardClick}
       className="group w-full bg-white dark:bg-slate-900 transition-all duration-500 relative flex flex-col h-full cursor-pointer"
     >
-      {/* Wishlist Button */}
+      {}
       <button
         onClick={(e) => {
           e.preventDefault();
@@ -88,7 +88,7 @@ export default function SimpleProductCard({
         <Heart size={14} className="sm:w-4.5 sm:h-4.5" fill={showFilled ? "currentColor" : "none"} />
       </button>
 
-      {/* Quick View Button */}
+      {}
       {onQuickView && (
         <button
           onClick={(e) => {
@@ -122,7 +122,7 @@ export default function SimpleProductCard({
           )}
         </div>
 
-        {/* Hover Overlay */}
+        {}
         <div
           className={`absolute inset-0 flex items-center justify-center gap-3 transition-opacity duration-500 z-10 bg-black/5 dark:bg-white/5 ${
             isOutOfStock
@@ -173,9 +173,9 @@ export default function SimpleProductCard({
         </div>
       </div>
 
-      {/* Info Section */}
+      {}
       <div className="p-3 sm:p-6 text-center bg-white dark:bg-slate-900 transition-colors flex-1 flex flex-col justify-center">
-        {/* Badges */}
+        {}
         <div className="flex flex-wrap justify-center gap-1 sm:gap-2 mb-2 sm:mb-3">
           {(product.badges || (product.badge ? [product.badge] : [])).map(
             (badge: string, idx: number) => (
@@ -189,7 +189,7 @@ export default function SimpleProductCard({
           )}
         </div>
         
-        {/* Rating */}
+        {}
         <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-1.5 sm:mb-2.5">
           <Star size={10} className={product.averageRating && product.averageRating > 0 ? "fill-yellow-400 text-yellow-400" : "text-slate-300 dark:text-slate-600"} />
           <span className="text-[8px] sm:text-[10px] text-slate-500 font-bold tracking-tight">

@@ -179,8 +179,8 @@ function Navbar() {
               >
                 <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
                 {mounted && totalQuantity > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900">
-                    {totalQuantity}
+                  <span className="absolute -top-1 -right-1 bg-purple-600 text-white text-[10px] font-bold min-w-5 h-5 px-1 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900">
+                    {totalQuantity > 99 ? "99+" : totalQuantity}
                   </span>
                 )}
               </Link>
@@ -257,9 +257,17 @@ function Navbar() {
               <div className="relative group">
                 <Link
                   href={user?.isAdmin ? "/admin/dashboard" : "/user"}
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 hover:shadow-md transition-all border border-slate-100 dark:border-slate-700/50 shadow-sm"
+                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 hover:shadow-md transition-all border border-slate-100 dark:border-slate-700/50 shadow-sm overflow-hidden"
                 >
-                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 sm:w-5 sm:h-5" />
+                  )}
                 </Link>
                 <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-800 p-2 z-50 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-2 group-hover:translate-y-0">
                   <div className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400 font-bold border-b border-slate-100 dark:border-slate-800 mb-1">
@@ -318,8 +326,8 @@ function Navbar() {
               >
                 <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
                 {mounted && wishlistItems.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-[#FF6B6B] text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-[#EBF5FF]">
-                    {wishlistItems.length}
+                  <span className="absolute -top-1 -right-1 bg-[#FF6B6B] text-white text-[10px] font-bold min-w-5 h-5 px-1 flex items-center justify-center rounded-full border-2 border-[#EBF5FF]">
+                    {wishlistItems.length > 99 ? "99+" : wishlistItems.length}
                   </span>
                 )}
               </Link>
@@ -394,8 +402,8 @@ function Navbar() {
             >
               <ShoppingCart className="w-4 h-4" />
               {mounted && totalQuantity > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#3B82F6] text-white text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
-                  {totalQuantity}
+                <span className="absolute -top-1 -right-1 bg-[#3B82F6] text-white text-[8px] font-bold min-w-4 h-4 px-0.5 flex items-center justify-center rounded-full">
+                  {totalQuantity > 99 ? "99+" : totalQuantity}
                 </span>
               )}
             </Link>
@@ -533,8 +541,16 @@ function Navbar() {
                         onClick={() => setIsMobileMenuOpen(false)}
                         className="flex flex-1 items-center gap-4 min-w-0"
                       >
-                        <div className="w-12 h-12 rounded-full bg-purple-600 dark:bg-purple-600 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/20">
-                          <User className="w-6 h-6 text-white" />
+                        <div className="w-12 h-12 rounded-full bg-purple-600 dark:bg-purple-600 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/20 overflow-hidden border-2 border-white dark:border-slate-800">
+                          {user?.avatar ? (
+                            <img
+                              src={user.avatar}
+                              alt={user.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-6 h-6 text-white" />
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[15px] font-bold text-slate-900 dark:text-white truncate">
@@ -556,8 +572,10 @@ function Navbar() {
                         <Heart className="w-4 h-4 text-red-500" />
                         Wishlist
                         {wishlistItems.length > 0 && (
-                          <span className="absolute top-2 right-2 bg-red-500 text-white text-[10px] font-black h-5 w-5 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900">
-                            {wishlistItems.length}
+                          <span className="absolute top-2 right-2 bg-red-500 text-white text-[8px] font-black min-w-5 h-5 px-1 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900">
+                            {wishlistItems.length > 99
+                              ? "99+"
+                              : wishlistItems.length}
                           </span>
                         )}
                       </Link>

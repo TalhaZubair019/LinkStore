@@ -107,7 +107,7 @@ export default function ReviewModal({ isOpen, onClose, target, user }: ReviewMod
               </div>
 
               <div className="p-8 space-y-8">
-                {/* Star Rating */}
+                {}
                 <div className="space-y-4 text-center">
                   <label className="text-xs font-black uppercase tracking-widest text-slate-400">Step 1: Assign Stars</label>
                   <div className="flex items-center justify-center gap-2">
@@ -132,7 +132,7 @@ export default function ReviewModal({ isOpen, onClose, target, user }: ReviewMod
                   </p>
                 </div>
 
-                {/* Comment */}
+                {}
                 <div className="space-y-4">
                   <label className="text-xs font-black uppercase tracking-widest text-slate-400">Step 2: Leave a Comment</label>
                   <textarea

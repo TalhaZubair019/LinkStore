@@ -9,15 +9,16 @@ const router = express.Router();
 router.get("/", requireSuperAdmin, async (req, res) => {
   try {
     await connectDB();
-    const { entity, action, adminId, limit = 100, page = 1 } = req.query;
+    const { entity, action, adminId, userId, limit = 100, page = 1 } = req.query;
 
     const filter = {};
     if (entity && entity !== "all") filter.entity = entity;
     if (action && action !== "all") filter.action = action;
     if (adminId && adminId !== "all") filter.adminId = adminId;
+    if (userId && userId !== "all") filter.adminId = userId;
 
     const skip = (Number(page) - 1) * Number(limit);
-    const [logs, total, admins, vendors] = await Promise.all([
+    const [logs, total, admins, vendors, allLogUsers] = await Promise.all([
       ActivityLogModel.find(filter)
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -26,6 +27,24 @@ router.get("/", requireSuperAdmin, async (req, res) => {
       ActivityLogModel.countDocuments(filter),
       AdminModel.find({}, "id name email adminRole").lean(),
       VendorModel.find({}, "id name email vendorProfile.storeName").lean(),
+      ActivityLogModel.aggregate([
+        {
+          $group: {
+            _id: "$adminId",
+            name: { $first: "$adminName" },
+            email: { $first: "$adminEmail" },
+          },
+        },
+        {
+          $project: {
+            id: "$_id",
+            _id: 0,
+            name: 1,
+            email: 1,
+          },
+        },
+        { $sort: { name: 1 } },
+      ]),
     ]);
 
     const formattedAdmins = admins.map((a) => ({
@@ -41,6 +60,13 @@ router.get("/", requireSuperAdmin, async (req, res) => {
       email: v.email,
     }));
 
+    const adminIds = new Set(admins.map((a) => a.id));
+    const vendorIds = new Set(vendors.map((v) => v.id));
+
+    const regularUsers = allLogUsers.filter(
+      (u) => !adminIds.has(u.id) && !vendorIds.has(u.id),
+    );
+
     return res.json({
       logs,
       total,
@@ -48,6 +74,7 @@ router.get("/", requireSuperAdmin, async (req, res) => {
       totalPages: Math.ceil(total / Number(limit)),
       admins: formattedAdmins,
       vendors: formattedVendors,
+      users: regularUsers,
     });
   } catch (error) {
     console.error("Logs fetch error:", error);
@@ -58,12 +85,13 @@ router.get("/", requireSuperAdmin, async (req, res) => {
 router.get("/export", requireSuperAdmin, async (req, res) => {
   try {
     await connectDB();
-    const { entity, action, adminId } = req.query;
+    const { entity, action, adminId, userId } = req.query;
 
     const filter = {};
     if (entity && entity !== "all") filter.entity = entity;
     if (action && action !== "all") filter.action = action;
     if (adminId && adminId !== "all") filter.adminId = adminId;
+    if (userId && userId !== "all") filter.adminId = userId;
 
     const logs = await ActivityLogModel.find(filter)
       .sort({ createdAt: -1 })
