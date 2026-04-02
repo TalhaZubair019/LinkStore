@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} bg-white dark:bg-slate-950 transition-colors duration-300`}
+        className={`${inter.className} bg-white dark:bg-slate-950 transition-colors duration-300 overflow-x-hidden overflow-y-auto`}
         suppressHydrationWarning={true}
       >
         <ReduxProvider>

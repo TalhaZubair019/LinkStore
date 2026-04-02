@@ -41,9 +41,9 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const InputClass =
-    "w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/20 focus:border-purple-500 outline-none transition-all disabled:bg-slate-50 dark:disabled:bg-slate-900/50 disabled:cursor-not-allowed";
+    "w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 text-[13px] font-bold text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed appearance-none";
   const LabelClass =
-    "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 transition-colors";
+    "block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2.5 ml-1";
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,10 +109,13 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
   return (
     <div className="space-y-8">
       {/* Profile Info Card */}
-      <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-        <div className="flex items-center gap-6 mb-8">
-          <div className="relative group">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center relative">
+      <div className="bg-white dark:bg-[#0d0f14] p-6 sm:p-8 md:p-10 rounded-3xl lg:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl border border-slate-200 dark:border-white/5 relative overflow-hidden group transition-all">
+        {/* Glow */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/5 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8 sm:mb-10 relative z-10 text-center sm:text-left">
+          <div className="relative group/avatar shrink-0">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl sm:rounded-4xl overflow-hidden border-2 border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center relative shadow-inner group-hover/avatar:border-purple-500/30 transition-all duration-500">
               {profileForm.avatar ? (
                 <img
                   src={profileForm.avatar}
@@ -130,13 +133,13 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
                 </div>
               )}
             </div>
-            <button
+              <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 p-2 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-all scale-90 group-hover:scale-100"
+              className="absolute -bottom-2 -right-2 p-3 bg-purple-600 text-white rounded-2xl shadow-xl hover:bg-purple-500 dark:shadow-purple-500/20 transition-all scale-90 group-hover/avatar:scale-100 active:scale-90 border-4 border-white dark:border-[#0d0f14]"
               title="Change Picture"
             >
-              <Camera size={16} />
+              <Camera size={18} strokeWidth={2.5} />
             </button>
             <input
               type="file"
@@ -147,16 +150,19 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">
-              Personal Information
-            </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+              <div className="w-1.5 h-4 bg-purple-600 rounded-full" />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500">
+                Personal Information
+              </h3>
+            </div>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-700 uppercase tracking-widest sm:pl-3.5 mt-2 sm:mt-0">
               Update your photo and personal details here.
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-4xl">
+        <form onSubmit={handleUpdateProfile} className="space-y-6 sm:space-y-8 max-w-4xl relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className={LabelClass}>Full Name</label>
@@ -377,32 +383,39 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               />
             </div>
           </div>
-          <button
-            type="submit"
-            className="px-10 py-3.5 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 transition-all shadow-lg shadow-purple-200 dark:shadow-purple-900/20 active:scale-95 disabled:opacity-50"
-          >
-            Save Profile Changes
-          </button>
+          <div className="flex justify-end pt-4">
+            <button
+              type="submit"
+              className="w-full sm:w-auto px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50"
+            >
+              Save Profile Changes
+            </button>
+          </div>
         </form>
       </div>
 
-      {/* Security Card */}
-      <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 bg-rose-50 dark:bg-rose-900/10 rounded-lg text-rose-600 dark:text-rose-400">
-            <Lock size={20} />
+      <div className="bg-white dark:bg-[#0d0f14] p-6 sm:p-8 md:p-10 rounded-3xl lg:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl border border-slate-200 dark:border-white/5 relative overflow-hidden group transition-all">
+        {/* Glow */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-600/5 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-8 sm:mb-10 text-center sm:text-left relative z-10">
+          <div className="p-3.5 bg-rose-500/10 rounded-[1.25rem] text-rose-500 border border-rose-500/20 shadow-sm shadow-rose-500/10 shrink-0">
+            <Lock size={22} strokeWidth={2.5} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">
-              Security & Password
-            </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+              <div className="w-1.5 h-4 bg-rose-500 rounded-full" />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500">
+                Security & Password
+              </h3>
+            </div>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-700 uppercase tracking-widest sm:pl-3.5">
               Manage your password and account security settings.
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
+        <form onSubmit={handleChangePassword} className="space-y-6 sm:space-y-8 max-w-2xl relative z-10">
           <div className="space-y-4">
             <div>
               <label className={LabelClass}>Current Password</label>
@@ -454,23 +467,25 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isChangingPassword}
-            className="flex items-center gap-2 px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
-          >
-            {isChangingPassword ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Changing...
-              </>
-            ) : (
-              <>
-                <ShieldCheck size={18} />
-                Update Password
-              </>
-            )}
-          </button>
+          <div className="flex justify-start pt-4">
+            <button
+              type="submit"
+              disabled={isChangingPassword}
+              className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50"
+            >
+              {isChangingPassword ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Changing...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={18} strokeWidth={2.5} />
+                  Update Password
+                </>
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>

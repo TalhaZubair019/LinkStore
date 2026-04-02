@@ -229,17 +229,6 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      
-      
-      
-      
-      
-      
-      
-
-      
-      
-
       const res = await fetch("/api/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

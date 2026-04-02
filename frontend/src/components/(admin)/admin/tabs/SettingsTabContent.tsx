@@ -29,10 +29,10 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  const InputClass =
-    "w-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-purple-100 dark:focus:ring-purple-900/20 focus:border-purple-500 outline-none transition-all disabled:bg-slate-50 dark:disabled:bg-slate-900/50 disabled:cursor-not-allowed";
-  const LabelClass =
-    "block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 transition-colors";
+  const MatrixInputClass =
+    "w-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl px-5 py-4 text-[13px] font-bold text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed";
+  const MatrixLabelClass =
+    "block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-2.5 ml-1";
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -50,7 +50,10 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
       const data = await res.json();
       if (res.ok && data.url) {
         setProfileForm((prev) => ({ ...prev, avatar: data.url }));
-        showToast("Press 'Save Changes' to update your avatar permanently.", "success");
+        showToast(
+          "Press 'Save Changes' to update your avatar permanently.",
+          "success",
+        );
       } else {
         showToast(data.message || "Failed to upload image", "error");
       }
@@ -120,36 +123,41 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 max-w-4xl">
+    <div className="space-y-10 animate-in fade-in duration-1000 max-w-4xl">
       {/* Profile & Contact Section */}
-      <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-        <div className="flex items-center gap-6 mb-8">
-          <div className="relative group">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 flex items-center justify-center relative">
+      <div className="bg-white dark:bg-[#0d0f14] p-6 sm:p-10 rounded-3xl sm:rounded-[2.5rem] border border-slate-200 dark:border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl relative overflow-hidden group">
+        {/* Glow */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/5 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8 mb-8 sm:mb-10 relative z-10">
+          <div className="relative group/avatar">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-3xl sm:rounded-4xl overflow-hidden border-2 border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 flex items-center justify-center relative shadow-inner group-hover/avatar:border-purple-500/30 transition-all duration-500">
               {profileForm.avatar ? (
                 <img
                   src={profileForm.avatar}
                   alt="Avatar"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover/avatar:scale-110"
                 />
               ) : (
-                <span className="text-4xl font-bold text-slate-300 dark:text-slate-600 uppercase">
+                <span className="text-4xl font-black text-slate-300 dark:text-slate-700 uppercase tracking-tighter">
                   {profileForm.name?.[0] || "A"}
                 </span>
               )}
               {isUploading && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
                   <Loader2 className="w-8 h-8 text-white animate-spin" />
                 </div>
               )}
+              {/* Overlay Glow */}
+              <div className="absolute inset-0 bg-linear-to-tr from-purple-500/10 to-transparent opacity-0 group-hover/avatar:opacity-100 transition-opacity duration-500" />
             </div>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 p-2 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-all scale-90 group-hover:scale-100"
+              className="absolute -bottom-2 -right-2 p-3 bg-purple-600 text-white rounded-2xl shadow-xl hover:bg-purple-500 dark:shadow-purple-500/20 transition-all scale-90 group-hover/avatar:scale-100 active:scale-90 border-4 border-white dark:border-[#0d0f14]"
               title="Change Picture"
             >
-              <Camera size={16} />
+              <Camera size={18} strokeWidth={2.5} />
             </button>
             <input
               type="file"
@@ -159,24 +167,31 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
               className="hidden"
             />
           </div>
-          <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">
-              Admin Profile
-            </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+          <div className="text-center sm:text-left">
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+              <div className="w-1.5 h-4 bg-purple-600 rounded-full" />
+              <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500">
+                Admin Profile
+              </h3>
+            </div>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-700 uppercase tracking-widest sm:pl-3.5 mt-2 sm:mt-0">
               Manage your personal admin account details.
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleUpdateProfile} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form
+          onSubmit={handleUpdateProfile}
+          className="space-y-6 sm:space-y-8 relative z-10"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             <div>
-              <label className={LabelClass}>Display Name</label>
+              <label className={MatrixLabelClass}>Display Name</label>
               <input
                 type="text"
-                className={InputClass}
+                className={MatrixInputClass}
                 value={profileForm.name}
+                placeholder="Enter name..."
                 onChange={(e) =>
                   setProfileForm({ ...profileForm, name: e.target.value })
                 }
@@ -184,13 +199,18 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
               />
             </div>
             <div>
-              <label className={LabelClass}>Contact Email</label>
+              <label className={MatrixLabelClass}>Contact Email</label>
               <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Mail
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-700"
+                  size={18}
+                  strokeWidth={2.5}
+                />
                 <input
                   type="email"
-                  className={`${InputClass} pl-11`}
+                  className={`${MatrixInputClass} pl-12`}
                   value={profileForm.email}
+                  placeholder="name@email.com"
                   onChange={(e) =>
                     setProfileForm({ ...profileForm, email: e.target.value })
                   }
@@ -199,39 +219,54 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
               </div>
             </div>
           </div>
-          <button
-            type="submit"
-            disabled={isUpdatingProfile}
-            className="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 dark:shadow-blue-900/20 active:scale-95 disabled:opacity-50"
-          >
-            {isUpdatingProfile ? "Saving..." : "Save Changes"}
-          </button>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isUpdatingProfile}
+              className="w-full sm:w-auto px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50"
+            >
+              {isUpdatingProfile ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 size={16} className="animate-spin" />
+                  Saving
+                </div>
+              ) : (
+                "Save Changes"
+              )}
+            </button>
+          </div>
         </form>
       </div>
 
       {/* Security Section */}
-      <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 bg-rose-50 dark:bg-rose-900/10 rounded-lg text-rose-600 dark:text-rose-400">
-            <Lock size={20} />
+      <div className="bg-white dark:bg-[#0d0f14] p-6 sm:p-10 rounded-3xl sm:rounded-[2.5rem] border border-slate-200 dark:border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl relative overflow-hidden group">
+        {/* Glow */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-600/5 rounded-full blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+
+        <div className="flex items-center gap-4 mb-8 sm:mb-10 relative z-10">
+          <div className="p-3.5 bg-rose-500/10 rounded-[1.25rem] text-rose-500 border border-rose-500/20 shadow-sm shadow-rose-500/10">
+            <Lock size={22} strokeWidth={2.5} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white transition-colors">
+            <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500">
               Security & Password
             </h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              Update your account password.
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-700 uppercase tracking-widest mt-1">
+              Update your password
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleChangePassword} className="space-y-6 max-w-md">
-          <div className="space-y-4">
-            <div>
-              <label className={LabelClass}>Current Password</label>
+        <form
+          onSubmit={handleChangePassword}
+          className="space-y-6 sm:space-y-8 max-w-2xl relative z-10"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            <div className="md:col-span-2">
+              <label className={MatrixLabelClass}>Current Password</label>
               <input
                 type="password"
-                className={InputClass}
+                className={MatrixInputClass}
                 placeholder="••••••••"
                 value={passwordForm.currentPassword}
                 onChange={(e) =>
@@ -244,10 +279,10 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
               />
             </div>
             <div>
-              <label className={LabelClass}>New Password</label>
+              <label className={MatrixLabelClass}>New Password</label>
               <input
                 type="password"
-                className={InputClass}
+                className={MatrixInputClass}
                 placeholder="••••••••"
                 value={passwordForm.newPassword}
                 onChange={(e) =>
@@ -260,10 +295,10 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
               />
             </div>
             <div>
-              <label className={LabelClass}>Confirm New Password</label>
+              <label className={MatrixLabelClass}>Confirm New Password</label>
               <input
                 type="password"
-                className={InputClass}
+                className={MatrixInputClass}
                 placeholder="••••••••"
                 value={passwordForm.confirmPassword}
                 onChange={(e) =>
@@ -277,23 +312,25 @@ const SettingsTabContent: React.FC<SettingsTabContentProps> = ({
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isChangingPassword}
-            className="flex items-center gap-2 px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
-          >
-            {isChangingPassword ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Changing...
-              </>
-            ) : (
-              <>
-                <ShieldCheck size={18} />
-                Update Password
-              </>
-            )}
-          </button>
+          <div className="flex justify-start">
+            <button
+              type="submit"
+              disabled={isChangingPassword}
+              className="w-full sm:w-auto flex items-center justify-center gap-3 px-10 py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 disabled:opacity-50"
+            >
+              {isChangingPassword ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Changing...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={18} strokeWidth={2.5} />
+                  Update Password
+                </>
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>

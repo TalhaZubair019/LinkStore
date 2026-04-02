@@ -154,6 +154,8 @@ export default function ProductPage() {
         title: product.title,
         price: priceNumber,
         image: product.image,
+        description: product.description,
+        stockQuantity: product.stockQuantity,
       }),
     );
     if (wasInWishlist) {

@@ -98,12 +98,12 @@ export function useAdminDashboard() {
   }, [user, isAuthenticated, isAuthLoading, router, fetchStats]);
 
   useEffect(() => {
-    if (!user?.isAdmin) return;
+    if (!user?.isAdmin || activeTab === "overview") return;
     const interval = setInterval(() => {
       fetchStats();
     }, 30000);
     return () => clearInterval(interval);
-  }, [user, fetchStats]);
+  }, [user, activeTab, fetchStats]);
 
   useEffect(() => {
     setSearchTerm("");

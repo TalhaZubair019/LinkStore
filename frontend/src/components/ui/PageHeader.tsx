@@ -16,12 +16,14 @@ interface PageHeaderProps {
   breadcrumbs?: BreadcrumbItem[];
   backgroundImage?: string;
   unoptimized?: boolean;
+  isDashboard?: boolean;
 }
 
 const PageHeader: React.FC<PageHeaderProps> = ({
   title,
   breadcrumb,
   breadcrumbs,
+  isDashboard,
 }) => {
   const router = useRouter();
   const finalBreadcrumbs: BreadcrumbItem[] = breadcrumbs || [
@@ -29,9 +31,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({
   ];
 
   return (
-    <div className="w-full bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 transition-colors py-12 lg:py-16 pt-32 lg:pt-40">
+    <div
+      className={`w-full bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 transition-all ${isDashboard ? "py-6 pt-12" : "py-12 lg:py-16 pt-32 lg:pt-40"}`}
+    >
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
-        <div className="flex flex-col gap-6">
+        <div className={`flex flex-col ${isDashboard ? "gap-2" : "gap-6"}`}>
           <div className="flex items-center gap-2 text-sm font-medium text-slate-500 dark:text-slate-400">
             <Link
               href="/"

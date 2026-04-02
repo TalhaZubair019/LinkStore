@@ -60,7 +60,9 @@ export default function ShopPage() {
       if (!params.has("section")) params.set("section", "products");
 
       const [productsRes, categoriesRes, vendorsRes] = await Promise.all([
-        fetch(`/api/public/content?${params.toString()}`, { cache: "no-store" }),
+        fetch(`/api/public/content?${params.toString()}`, {
+          cache: "no-store",
+        }),
         fetch("/api/public/content?section=categories&all=true", {
           cache: "no-store",
         }),

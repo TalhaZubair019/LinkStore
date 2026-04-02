@@ -2,6 +2,7 @@
 
 import React, { Dispatch, SetStateAction } from "react";
 import RevenueStatCard from "@/components/(admin)/admin/ui/RevenueStatCard";
+import { Wallet, TrendingUp, BarChart3 } from "lucide-react";
 import OrdersStatCard from "@/components/(admin)/admin/ui/OrdersStatCard";
 import UsersStatCard from "@/components/(admin)/admin/ui/UsersStatCard";
 import RevenueChart from "@/components/(admin)/admin/charts/RevenueChart";
@@ -96,6 +97,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
             subtitle="Net Revenue"
             subAmount={stats.totalRevenue}
             type="commission"
+            subtitleIcon={<BarChart3 size={16} className="text-emerald-500" />}
           />
         )}
         {!isAdminView && (
@@ -106,7 +108,14 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
               subtitle="Paid"
               subAmount={stats.totalCommissionPaid ?? 0}
               type="commission"
-              extraStats={[{ label: "Revenue", amount: stats.totalRevenue }]}
+              subtitleIcon={<Wallet size={16} className="text-emerald-500" />}
+              extraStats={[
+                {
+                  label: "Revenue",
+                  amount: stats.totalRevenue,
+                  icon: <TrendingUp size={16} className="text-emerald-500" />,
+                },
+              ]}
             />
           </>
         )}
@@ -138,65 +147,95 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       </div>
 
       {!isAdminView && (
-        <>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <RevenueChart
-              filteredRevenueData={filteredRevenueData!}
-              showRevenueDropdown={showRevenueDropdown!}
-              setShowRevenueDropdown={setShowRevenueDropdown!}
-              revenueFilter={revenueFilter!}
-              setRevenueFilter={setRevenueFilter!}
-              applyRevenueFilter={applyRevenueFilter!}
-              customStart={customStart!}
-              setCustomStart={setCustomStart!}
-              customEnd={customEnd!}
-              setCustomEnd={setCustomEnd!}
-              revenueLoading={revenueLoading!}
-            />
-            <TopSellingProducts stats={stats} />
+        <div className="space-y-8">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="xl:col-span-2 min-w-0">
+              <RevenueChart
+                filteredRevenueData={filteredRevenueData!}
+                showRevenueDropdown={showRevenueDropdown!}
+                setShowRevenueDropdown={setShowRevenueDropdown!}
+                revenueFilter={revenueFilter!}
+                setRevenueFilter={setRevenueFilter!}
+                applyRevenueFilter={applyRevenueFilter!}
+                customStart={customStart!}
+                setCustomStart={setCustomStart!}
+                customEnd={customEnd!}
+                setCustomEnd={setCustomEnd!}
+                revenueLoading={revenueLoading!}
+              />
+            </div>
+            <div className="min-w-0">
+              <TopSellingProducts stats={stats} />
+            </div>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <OrderStatusChart stats={stats} />
-            <AverageOrderValueChart
-              stats={stats}
-              filteredAovData={filteredAovData!}
-              showAovDropdown={showAovDropdown!}
-              setShowAovDropdown={setShowAovDropdown!}
-              aovFilter={aovFilter!}
-              setAovFilter={setAovFilter!}
-              applyAovFilter={applyAovFilter!}
-              aovCustomStart={aovCustomStart!}
-              setAovCustomStart={setAovCustomStart!}
-              aovCustomEnd={aovCustomEnd!}
-              setAovCustomEnd={setAovCustomEnd!}
-              aovLoading={aovLoading!}
-            />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="min-w-0">
+              <OrderStatusChart stats={stats} />
+            </div>
+            <div className="min-w-0">
+              <AverageOrderValueChart
+                stats={stats}
+                filteredAovData={filteredAovData!}
+                showAovDropdown={showAovDropdown!}
+                setShowAovDropdown={setShowAovDropdown!}
+                aovFilter={aovFilter!}
+                setAovFilter={setAovFilter!}
+                applyAovFilter={applyAovFilter!}
+                aovCustomStart={aovCustomStart!}
+                setAovCustomStart={setAovCustomStart!}
+                aovCustomEnd={aovCustomEnd!}
+                setAovCustomEnd={setAovCustomEnd!}
+                aovLoading={aovLoading!}
+              />
+            </div>
           </div>
-          <CategorySalesChart stats={stats} />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ReviewRatingChart
-              title="Product Rating Distribution"
-              distribution={
-                stats.productRatingDistribution || stats.ratingDistribution
-              }
-              color="yellow-400"
-            />
-            <ReviewRatingChart
-              title="Seller Rating Distribution"
-              distribution={stats.sellerRatingDistribution || {}}
-              color="purple-500"
-            />
+
+          <div className="min-w-0">
+            <CategorySalesChart stats={stats} />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ProductSalesChart stats={stats} />
-            <TopReviewedProducts stats={stats} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="min-w-0">
+              <ReviewRatingChart
+                title="Product Rating Distribution"
+                distribution={
+                  stats.productRatingDistribution || stats.ratingDistribution
+                }
+                color="amber-400"
+              />
+            </div>
+            <div className="min-w-0">
+              <ReviewRatingChart
+                title="Seller Rating Distribution"
+                distribution={stats.sellerRatingDistribution || {}}
+                color="purple-500"
+              />
+            </div>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <OrderVelocityChart stats={stats} />
-            <SentimentChart stats={stats} />
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="min-w-0">
+              <ProductSalesChart stats={stats} />
+            </div>
+            <div className="min-w-0">
+              <TopReviewedProducts stats={stats} />
+            </div>
           </div>
-          <WarehouseStockChart stats={stats} />
-        </>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="min-w-0">
+              <OrderVelocityChart stats={stats} />
+            </div>
+            <div className="min-w-0">
+              <SentimentChart stats={stats} />
+            </div>
+          </div>
+
+          <div className="min-w-0">
+            <WarehouseStockChart stats={stats} />
+          </div>
+        </div>
       )}
     </div>
   );

@@ -129,12 +129,12 @@ export function useVendorDashboard() {
   }, [user, isAuthenticated, isAuthLoading, router, fetchStats]);
 
   useEffect(() => {
-    if (!user?.isVendor) return;
+    if (!user?.isVendor || activeTab === "overview") return;
     const interval = setInterval(() => {
       fetchStats();
     }, 15000);
     return () => clearInterval(interval);
-  }, [user, fetchStats]);
+  }, [user, activeTab, fetchStats]);
 
   useEffect(() => {
     setSearchTerm("");

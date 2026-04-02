@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, Tag } from "lucide-react";
+import { X, Tag, Loader2 } from "lucide-react";
 import Image from "next/image";
 
 interface Category {
@@ -82,89 +82,104 @@ const CategoryModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 dark:bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all">
-      <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-white dark:border-slate-800 transition-colors">
-        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/30 transition-colors">
-          <h3 className="text-xl font-black text-slate-900 dark:text-white transition-colors">
-            {editingCategory ? "Edit Category" : "Add New Category"}
-          </h3>
+    <div className="fixed inset-0 bg-slate-950/40 dark:bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-in fade-in duration-300">
+      <div className="bg-white dark:bg-[#0d0f14] rounded-[2.5rem] w-full max-w-md shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-500 border border-slate-200 dark:border-white/5 transition-all">
+        {/* Ambient Glows */}
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-600/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-indigo-600/5 rounded-full blur-[80px] pointer-events-none" />
+
+        <div className="p-8 border-b border-slate-100 dark:border-white/5 flex justify-between items-center relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-1.5 h-4 bg-purple-600 rounded-full" />
+            <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-900 dark:text-white">
+              {editingCategory ? "Edit Category" : "Add New Category"}
+            </h3>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+            className="p-2.5 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all active:scale-90"
           >
-            <X size={20} />
+            <X size={18} strokeWidth={3} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          <div>
-            <label className="block text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-300 transition-colors">
-              Category Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              required
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., T-Shirts"
-              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-            />
-            {name.trim() && (
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 transition-colors">
-                Slug:{" "}
-                <span className="font-mono text-slate-600 dark:text-slate-300">
-                  {previewSlug}
-                </span>
-              </p>
-            )}
+        <form onSubmit={handleSubmit} className="p-8 space-y-8 relative z-10">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest ml-1">
+                Category Name <span className="text-purple-500">*</span>
+              </label>
+              <input
+                required
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="ENTER NAME..."
+                className="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-700 transition-all font-black uppercase text-xs tracking-widest"
+              />
+              {name.trim() && (
+                <div className="flex items-center gap-2 pl-1 mt-1 opacity-60">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                    Slug:
+                  </span>
+                  <span className="font-mono text-[10px] font-bold text-purple-600 dark:text-purple-400 lowercase">
+                    /{previewSlug}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest ml-1">
+                Image URL (Optional)
+              </label>
+              <input
+                type="url"
+                value={image}
+                onChange={(e) => setImage(e.target.value)}
+                placeholder="HTTPS://SOURCE.DOMAIN/ASSET.PNG"
+                className="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-500/10 text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-700 transition-all font-black uppercase text-xs tracking-widest"
+              />
+
+              <div className="mt-4 flex justify-center">
+                <div className="w-24 h-24 rounded-3xl border-2 border-dashed border-slate-200 dark:border-white/10 overflow-hidden relative bg-slate-50 dark:bg-white/5 flex items-center justify-center group/preview hover:border-purple-500/50 transition-all">
+                  {image ? (
+                    <Image
+                      src={image}
+                      alt="Preview"
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover/preview:scale-110"
+                      unoptimized
+                    />
+                  ) : (
+                    <Tag
+                      className="w-8 h-8 text-slate-200 dark:text-slate-800 opacity-50"
+                      strokeWidth={1.5}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-bold mb-1.5 text-slate-700 dark:text-slate-300 transition-colors">
-              Image URL{" "}
-              <span className="text-slate-400 dark:text-slate-500 font-normal">
-                (optional)
-              </span>
-            </label>
-            <input
-              type="url"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-              placeholder="https://example.com/category-image.webp"
-              className="w-full px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
-            />
-            {image && (
-              <div className="mt-3 w-20 h-20 rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden relative bg-slate-100 dark:bg-slate-800 transition-colors">
-                <Image
-                  src={image}
-                  alt="Preview"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              </div>
-            )}
-            {!image && (
-              <div className="mt-3 w-20 h-20 rounded-xl border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center transition-colors">
-                <Tag className="w-8 h-8 text-slate-300 dark:text-slate-600" />
-              </div>
-            )}
-          </div>
-
-          <div className="pt-2 flex gap-3">
+          <div className="pt-4 flex gap-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-3 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              className="flex-1 px-4 py-4 bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:bg-slate-200 dark:hover:bg-white/10 text-center transition-all flex items-center justify-center border border-transparent dark:border-white/5"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 py-3 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 dark:hover:bg-purple-500 disabled:opacity-50 transition-all active:scale-95 shadow-lg shadow-purple-600/20"
+              className="flex-1 px-4 py-4 bg-linear-to-r from-purple-600 to-indigo-600 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 transition-all shadow-xl shadow-purple-500/20 flex items-center justify-center gap-2"
             >
-              {isSubmitting ? "Saving..." : "Save Category"}
+              {isSubmitting ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                "Commit Changes"
+              )}
             </button>
           </div>
         </form>

@@ -11,8 +11,8 @@ interface CartTabProps {
 
 const CartTab: React.FC<CartTabProps> = ({ cartItems }) => {
   return (
-    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
-      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 transition-colors">
+    <div className="bg-white dark:bg-[#0d0f14] p-6 sm:p-8 md:p-10 rounded-3xl lg:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl border border-slate-200 dark:border-white/5 transition-colors">
+      <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-8 transition-colors tracking-tight">
         Items in Cart
       </h3>
       {cartItems.length === 0 ? (
@@ -31,10 +31,10 @@ const CartTab: React.FC<CartTabProps> = ({ cartItems }) => {
           {cartItems.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between p-4 border-b border-slate-50 dark:border-slate-800/50 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 rounded-xl transition-all group"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-6 border border-slate-200 dark:border-white/5 mb-4 hover:border-purple-200 dark:hover:border-purple-500/30 hover:bg-slate-50 dark:hover:bg-white/2 rounded-2xl transition-all group"
             >
               <div className="flex items-center gap-4">
-                <div className="h-14 w-14 bg-slate-50 dark:bg-slate-800 rounded-md relative overflow-hidden border border-slate-100 dark:border-slate-700 transition-colors">
+                <div className="h-16 w-16 bg-slate-50 dark:bg-white/5 rounded-xl relative overflow-hidden border border-slate-200 dark:border-white/10 transition-colors shrink-0">
                   {item.image && (
                     <Image
                       src={item.image}
@@ -53,15 +53,17 @@ const CartTab: React.FC<CartTabProps> = ({ cartItems }) => {
                   </p>
                 </div>
               </div>
-              <span className="font-bold text-purple-600 dark:text-purple-400 transition-colors">
-                ${item.totalPrice}
-              </span>
+              <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto mt-2 sm:mt-0 pt-4 sm:pt-0 border-t border-slate-100 dark:border-white/5 sm:border-0">
+                <span className="font-bold text-purple-600 dark:text-purple-400 text-lg transition-colors">
+                  ${item.totalPrice}
+                </span>
+              </div>
             </div>
           ))}
-          <div className="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800/50 text-right transition-colors">
+          <div className="pt-6 border-t border-slate-200 dark:border-white/5 text-right transition-colors">
             <Link
               href="/cart"
-              className="inline-block px-6 py-2 bg-purple-600 dark:bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 dark:hover:bg-purple-500 transition-all shadow-lg shadow-purple-200 dark:shadow-purple-900/20 active:scale-95"
+              className="inline-block w-full sm:w-auto px-8 py-3.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-[11px] uppercase tracking-wider rounded-xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-slate-900/10 dark:shadow-white/5 text-center"
             >
               Go to Cart Page
             </Link>

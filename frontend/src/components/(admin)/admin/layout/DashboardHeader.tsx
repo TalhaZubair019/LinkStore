@@ -28,16 +28,16 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   return (
     <>
-      <div className="lg:hidden mb-6 flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800">
-        <div className="flex items-center gap-3">
+      <div className="lg:hidden mb-6 flex flex-wrap items-center justify-between gap-2.5 bg-white dark:bg-slate-900 p-3 lg:p-4 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-800 transition-colors">
+        <div className="flex items-center gap-2.5">
           <button
             onClick={onMenuClick}
-            className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-100 dark:border-slate-800"
+            className="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-slate-100 dark:border-slate-800"
             title="Open Menu"
           >
-            <Menu size={20} />
+            <Menu size={18} />
           </button>
-          <span className="text-sm font-bold text-slate-900 dark:text-white capitalize">
+          <span className="text-[13px] font-bold text-slate-900 dark:text-white capitalize truncate max-w-[120px]">
             {activeTab.replace("_", " ")}
           </span>
         </div>

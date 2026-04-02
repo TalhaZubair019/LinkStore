@@ -242,11 +242,37 @@ export default function VendorStorePage() {
   } = store;
 
   return (
-    <div className="min-h-screen bg-[#FCF9F2] dark:bg-[#110F17] transition-colors font-sans pb-32 selection:bg-[#1E2749] selection:text-[#FCF9F2] dark:selection:text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 mt-10 lg:pt-24 relative z-20">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0f16] transition-colors font-sans pb-32">
+      {/* Dynamic Hero Banner */}
+      <div className="relative h-64 md:h-80 w-full overflow-hidden bg-slate-900">
+        {banner ? (
+          <Image
+            src={banner}
+            alt="Store Banner"
+            fill
+            className="object-cover opacity-80"
+            unoptimized
+          />
+        ) : logo ? (
+          <div className="absolute inset-0 opacity-30 blur-3xl scale-125">
+            <Image
+              src={logo}
+              alt="Store Background"
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-linear-to-br from-indigo-500/20 via-purple-500/20 to-emerald-500/20 animate-pulse" />
+        )}
+        <div className="absolute inset-0 bg-linear-to-t from-slate-50 dark:from-[#0a0f16] to-transparent via-slate-50/40 dark:via-[#0a0f16]/60" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative -mt-40 z-20">
         <button
           onClick={() => router.back()}
-          className="group flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white font-bold text-sm transition-all mb-8"
+          className="group flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-black/20 hover:bg-white dark:hover:bg-white/10 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl text-slate-700 dark:text-slate-300 font-bold text-sm transition-all mb-6 shadow-sm"
         >
           <ArrowLeft
             size={18}
@@ -254,63 +280,68 @@ export default function VendorStorePage() {
           />
           Go Back
         </button>
-        <div className="gap-12 xl:gap-24">
-          <div className="shrink-0">
-            <div className="xl:sticky top-32 flex flex-col items-start text-left">
-              {logo && (
-                <div className="mb-8 relative w-24 h-24 sm:w-32 sm:h-32">
-                  <div className="absolute -inset-4 bg-white/50 dark:bg-white/5 blur-3xl rounded-full" />
-                  <Image
-                    src={logo}
-                    alt={storeName}
-                    fill
-                    className="object-contain relative z-10"
-                    unoptimized
-                  />
-                </div>
-              )}
-              <h1 className="text-5xl sm:text-6xl md:text-7xl xl:text-8xl font-black text-slate-950 dark:text-white tracking-tighter leading-[0.85] uppercase break-word mb-8">
+
+        {/* Floating Profile Card */}
+        <div className="bg-white/80 dark:bg-white/5 backdrop-blur-2xl border border-slate-200 dark:border-white/10 rounded-[2.5rem] p-6 sm:p-8 lg:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-2xl mb-8 lg:mb-12">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start lg:items-center">
+            {logo ? (
+              <div className="relative w-28 h-28 sm:w-36 sm:h-36 shrink-0 bg-white dark:bg-slate-900 rounded-3xl p-4 shadow-xl border border-slate-200 dark:border-white/10">
+                <Image
+                  src={logo}
+                  alt={storeName}
+                  fill
+                  className="object-contain p-2"
+                  unoptimized
+                />
+              </div>
+            ) : (
+              <div className="w-28 h-28 sm:w-36 sm:h-36 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-3xl flex items-center justify-center border border-slate-200 dark:border-white/10 shadow-xl">
+                <Store size={48} className="text-slate-400" />
+              </div>
+            )}
+
+            <div className="flex-1 min-w-0 flex flex-col items-start w-full">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-slate-950 dark:text-white tracking-tighter leading-[0.9] uppercase mb-4">
                 {storeName}
               </h1>
-              <div className="w-full h-px bg-slate-950 dark:bg-white mb-8" />
-              <p className="text-lg sm:text-xl text-slate-600 dark:text-zinc-400 font-medium leading-snug tracking-tight mb-8 max-w-lg">
+              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 font-medium leading-snug tracking-tight mb-8 max-w-2xl bg-white/50 dark:bg-white/5 px-4 py-3 rounded-2xl border border-slate-200 dark:border-white/5 backdrop-blur-sm">
                 {storeDescription ||
                   "A curated selection of premium goods by a verified professional vendor."}
               </p>
 
-              <div className="w-full grid grid-cols-2 gap-x-8 gap-y-6 pt-8 border-t border-slate-950 dark:border-white">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-6 w-full pt-6 border-t border-slate-200 dark:border-white/10">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-500 mb-1">
                     Owner
                   </span>
-                  <span className="text-lg font-bold text-slate-950 dark:text-white">
+                  <span className="text-sm font-bold text-slate-950 dark:text-white truncate">
                     {ownerName}
                   </span>
                 </div>
 
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-500 mb-1">
                     Rating
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-lg font-bold text-slate-950 dark:text-white leading-none">
+                    <span className="text-sm font-bold text-slate-950 dark:text-white">
                       {averageRating || "0.0"}
                     </span>
                     <Star
-                      className="fill-slate-950 text-slate-950 dark:fill-white dark:text-white"
+                      className="fill-amber-400 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
                       size={14}
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-500 mb-1">
                     Status
                   </span>
                   <div className="flex items-center gap-1">
                     <ShieldCheck
                       size={16}
-                      className="text-slate-950 dark:text-white"
+                      className="text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]"
                     />
                     <span className="text-sm font-bold text-slate-950 dark:text-white">
                       Verified
@@ -319,7 +350,7 @@ export default function VendorStorePage() {
                 </div>
 
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-zinc-500 mb-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-500 mb-1">
                     Established
                   </span>
                   <span className="text-sm font-bold text-slate-950 dark:text-white">
@@ -331,113 +362,115 @@ export default function VendorStorePage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Sticky Filters & Search Row */}
+        <div className="sticky top-20 z-40 bg-slate-50/90 dark:bg-[#0a0f16]/90 backdrop-blur-xl py-4 border-b border-slate-200 dark:border-white/10 mb-8 sm:mb-12 transition-colors">
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-widest hidden lg:block mr-4">
+              Explore
+            </h2>
+            <div className="relative group w-full md:w-auto">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full md:w-auto appearance-none bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 px-6 py-3.5 pr-12 rounded-2xl text-[13px] font-bold focus:outline-none focus:ring-4 focus:ring-purple-500/10 transition-all text-slate-700 dark:text-slate-200 [&>option]:bg-white [&>option]:dark:bg-slate-900"
+              >
+                <option value="newest">Sorted By Latest</option>
+                <option value="oldest">Sorted By Oldest</option>
+                <option value="price-asc">Price: Low To High</option>
+                <option value="price-desc">Price: High - Low</option>
+              </select>
+              <ChevronDown
+                size={16}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+              />
+            </div>
+
+            <div className="relative grow w-full group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-purple-500 transition-colors">
+                <Search size={18} />
+              </div>
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 focus:border-purple-500/50 dark:focus:border-purple-500/50 rounded-2xl text-[13px] font-bold outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 shadow-sm focus:shadow-md"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic Body */}
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 relative items-start">
+          {/* Categories Horizontal Scroll (Mobile) / Sidebar Sidebar (Desktop) */}
+          <div className="w-full lg:w-48 xl:w-64 shrink-0 lg:sticky lg:top-48 z-30">
+            <h2 className="hidden lg:block text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4 px-2">
+              Categories
+            </h2>
+            <div className="overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-hide -mx-4 px-4 lg:mx-0 lg:px-0">
+              <ul className="flex flex-row lg:flex-col gap-2 min-w-max lg:min-w-0">
+                {categories.map((cat: any) => (
+                  <li key={cat}>
+                    <button
+                      onClick={() => setSelectedCategory(cat)}
+                      className={`px-5 py-2.5 lg:px-4 lg:py-3 lg:w-full text-left rounded-xl transition-all font-bold text-[13px] border whitespace-nowrap lg:whitespace-normal ${
+                        selectedCategory === cat
+                          ? "bg-slate-900 text-white border-transparent dark:bg-white/10 dark:border-white/20 shadow-md"
+                          : "bg-white dark:bg-transparent text-slate-600 dark:text-slate-400 border-slate-200 dark:border-transparent hover:bg-slate-50 dark:hover:bg-white/5"
+                      }`}
+                    >
+                      {cat}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
 
           <div className="grow min-w-0">
-            <div className="mb-8 pt-10">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
-                Filters
-              </h2>
-              <div className="flex flex-col md:flex-row items-center gap-4">
-                <div className="relative group">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-6 py-2.5 pr-10 rounded-xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white"
-                  >
-                    <option value="newest">Sorted By Latest</option>
-                    <option value="oldest">Sorted By Oldest</option>
-                    <option value="price-asc">Price: Low To High</option>
-                    <option value="price-desc">Price: High - Low</option>
-                  </select>
-                  <ChevronDown
-                    size={16}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                  />
-                </div>
-
-                <div className="relative grow w-full group">
-                  <Search
-                    className="absolute left-0 top-1/2 -translate-y-1/2 text-slate-900 dark:text-white"
-                    size={18}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-0 py-3 bg-transparent border-b-2 border-slate-900 dark:border-white outline-none transition-all text-slate-900 dark:text-white font-black uppercase tracking-widest text-xs placeholder:text-slate-400 dark:placeholder:text-zinc-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col lg:flex-row gap-8">
-              <div className="hidden lg:block w-64 shrink-0">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
-                  Categories
-                </h2>
-                <ul className="space-y-2">
-                  {categories.map((cat: any) => (
-                    <li key={cat}>
-                      <button
-                        onClick={() => setSelectedCategory(cat)}
-                        className={`w-full text-left px-4 py-3 rounded-xl transition-colors font-medium ${
-                          selectedCategory === cat
-                            ? "bg-slate-900 text-white dark:bg-zinc-800 dark:text-white"
-                            : "text-slate-500 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-900"
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="grow">
-                {filteredProducts.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
-                    {filteredProducts.map((product) => (
-                      <div key={product.id} className="h-full">
-                        <SimpleProductCard
-                          product={product}
-                          isWishlisted={wishlistItems.some(
-                            (item) => item.id === product.id,
-                          )}
-                          isInCart={cartItems.some(
-                            (item: any) => item.id === product.id,
-                          )}
-                          onAddToCart={(p: any) => handleAddToCart(p)}
-                          onToggleWishlist={() => handleToggleWishlist(product)}
-                          onQuickView={() => setQuickViewProduct(product)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="py-24 text-center bg-white dark:bg-zinc-900 rounded-4xl border border-slate-200 dark:border-white/10">
-                    <Search
-                      size={40}
-                      className="mx-auto mb-4 text-slate-300 dark:text-zinc-700"
+            {filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                {filteredProducts.map((product) => (
+                  <div key={product.id} className="h-full">
+                    <SimpleProductCard
+                      product={product}
+                      isWishlisted={wishlistItems.some(
+                        (item) => item.id === product.id,
+                      )}
+                      isInCart={cartItems.some(
+                        (item: any) => item.id === product.id,
+                      )}
+                      onAddToCart={(p: any) => handleAddToCart(p)}
+                      onToggleWishlist={() => handleToggleWishlist(product)}
+                      onQuickView={() => setQuickViewProduct(product)}
                     />
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                      No items found
-                    </h3>
-                    <p className="text-slate-500 dark:text-zinc-400">
-                      Try adjusting your search or filters.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setSearchQuery("");
-                        setSelectedCategory("All");
-                      }}
-                      className="mt-6 px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-xl hover:scale-105 transition-transform"
-                    >
-                      Clear Filters
-                    </button>
                   </div>
-                )}
+                ))}
               </div>
-            </div>
+            ) : (
+              <div className="py-24 text-center bg-white dark:bg-white/5 backdrop-blur-xl rounded-[2.5rem] border border-slate-200 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl">
+                <div className="w-20 h-20 bg-slate-50 dark:bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                  <Search size={32} className="text-slate-400" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">
+                  No items found
+                </h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto">
+                  Try adjusting your search query or switching categories.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSelectedCategory("All");
+                  }}
+                  className="px-8 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold text-[13px] uppercase tracking-wider rounded-xl hover:scale-105 active:scale-95 transition-all shadow-xl"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

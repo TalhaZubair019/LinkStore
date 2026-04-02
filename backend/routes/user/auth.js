@@ -2,7 +2,8 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
-const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const { connectDB } = require("../../lib/db");
 const { UserModel, AdminModel, VendorModel } = require("../../lib/models");
@@ -225,9 +226,18 @@ router.put("/me", requireAuth, async (req, res) => {
     await connectDB();
     if (updateData.email) {
       const existing = await Promise.all([
-        UserModel.findOne({ email: updateData.email, id: { $ne: req.user.id } }),
-        AdminModel.findOne({ email: updateData.email, id: { $ne: req.user.id } }),
-        VendorModel.findOne({ email: updateData.email, id: { $ne: req.user.id } }),
+        UserModel.findOne({
+          email: updateData.email,
+          id: { $ne: req.user.id },
+        }),
+        AdminModel.findOne({
+          email: updateData.email,
+          id: { $ne: req.user.id },
+        }),
+        VendorModel.findOne({
+          email: updateData.email,
+          id: { $ne: req.user.id },
+        }),
       ]);
       if (existing.some((e) => e !== null)) {
         return res.status(400).json({ message: "Email already in use" });
@@ -510,134 +520,139 @@ router.post("/resend-otp", async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 });
- 
- router.post("/google", async (req, res) => {
-   try {
-     const { idToken, accessToken } = req.body;
-     let email, name, googleId;
 
-     if (idToken) {
-       const ticket = await client.verifyIdToken({
-         idToken,
-         audience: process.env.GOOGLE_CLIENT_ID,
-       });
-       const payload = ticket.getPayload();
-       email = payload.email;
-       name = payload.name;
-       googleId = payload.sub;
-     } else if (accessToken) {
-       const response = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-         headers: { Authorization: `Bearer ${accessToken}` },
-       });
-       if (!response.ok) throw new Error("Failed to fetch user info from Google");
-       const payload = await response.json();
-       email = payload.email;
-       name = payload.name;
-       googleId = payload.sub;
-     } else {
-       return res.status(400).json({ message: "No token provided" });
-     }
- 
-     await connectDB();
- 
-     const [adminUser, regularUser, vendorUser] = await Promise.all([
-       AdminModel.findOne({ email }).lean(),
-       UserModel.findOne({ email }).lean(),
-       VendorModel.findOne({ email }).lean(),
-     ]);
- 
-     let user = adminUser || vendorUser || regularUser;
-     let isNewUser = false;
- 
-     if (!user) {
-       const dummyPassword = await bcrypt.hash(
-         Math.random().toString(36).slice(-10),
-         10,
-       );
-       user = await UserModel.create({
-         id: Date.now().toString(),
-         name,
-         email,
-         password: dummyPassword,
-         cart: [],
-         wishlist: [],
-         savedCards: [],
-         isVerified: true,
-       });
-       user = user.toObject();
-       isNewUser = true;
-     }
- 
-     const isAdmin = !!adminUser || user.email === ADMIN_EMAIL;
-     const isVendor = !!vendorUser;
-     const adminRole = adminUser
-       ? user.email === ADMIN_EMAIL
-         ? "super_admin"
-         : "admin"
-       : null;
- 
-     const token = jwt.sign(
-       {
-         id: user.id,
-         email: user.email,
-         name: user.name,
-         isAdmin,
-         isVendor,
-         adminRole,
-       },
-       JWT_SECRET,
-       { expiresIn: "7d" },
-     );
- 
-     res.cookie("token", token, {
-       httpOnly: true,
-       path: "/",
-       secure: process.env.NODE_ENV === "production",
-       maxAge: 7 * 24 * 3600 * 1000,
-       sameSite: "lax",
-     });
- 
-     const { password: _, ...userWithoutPassword } = user;
-     return res.json({
-       token,
-       user: { ...userWithoutPassword, isAdmin, isVendor, adminRole },
-       isNewUser,
-     });
-   } catch (error) {
-     console.error("Google auth error:", error);
-     return res.status(500).json({ message: "Google authentication failed" });
-   }
- });
- 
- router.post("/github", async (req, res) => {
+router.post("/google", async (req, res) => {
+  try {
+    const { idToken, accessToken } = req.body;
+    let email, name;
+
+    if (idToken) {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      email = payload.email;
+      name = payload.name;
+    } else if (accessToken) {
+      const response = await fetch(
+        "https://www.googleapis.com/oauth2/v3/userinfo",
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      );
+      if (!response.ok)
+        throw new Error("Failed to fetch user info from Google");
+      const payload = await response.json();
+      email = payload.email;
+      name = payload.name;
+    } else {
+      return res.status(400).json({ message: "No token provided" });
+    }
+
+    await connectDB();
+
+    const [adminUser, regularUser, vendorUser] = await Promise.all([
+      AdminModel.findOne({ email }).lean(),
+      UserModel.findOne({ email }).lean(),
+      VendorModel.findOne({ email }).lean(),
+    ]);
+
+    let user = adminUser || vendorUser || regularUser;
+    let isNewUser = false;
+
+    if (!user) {
+      const dummyPassword = await bcrypt.hash(
+        Math.random().toString(36).slice(-10),
+        10,
+      );
+      user = await UserModel.create({
+        id: Date.now().toString(),
+        name,
+        email,
+        password: dummyPassword,
+        cart: [],
+        wishlist: [],
+        savedCards: [],
+        isVerified: true,
+      });
+      user = user.toObject();
+      isNewUser = true;
+    }
+
+    const isAdmin = !!adminUser || user.email === ADMIN_EMAIL;
+    const isVendor = !!vendorUser;
+    const adminRole = adminUser
+      ? user.email === ADMIN_EMAIL
+        ? "super_admin"
+        : "admin"
+      : null;
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        isAdmin,
+        isVendor,
+        adminRole,
+      },
+      JWT_SECRET,
+      { expiresIn: "7d" },
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 3600 * 1000,
+      sameSite: "lax",
+    });
+
+    const { password: _, ...userWithoutPassword } = user;
+    return res.json({
+      token,
+      user: { ...userWithoutPassword, isAdmin, isVendor, adminRole },
+      isNewUser,
+    });
+  } catch (error) {
+    console.error("Google auth error:", error);
+    return res.status(500).json({ message: "Google authentication failed" });
+  }
+});
+
+router.post("/github", async (req, res) => {
   try {
     const { code } = req.body;
     if (!code) {
       return res.status(400).json({ message: "No code provided" });
     }
 
-    
-    const tokenResponse = await fetch("https://github.com/login/oauth/access_token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
+    const tokenResponse = await fetch(
+      "https://github.com/login/oauth/access_token",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          client_id: process.env.GITHUB_CLIENT_ID,
+          client_secret: process.env.GITHUB_CLIENT_SECRET,
+          code,
+        }),
       },
-      body: JSON.stringify({
-        client_id: process.env.GITHUB_CLIENT_ID,
-        client_secret: process.env.GITHUB_CLIENT_SECRET,
-        code,
-      }),
-    });
+    );
 
     const tokenData = await tokenResponse.json();
     const access_token = tokenData.access_token;
 
     if (!access_token) {
-      return res.status(400).json({ message: "Failed to obtain GitHub access token" });
+      return res
+        .status(400)
+        .json({ message: "Failed to obtain GitHub access token" });
     }
 
-    
     const userResponse = await fetch("https://api.github.com/user", {
       headers: {
         Authorization: `Bearer ${access_token}`,
@@ -646,7 +661,6 @@ router.post("/resend-otp", async (req, res) => {
     });
     const githubUser = await userResponse.json();
 
-    
     const emailsResponse = await fetch("https://api.github.com/user/emails", {
       headers: {
         Authorization: `Bearer ${access_token}`,
@@ -654,11 +668,15 @@ router.post("/resend-otp", async (req, res) => {
       },
     });
     const emails = await emailsResponse.json();
-    const primaryEmailObj = emails.find((email) => email.primary && email.verified);
+    const primaryEmailObj = emails.find(
+      (email) => email.primary && email.verified,
+    );
     const email = primaryEmailObj ? primaryEmailObj.email : githubUser.email;
 
     if (!email) {
-      return res.status(400).json({ message: "Could not retrieve verified email from GitHub" });
+      return res
+        .status(400)
+        .json({ message: "Could not retrieve verified email from GitHub" });
     }
 
     await connectDB();

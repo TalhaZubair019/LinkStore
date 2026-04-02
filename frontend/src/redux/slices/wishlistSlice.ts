@@ -5,6 +5,9 @@ export interface WishlistItem {
   title: string;
   price: number | string;
   image: string;
+  description?: string;
+  stockQuantity?: number;
+  inStock?: boolean;
 }
 
 interface WishlistState {

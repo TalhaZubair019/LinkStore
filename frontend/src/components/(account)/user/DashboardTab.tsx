@@ -23,7 +23,7 @@ const DashboardTab: React.FC<DashboardTabProps> = ({
   return (
     <div className="space-y-6">
       {!user?.isVendor && user?.vendorProfile?.status !== "pending" && (
-        <div className="relative overflow-hidden bg-linear-to-r from-purple-600 to-indigo-700 dark:from-purple-900 dark:to-indigo-950 rounded-4xl p-8 md:p-10 shadow-2xl shadow-purple-500/20 border border-white/10">
+        <div className="relative overflow-hidden bg-linear-to-r from-purple-600 to-indigo-700 dark:from-purple-900 dark:to-indigo-950 rounded-3xl lg:rounded-4xl p-6 sm:p-8 md:p-10 shadow-2xl shadow-purple-500/20 border border-white/10">
           <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="text-center md:text-left space-y-3">
@@ -41,7 +41,7 @@ const DashboardTab: React.FC<DashboardTabProps> = ({
             </div>
             <Link
               href="/apply-vendor"
-              className="px-8 py-4 bg-white text-purple-700 hover:bg-purple-50 font-black rounded-2xl transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-3 shrink-0"
+              className="w-full md:w-auto px-8 py-4 bg-white text-purple-700 hover:bg-purple-50 font-black rounded-2xl transition-all shadow-xl hover:scale-[1.02] md:hover:scale-105 active:scale-95 flex items-center justify-center md:justify-start gap-3 shrink-0"
             >
               Apply Now <ArrowRight size={20} />
             </Link>
@@ -71,7 +71,7 @@ const DashboardTab: React.FC<DashboardTabProps> = ({
           bg="bg-orange-50 dark:bg-orange-900/20 border-orange-100 dark:border-orange-800/50"
         />
       </div>
-      <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors">
+      <div className="bg-white dark:bg-[#0d0f14] p-6 sm:p-8 md:p-10 rounded-3xl lg:rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl border border-slate-200 dark:border-white/5 transition-colors">
         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 transition-colors">
           Hello, {user?.name}!
         </h3>

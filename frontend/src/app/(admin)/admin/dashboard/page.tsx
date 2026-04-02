@@ -28,13 +28,16 @@ export default function AdminDashboard() {
       d.fetchStats();
     }
   }, [d.activeTab, d.fetchStats]);
+
   React.useEffect(() => {
     const handleFocus = () => {
-      if (d.user?.isAdmin) d.fetchStats();
+      if (d.user?.isAdmin && d.activeTab !== "overview") {
+        d.fetchStats();
+      }
     };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-  }, [d.fetchStats, d.user?.isAdmin]);
+  }, [d.fetchStats, d.user?.isAdmin, d.activeTab]);
 
   if (d.isAuthLoading || d.loading || !d.stats) {
     return (

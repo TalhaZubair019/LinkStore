@@ -221,8 +221,8 @@ export default function ActivityLogsTable() {
     filterUser !== "all";
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden animate-in fade-in duration-300 transition-colors">
-      <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-linear-to-r from-slate-50 to-indigo-50 dark:from-slate-800/50 dark:to-indigo-900/20 transition-colors">
+    <div className="bg-white dark:bg-[#0d0f14] rounded-[2.5rem] border border-slate-200 dark:border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl overflow-hidden animate-in fade-in duration-300">
+      <div className="p-6 border-b border-slate-200 dark:border-white/5 bg-slate-50 dark:bg-white/2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center transition-colors">
@@ -248,7 +248,7 @@ export default function ActivityLogsTable() {
           </div>
           <button
             onClick={handleDownloadCSV}
-            className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all shadow-sm shrink-0"
+            className="flex items-center justify-center gap-2 px-4 py-2 text-[10px] sm:text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 rounded-xl transition-all shadow-sm shrink-0 w-full sm:w-auto"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -270,7 +270,7 @@ export default function ActivityLogsTable() {
           </button>
         </div>
       </div>
-      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 transition-colors">
+      <div className="px-4 sm:px-6 py-4 border-b border-slate-200 dark:border-white/5 bg-white/50 dark:bg-transparent">
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[160px]">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -279,7 +279,7 @@ export default function ActivityLogsTable() {
             <select
               value={filterEntity}
               onChange={(e) => setFilterEntity(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 shadow-sm transition-all appearance-none text-slate-700 dark:text-slate-200 font-bold [&>option]:bg-white [&>option]:dark:bg-slate-900"
             >
               <option value="all">All Entities</option>
               <option value="product">Products</option>
@@ -296,7 +296,7 @@ export default function ActivityLogsTable() {
             <select
               value={filterAction}
               onChange={(e) => setFilterAction(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 shadow-sm transition-all appearance-none text-slate-700 dark:text-slate-200 font-bold [&>option]:bg-white [&>option]:dark:bg-slate-900"
             >
               <option value="all">All Actions</option>
               <option value="add">Added</option>
@@ -318,7 +318,7 @@ export default function ActivityLogsTable() {
                   setFilterVendor("all");
                 }
               }}
-              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 shadow-sm transition-all appearance-none text-slate-700 dark:text-slate-200 font-bold [&>option]:bg-white [&>option]:dark:bg-slate-900"
             >
               <option value="all">All Users</option>
               {availableUsers.map(
@@ -344,7 +344,7 @@ export default function ActivityLogsTable() {
                   setFilterUser("all");
                 }
               }}
-              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 shadow-sm transition-all appearance-none text-slate-700 dark:text-slate-200 font-bold [&>option]:bg-white [&>option]:dark:bg-slate-900"
             >
               <option value="all">All Vendors</option>
               {availableVendors.map(
@@ -367,7 +367,7 @@ export default function ActivityLogsTable() {
                 setFilterAdmin(e.target.value);
                 if (e.target.value !== "all") setFilterVendor("all");
               }}
-              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all appearance-none text-slate-700 dark:text-slate-200 font-medium"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-[11px] sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 dark:focus:border-indigo-500 shadow-sm transition-all appearance-none text-slate-700 dark:text-slate-200 font-bold [&>option]:bg-white [&>option]:dark:bg-slate-900"
             >
               <option value="all">All Admins</option>
               {availableAdmins.map(
@@ -388,7 +388,7 @@ export default function ActivityLogsTable() {
                 setFilterVendor("all");
                 setFilterUser("all");
               }}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors shrink-0"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-[11px] sm:text-sm font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 border border-transparent dark:border-red-500/20 rounded-xl transition-colors shrink-0"
             >
               <FilterX size={16} />
               Clear
@@ -396,7 +396,7 @@ export default function ActivityLogsTable() {
           )}
         </div>
       </div>
-      <div className="divide-y divide-slate-100 dark:divide-slate-800 transition-colors">
+      <div className="divide-y divide-slate-200 dark:divide-white/5 transition-colors">
         {loading && logs.length === 0 ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 size={28} className="animate-spin text-indigo-500" />
@@ -425,7 +425,7 @@ export default function ActivityLogsTable() {
             return (
               <div
                 key={log._id}
-                className="px-4 lg:px-6 py-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors border-b last:border-0 border-slate-100 dark:border-slate-800"
+                className="px-4 sm:px-6 py-4 hover:bg-slate-50 dark:hover:bg-white/2 transition-colors"
               >
                 <div className="flex items-start gap-3 lg:gap-4">
                   <div
@@ -507,25 +507,25 @@ export default function ActivityLogsTable() {
         )}
       </div>
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 transition-colors">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 sm:px-6 py-4 border-t border-slate-200 dark:border-white/5 bg-slate-50/50 dark:bg-transparent transition-colors">
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => p - 1)}
-            className="flex items-center gap-1 px-3 lg:px-4 py-2 text-[10px] lg:text-sm font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="w-full sm:w-auto flex items-center justify-center gap-1 px-4 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-white dark:bg-white/5 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-white/10 shadow-sm transition-all"
           >
-            <ChevronLeft size={12} />
+            <ChevronLeft size={14} />
             Prev
           </button>
-          <span className="text-[10px] lg:text-sm text-slate-500 dark:text-slate-400 font-medium">
+          <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold">
             Page {page} of {totalPages}
           </span>
           <button
             disabled={page === totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className="flex items-center gap-1 px-3 lg:px-4 py-2 text-[10px] lg:text-sm font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="w-full sm:w-auto flex items-center justify-center gap-1 px-4 py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-white dark:bg-white/5 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/10 rounded-xl disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-white/10 shadow-sm transition-all"
           >
             Next
-            <ChevronRight size={12} />
+            <ChevronRight size={14} />
           </button>
         </div>
       )}

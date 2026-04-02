@@ -99,10 +99,10 @@ export default function VendorDashboard() {
       />
 
       <div className="flex-1 lg:pl-64 flex flex-col min-h-screen">
-        <main className="flex-1 p-6 lg:p-8 pt-8">
+        <main className="flex-1 p-4 lg:p-8 pt-6 lg:pt-8">
           <div className="hidden lg:flex mb-8 justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white">
                 {d.activeTab.charAt(0).toUpperCase() +
                   d.activeTab.slice(1).replace("_", " ")}
               </h1>

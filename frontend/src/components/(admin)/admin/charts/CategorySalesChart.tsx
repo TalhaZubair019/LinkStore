@@ -1,5 +1,12 @@
 import React from "react";
 import { DashboardStats } from "@/app/(admin)/admin/types";
+import {
+  PieChart,
+  TrendingUp,
+  Users,
+  Activity,
+  ShieldCheck,
+} from "lucide-react";
 
 interface CategorySalesChartProps {
   stats: DashboardStats;
@@ -10,12 +17,12 @@ const CategorySalesChart = ({ stats }: CategorySalesChartProps) => {
   const totalValue = data.reduce((sum, item) => sum + item.value, 0) || 1;
 
   const colors = [
-    "#a85df6",
-    "#3b82f6",
-    "#10b981",
-    "#f59e0b",
-    "#ef4444",
-    "#6366f1",
+    "#a85df6", // Purple
+    "#3b82f6", // Blue
+    "#10b981", // Emerald
+    "#fbbf24", // Amber
+    "#f97316", // Orange
+    "#6366f1", // Indigo
   ];
 
   const radius = 35;
@@ -23,19 +30,24 @@ const CategorySalesChart = ({ stats }: CategorySalesChartProps) => {
   let currentOffset = 0;
 
   return (
-    <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl p-8 rounded-[32px] shadow-lg border border-slate-200/50 dark:border-slate-800/50 hover:shadow-2xl transition-all duration-500 flex flex-col h-full">
-      <div className="flex items-center gap-2 mb-8">
-        <h3 className="font-bold text-xl text-slate-800 dark:text-white tracking-tight">
-          Sales by Category
+    <div className="bg-white dark:bg-[#0d0f14] p-8 rounded-[2.5rem] border border-slate-200 dark:border-white/5 relative overflow-hidden group transition-all duration-700 hover:shadow-purple-500/10 shadow-[0_20px_50px_rgba(0,0,0,0.02)] dark:shadow-2xl flex flex-col h-full">
+      {/* Ambient Depth Glows */}
+      <div className="absolute -top-32 -right-32 w-64 h-64 bg-purple-600/5 dark:bg-purple-600/10 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+      <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-indigo-600/5 dark:bg-indigo-600/5 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+
+      <div className="flex items-center gap-4 mb-6 relative z-10">
+        <div className="w-1.5 h-6 bg-purple-600 rounded-full shadow-[0_0_10px_rgba(147,51,234,0.3)] dark:shadow-[0_0_10px_rgba(147,51,234,0.5)]" />
+        <h3 className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500">
+          Category Distribution
+          <span className="ml-3 inline-block w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] animate-pulse" />
         </h3>
-        <div className="h-2 w-2 bg-purple-500 rounded-full" />
       </div>
 
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-12 mb-8">
-        <div className="relative w-56 h-56 shrink-0">
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-12 mb-6 sm:mb-12 relative z-10">
+        <div className="relative w-44 h-44 sm:w-56 sm:h-56 shrink-0 lg:translate-x-4">
           <svg
             viewBox="0 0 100 100"
-            className="w-full h-full -rotate-90 transform group"
+            className="w-full h-full -rotate-90 transform drop-shadow-[0_0_15px_rgba(168,85,247,0.1)] dark:drop-shadow-[0_0_20px_rgba(0,0,0,0.5)]"
           >
             {data.map((item, i) => {
               const slicePercent = item.value / totalValue;
@@ -51,68 +63,71 @@ const CategorySalesChart = ({ stats }: CategorySalesChartProps) => {
                   r={radius}
                   fill="transparent"
                   stroke={colors[i % colors.length]}
-                  strokeWidth="15"
+                  strokeWidth="12"
                   strokeDasharray={strokeDasharray}
                   strokeDashoffset={strokeDashoffset}
-                  strokeLinecap="butt"
-                  className="transition-all duration-700 ease-in-out hover:opacity-85 cursor-pointer origin-center"
+                  className="transition-all duration-1000 ease-out hover:brightness-125 cursor-pointer"
+                  style={{ strokeLinecap: "butt" }}
                 />
               );
             })}
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-1 transition-colors">
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none group-hover:scale-110 transition-transform duration-700">
+            <div className="absolute inset-0 bg-blue-600/5 dark:bg-blue-600/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <span className="text-[7px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-0.5 sm:mb-1 relative z-10">
               Total
             </span>
-            <span className="text-2xl font-black text-slate-900 dark:text-white leading-tight transition-colors">
+            <span className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none relative z-10 drop-shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] tabular-nums">
               $
               {totalValue.toLocaleString(undefined, {
-                minimumFractionDigits: 0,
                 maximumFractionDigits: 0,
               })}
             </span>
           </div>
         </div>
-        <div className="flex-1 w-full space-y-4">
-          {data.slice(0, 6).map((item, i) => {
+
+        <div className="flex-1 w-full space-y-4 max-h-[160px] sm:max-h-none overflow-y-auto pr-2 no-scrollbar">
+          {data.slice(0, 7).map((item, i) => {
             const percentage = (item.value / totalValue) * 100;
-            const categoryColor = colors[i % colors.length];
+            const color = colors[i % colors.length];
             return (
-              <div key={i} className="flex flex-col gap-2 group">
-                <div className="flex items-center justify-between group transition-all">
-                  <div className="flex items-center gap-3 flex-1">
+              <div key={i} className="space-y-2 group/bar cursor-default">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <div
-                      className="w-2.5 h-2.5 rounded-full shadow-sm ring-2 ring-white"
-                      style={{ backgroundColor: categoryColor }}
+                      className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px]"
+                      style={{
+                        backgroundColor: color,
+                        boxShadow: `0 0 8px ${color}`,
+                      }}
                     />
-                    <span className="text-[14px] font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest group-hover/bar:text-slate-900 dark:group-hover/bar:text-slate-200 transition-colors truncate">
                       {item.category || "General"}
                     </span>
                   </div>
-
-                  <div className="flex items-center gap-4">
-                    <span className="text-[14px] font-black text-slate-900 dark:text-white tabular-nums">
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-[11px] font-black text-slate-900 dark:text-slate-200 tabular-nums">
                       ${item.value.toLocaleString()}
                     </span>
                     <div
-                      className="px-2 py-0.5 rounded-md text-[10px] font-bold min-w-[45px] text-center border"
+                      className="px-2 py-0.5 rounded-lg text-[8px] font-black border tabular-nums"
                       style={{
-                        backgroundColor: `${categoryColor}${i % 2 === 0 ? "10" : "20"}`,
-                        borderColor: `${categoryColor}30`,
-                        color: categoryColor,
+                        backgroundColor: `${color}10`,
+                        borderColor: `${color}30`,
+                        color: color,
                       }}
                     >
                       {percentage.toFixed(1)}%
                     </div>
                   </div>
                 </div>
-                <div className="h-1.5 w-full bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-100/50 dark:border-slate-700 mt-1">
+                <div className="h-1.5 w-full bg-slate-100 dark:bg-white/2 rounded-full overflow-hidden border border-slate-200/50 dark:border-white/5 relative">
                   <div
-                    className="h-full rounded-full transition-all duration-1000 ease-out"
+                    className="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_10px]"
                     style={{
                       width: `${percentage}%`,
-                      backgroundColor: categoryColor,
-                      opacity: 0.8,
+                      backgroundColor: color,
+                      boxShadow: `0 0 10px ${color}40`,
                     }}
                   />
                 </div>
@@ -122,65 +137,69 @@ const CategorySalesChart = ({ stats }: CategorySalesChartProps) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6 border-t border-slate-100 dark:border-slate-800 mt-auto">
-        <div className="bg-slate-50/50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100/50 dark:border-slate-800/50 group hover:border-purple-200 dark:hover:border-purple-800 transition-colors">
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 group-hover:text-purple-500 transition-colors">
-            Top Seller
-          </p>
-          <div className="flex flex-col gap-0.5">
-            <p className="text-lg font-black text-slate-800 dark:text-slate-200 tabular-nums leading-none transition-colors">
-              ${stats.categoryPerformance?.topSeller.value.toLocaleString()}
-            </p>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate transition-colors">
-              {stats.categoryPerformance?.topSeller.label}
-            </p>
+      {/* Summary Matrix Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-auto relative z-10">
+        {[
+          {
+            label: "Top Seller",
+            value: stats.categoryPerformance?.topSeller.value,
+            sub: stats.categoryPerformance?.topSeller.label,
+            icon: <PieChart size={14} />,
+            color: "text-purple-600 dark:text-purple-400",
+          },
+          {
+            label: "Most Popular",
+            value: stats.categoryPerformance?.mostPopular.value,
+            sub: stats.categoryPerformance?.mostPopular.label,
+            icon: <Users size={14} />,
+            color: "text-blue-600 dark:text-blue-400",
+            suffix: " units",
+          },
+          {
+            label: "Highest AOV",
+            value: stats.categoryPerformance?.highestValue.value,
+            sub: stats.categoryPerformance?.highestValue.label,
+            icon: <TrendingUp size={14} />,
+            color: "text-amber-600 dark:text-amber-400",
+            isCurrency: true,
+          },
+          {
+            label: "Fulfillment",
+            value: stats.categoryPerformance?.bestFulfillment.value,
+            sub: stats.categoryPerformance?.bestFulfillment.label,
+            icon: <ShieldCheck size={14} />,
+            color: "text-emerald-600 dark:text-emerald-400",
+            suffix: "%",
+          },
+        ].map((m, idx) => (
+          <div
+            key={idx}
+            className="bg-slate-50 dark:bg-white/2 p-4 rounded-2xl border border-slate-100 dark:border-white/5 group/card hover:bg-white dark:hover:bg-white/5 hover:border-slate-200 dark:hover:border-white/10 transition-all duration-500 active:scale-[0.98] hover:shadow-lg hover:shadow-slate-200/50 dark:hover:shadow-none"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div
+                className={`${m.color} opacity-40 group-hover/card:opacity-100 transition-opacity`}
+              >
+                {m.icon}
+              </div>
+              <p
+                className={`text-[8px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 group-hover/card:${m.color} transition-colors uppercase`}
+              >
+                {m.label}
+              </p>
+            </div>
+            <div className="space-y-0.5">
+              <p className="text-sm font-black text-slate-900 dark:text-slate-200 tabular-nums">
+                {m.isCurrency ? "$" : ""}
+                {Math.round(m.value || 0).toLocaleString()}
+                {m.suffix}
+              </p>
+              <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-tighter truncate opacity-60">
+                {m.sub}
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="bg-slate-50/50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100/50 dark:border-slate-800/50 group hover:border-blue-200 dark:hover:border-blue-800 transition-colors">
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 group-hover:text-blue-500 transition-colors">
-            Most Popular
-          </p>
-          <div className="flex flex-col gap-0.5">
-            <p className="text-lg font-black text-slate-800 dark:text-slate-200 tabular-nums leading-none transition-colors">
-              {stats.categoryPerformance?.mostPopular.value.toLocaleString()}
-              <span className="text-[10px] ml-1 font-bold text-slate-400 dark:text-slate-500">
-                units
-              </span>
-            </p>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate transition-colors">
-              {stats.categoryPerformance?.mostPopular.label}
-            </p>
-          </div>
-        </div>
-        <div className="bg-slate-50/50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100/50 dark:border-slate-800/50 group hover:border-amber-200 dark:hover:border-amber-800 transition-colors">
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 group-hover:text-amber-500 transition-colors">
-            Highest Value
-          </p>
-          <div className="flex flex-col gap-0.5">
-            <p className="text-lg font-black text-slate-800 dark:text-slate-200 tabular-nums leading-none transition-colors">
-              $
-              {Math.round(
-                stats.categoryPerformance?.highestValue.value || 0,
-              ).toLocaleString()}
-            </p>
-            <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate transition-colors">
-              {stats.categoryPerformance?.highestValue.label} (AOV)
-            </p>
-          </div>
-        </div>
-        <div className="bg-slate-50/50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100/50 dark:border-slate-800/50 group hover:border-emerald-200 dark:hover:border-emerald-800 transition-colors">
-          <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1 group-hover:text-emerald-500 transition-colors">
-            Best Fulfillment
-          </p>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-800 transition-colors">
-              {stats.categoryPerformance?.bestFulfillment.value}%
-            </span>
-            <span className="text-[10px] font-medium text-slate-400 dark:text-slate-500 truncate transition-colors">
-              {stats.categoryPerformance?.bestFulfillment.label}
-            </span>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

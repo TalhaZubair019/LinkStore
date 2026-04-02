@@ -31,6 +31,7 @@ interface Product {
   category?: string;
   vendorId?: string;
   stockQuantity?: number;
+  description?: string;
 }
 
 export default function CategoryPage() {
@@ -190,6 +191,8 @@ export default function CategoryPage() {
         title: product.title,
         price: priceVal,
         image: product.image,
+        description: product.description,
+        stockQuantity: product.stockQuantity,
       }),
     );
     showToast(
